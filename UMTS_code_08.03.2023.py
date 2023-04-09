@@ -9,24 +9,27 @@ import openpyxl.styles
 active_cell_number = 471  # количество активных сот !!!!
 
 directory = 'C:/work/Herson_audit/sts/3G/'
-csv_name1 = '3G_counters1(2023-03-20'
-csv_name2 = '3G_counters2(2023-03-20'
-NodeB_name = '3G_NodeB_thr(2023-03-20'
+csv_name1 = '3G_counters1(2023-03-31'
+csv_name2 = '3G_counters2(2023-03-31'
+NodeB_name = '3G_NodeB_thr(2023-03-31'
 output_comment = '_output'  # что добавится в конце к названию файла
 
-#sts1_df = pd.read_excel(f"{directory}{csv_name1}.xlsx", header=7, na_values='NIL')
-sts1_df = pd.read_csv(f"{directory}{csv_name1}.csv", sep=";", header=7, na_values='NIL')
+sts1_df = pd.read_excel(f"{directory}{csv_name1}.xlsx", header=7, na_values='NIL')
+#sts1_df = pd.read_csv(f"{directory}{csv_name1}.csv", sep=";", header=7, na_values='NIL')
 sts1_df['date'] = sts1_df['Start Time'].str.split(' ').str[0]
 sts1_df['hour'] = sts1_df['Start Time'].str.split(' ').str[1]
 sts1_df['date'] = pd.to_datetime(sts1_df['date'])
 sts1_df['week'] = sts1_df['date'].dt.isocalendar().week
 
-#sts2_df = pd.read_excel(f"{directory}{csv_name2}.xlsx", header=7, na_values='NIL')
-sts2_df = pd.read_csv(f"{directory}{csv_name2}.csv", sep=";", header=7, na_values='NIL')
+sts2_df = pd.read_excel(f"{directory}{csv_name2}.xlsx", header=7, na_values='NIL')
+#sts2_df = pd.read_csv(f"{directory}{csv_name2}.csv", sep=";", header=7, na_values='NIL')
 sts_df = pd.merge(sts1_df, sts2_df, how="left")
 
+
+
 # NodeB статистика
-stsN_df = pd.read_csv(f"{directory}{NodeB_name}.csv", sep=";", header=7, na_values='NIL')
+stsN_df = pd.read_excel(f"{directory}{NodeB_name}.xlsx", header=7, na_values='NIL')
+#stsN_df = pd.read_csv(f"{directory}{NodeB_name}.csv", sep=";", header=7, na_values='NIL')
 stsN_df['date'] = stsN_df['Start Time'].str.split(' ').str[0]
 stsN_df['hour'] = stsN_df['Start Time'].str.split(' ').str[1]
 stsN_df['date'] = pd.to_datetime(stsN_df['date'])
@@ -2889,6 +2892,65 @@ list_U900N = ['NodeB Function Name=UH0744, Local Cell ID=96, Cell Name=CELLNAME'
 'NodeB Function Name=UH0766, Local Cell ID=95, Cell Name=CELLNAME', \
 'NodeB Function Name=UH0766, Local Cell ID=94, Cell Name=CELLNAME']
 
+list_newcells = [
+'Label=UH0714_U94, CellID=47144, LogicRNCID=501',
+'Label=UH0714_U95, CellID=47145, LogicRNCID=501',
+'Label=UH0752_U94, CellID=47524, LogicRNCID=501',
+'Label=UH0752_U95, CellID=47525, LogicRNCID=501',
+'Label=UH0752_U96, CellID=47526, LogicRNCID=501',
+'Label=UH0822_U94, CellID=48224, LogicRNCID=501',
+'Label=UH0822_U95, CellID=48225, LogicRNCID=501',
+'Label=UH0822_U95, CellID=48225, LogicRNCID=501',
+'Label=UH0869_U94, CellID=48694, LogicRNCID=501',
+'Label=UH1913_U94, CellID=50040, LogicRNCID=501',
+'Label=UH1913_U95, CellID=50041, LogicRNCID=501',
+'Label=UH1913_U96, CellID=50042, LogicRNCID=501',
+'Label=UH1925_U94, CellID=50048, LogicRNCID=501',
+'Label=UH1925_U95, CellID=50047, LogicRNCID=501',
+'Label=UH1925_U96, CellID=50046, LogicRNCID=501',
+'Label=UH3989_U1, CellID=39891, LogicRNCID=501',
+'Label=UH3989_U2, CellID=39892, LogicRNCID=501',
+'Label=UH3989_U3, CellID=39893, LogicRNCID=501',
+'Label=UH3989_U4, CellID=39894, LogicRNCID=501',
+'Label=UH3989_U5, CellID=39895, LogicRNCID=501',
+'Label=UH3989_U6, CellID=39896, LogicRNCID=501',
+'Label=UH3996_U1, CellID=39961, LogicRNCID=501',
+'Label=UH3996_U2, CellID=39962, LogicRNCID=501',
+'Label=UH3996_U3, CellID=39963, LogicRNCID=501',
+'Label=UH3996_U4, CellID=39964, LogicRNCID=501',
+'Label=UH3996_U5, CellID=39965, LogicRNCID=501',
+'Label=UH3996_U6, CellID=39966, LogicRNCID=501',
+] # список недавно запущенных сот после перераспределения BBP плат
+list_newcellsNodeB = [
+'NodeB Function Name=UH0752, Local Cell ID=96, Cell Name=CELLNAME',
+'NodeB Function Name=UH0752, Local Cell ID=94, Cell Name=CELLNAME',
+'NodeB Function Name=UH1925, Local Cell ID=95, Cell Name=CELLNAME',
+'NodeB Function Name=UH1913, Local Cell ID=94, Cell Name=CELLNAME',
+'NodeB Function Name=UH3996, Local Cell ID=1, Cell Name=CELLNAME',
+'NodeB Function Name=UH3996, Local Cell ID=3, Cell Name=CELLNAME',
+'NodeB Function Name=UH3996, Local Cell ID=5, Cell Name=CELLNAME',
+'NodeB Function Name=UH0714, Local Cell ID=95, Cell Name=CELLNAME',
+'NodeB Function Name=UH3989, Local Cell ID=1, Cell Name=CELLNAME',
+'NodeB Function Name=UH3989, Local Cell ID=3, Cell Name=CELLNAME',
+'NodeB Function Name=UH3989, Local Cell ID=5, Cell Name=CELLNAME',
+'NodeB Function Name=UH0822, Local Cell ID=95, Cell Name=CELLNAME',
+'NodeB Function Name=UH0822, Local Cell ID=94, Cell Name=CELLNAME',
+'NodeB Function Name=UH0869, Local Cell ID=94, Cell Name=CELLNAME',
+'NodeB Function Name=UH3989, Local Cell ID=4, Cell Name=CELLNAME',
+'NodeB Function Name=UH3989, Local Cell ID=2, Cell Name=CELLNAME',
+'NodeB Function Name=UH0714, Local Cell ID=94, Cell Name=CELLNAME',
+'NodeB Function Name=UH3996, Local Cell ID=4, Cell Name=CELLNAME',
+'NodeB Function Name=UH3996, Local Cell ID=2, Cell Name=CELLNAME',
+'NodeB Function Name=UH1913, Local Cell ID=95, Cell Name=CELLNAME',
+'NodeB Function Name=UH1925, Local Cell ID=96, Cell Name=CELLNAME',
+'NodeB Function Name=UH1925, Local Cell ID=94, Cell Name=CELLNAME',
+'NodeB Function Name=UH0752, Local Cell ID=95, Cell Name=CELLNAME',
+'NodeB Function Name=UH1913, Local Cell ID=96, Cell Name=CELLNAME',
+]  # список недавно запущенных сот после перераспределения BBP плат
+#sts_df = sts_df[sts_df['BSC6910UCell'].isin(list_newcells)]  # вывод только недавно запущенных сот после перераспределения BBP плат
+#stsN_df = stsN_df[stsN_df['ULoCell'].isin(list_newcellsNodeB)]  # вывод только недавно запущенных сот после перераспределения BBP плат
+
+
 # ===обработка weekly  для всей сети без разбивки на кластера===
 weekly_df = sts_df.groupby(['week'])[list_1]. sum().reset_index()
 weekly_df['CS traffic 3G, Erl'] = weekly_df['CS Voice Traffic Volume (Erl)']
@@ -4752,6 +4814,212 @@ MeanThrHSDPADC_chart.add_data(MeanThrHSDPAU900DCkbps, titles_from_data = True)  
 MeanThrHSDPADC_chart.set_categories(x_valuesN)
 MeanThrHSDPADC_chart.legend.position = 'b'
 hourlyN_sheet.add_chart(MeanThrHSDPADC_chart, "A58")
+
+#######!!!!!!!!!!!
+# графики ЧНН-ые busy_hourCS_sheet  last_row_BHCS
+x_values = Reference(busy_hourCS_sheet, range_string=(f"busy_hourCS!$A$2:$B${last_row_BHCS}"))
+x_valuesP = Reference(busy_hourPS_sheet, range_string=(f"busy_hourPS!$A$2:$B${last_row_BHPS}"))
+
+CStraffic3GErl= Reference(busy_hourCS_sheet, min_col=3, min_row=1, max_row=last_row_BHCS)
+PStraffic3GULDLGB= Reference(busy_hourPS_sheet, min_col=3, min_row=1, max_row=last_row_BHPS)
+CSRABDropRate= Reference(busy_hourCS_sheet, min_col=4, min_row=1, max_row=last_row_BHCS)
+PSBlockingRate= Reference(busy_hourPS_sheet, min_col=4, min_row=1, max_row=last_row_BHPS)
+PSRABDropRate= Reference(busy_hourPS_sheet, min_col=5, min_row=1, max_row=last_row_BHCS)
+PSHSDropRate= Reference(busy_hourPS_sheet, min_col=6, min_row=1, max_row=last_row_BHPS)
+HSDPAThroughputkbps= Reference(busy_hourPS_sheet, min_col=7, min_row=1, max_row=last_row_BHPS)
+HSUPAThroughputkbps= Reference(busy_hourPS_sheet, min_col=8, min_row=1, max_row=last_row_BHPS)
+SoftHandoverSuccessrate= Reference(busy_hourCS_sheet, min_col=5, min_row=1, max_row=last_row_BHCS)
+HardHandoverSuccessrate= Reference(busy_hourCS_sheet, min_col=6, min_row=1, max_row=last_row_BHCS)
+CSW2GInterRATHandoverOutSR= Reference(busy_hourCS_sheet, min_col=7, min_row=1, max_row=last_row_BHCS)
+RRCAssignmentSucessRateCSBH= Reference(busy_hourCS_sheet, min_col=8, min_row=1, max_row=last_row_BHCS)
+RRCAssignmentSucessRatePSBH= Reference(busy_hourPS_sheet, min_col=9, min_row=1, max_row=last_row_BHPS)
+RRCDropRateCSBH= Reference(busy_hourCS_sheet, min_col=9, min_row=1, max_row=last_row_BHCS)
+RRCDropRatePSBH= Reference(busy_hourPS_sheet, min_col=10, min_row=10, max_row=last_row_BHPS)
+RABAssignmentSuccessRateCS= Reference(busy_hourCS_sheet, min_col=10, min_row=1, max_row=last_row_BHCS)
+RABAssignmentSuccessRatePS= Reference(busy_hourPS_sheet, min_col=11, min_row=1, max_row=last_row_BHPS)
+CCSR3G= Reference(busy_hourCS_sheet, min_col=11, min_row=1, max_row=last_row_BHCS)
+DCSR3G= Reference(busy_hourPS_sheet, min_col=12, min_row=1, max_row=last_row_BHPS)
+
+
+CStraffic_chart = LineChart()
+CStraffic_chart.width = 40
+CStraffic_chart.height = 10
+CStraffic_chart.add_data(CStraffic3GErl, titles_from_data = True)  #
+#CStraffic_chart.add_data(CStraffic3GErlU2100, titles_from_data = True)
+#CStraffic_chart.add_data(CStraffic3GErlU900, titles_from_data = True)
+CStraffic_chart.set_categories(x_values)
+CStraffic_chart.legend.position = 'b'
+busy_hourCS_sheet.add_chart(CStraffic_chart, "A18")
+
+PStraffic_chart = LineChart()
+PStraffic_chart.width = 40
+PStraffic_chart.height = 10
+PStraffic_chart.add_data(PStraffic3GULDLGB, titles_from_data = True)  #
+#PStraffic_chart.add_data(PStraffic3GULDLGBU2100, titles_from_data = True)
+#PStraffic_chart.add_data(PStraffic3GULDLGBU900, titles_from_data = True)
+PStraffic_chart.set_categories(x_valuesP)
+PStraffic_chart.legend.position = 'b'
+busy_hourCS_sheet.add_chart(PStraffic_chart, "A38")
+
+CSdrop_chart = LineChart()
+CSdrop_chart.width = 40
+CSdrop_chart.height = 10
+CSdrop_chart.add_data(CSRABDropRate, titles_from_data = True)  #
+#CSdrop_chart.add_data(CSRABDropRateU2100, titles_from_data = True)
+#CSdrop_chart.add_data(CSRABDropRateU900, titles_from_data = True)
+CSdrop_chart.set_categories(x_values)
+CSdrop_chart.legend.position = 'b'
+busy_hourCS_sheet.add_chart(CSdrop_chart, "A58")
+
+PSdrop_chart = LineChart()
+PSdrop_chart.width = 40
+PSdrop_chart.height = 10
+PSdrop_chart.add_data(PSRABDropRate, titles_from_data = True)  #
+#PSdrop_chart.add_data(PSRABDropRateU2100, titles_from_data = True)
+#PSdrop_chart.add_data(PSRABDropRateU900, titles_from_data = True)
+PSdrop_chart.set_categories(x_valuesP)
+PSdrop_chart.legend.position = 'b'
+busy_hourCS_sheet.add_chart(PSdrop_chart, "A78")
+
+RRCdrop_chart = LineChart()
+RRCdrop_chart.width = 40
+RRCdrop_chart.height = 10
+RRCdrop_chart.add_data(RRCDropRateCSBH, titles_from_data = True)  #
+#RRCdrop_chart.add_data(RRCDropRateCSBHU2100, titles_from_data = True)
+#RRCdrop_chart.add_data(RRCDropRateCSBHU900, titles_from_data = True)
+RRCdrop_chart.set_categories(x_values)
+RRCdrop_chart.legend.position = 'b'
+busy_hourCS_sheet.add_chart(RRCdrop_chart, "A98")
+
+HSDPAThroughput_chart = LineChart()
+HSDPAThroughput_chart.width = 40
+HSDPAThroughput_chart.height = 10
+HSDPAThroughput_chart.add_data(HSDPAThroughputkbps, titles_from_data = True)  #
+#HSDPAThroughput_chart.add_data(HSDPAThroughputkbpsU2100, titles_from_data = True)
+#HSDPAThroughput_chart.add_data(HSDPAThroughputkbpsU900, titles_from_data = True)
+HSDPAThroughput_chart.set_categories(x_valuesP)
+HSDPAThroughput_chart.legend.position = 'b'
+busy_hourCS_sheet.add_chart(HSDPAThroughput_chart, "A118")
+
+HSUPAThroughput_chart = LineChart()
+HSUPAThroughput_chart.width = 40
+HSUPAThroughput_chart.height = 10
+HSUPAThroughput_chart.add_data(HSUPAThroughputkbps, titles_from_data = True)  #
+#HSUPAThroughput_chart.add_data(HSUPAThroughputkbpsU2100, titles_from_data = True)
+#HSUPAThroughput_chart.add_data(HSUPAThroughputkbpsU900, titles_from_data = True)
+HSUPAThroughput_chart.set_categories(x_valuesP)
+HSUPAThroughput_chart.legend.position = 'b'
+busy_hourCS_sheet.add_chart(HSUPAThroughput_chart, "A138")
+
+Handover_chart = LineChart()
+Handover_chart.width = 40
+Handover_chart.height = 10
+Handover_chart.add_data(SoftHandoverSuccessrate, titles_from_data = True)  #
+#Handover_chart.add_data(SoftHandoverSuccessrateU2100, titles_from_data = True)
+#Handover_chart.add_data(SoftHandoverSuccessrateU900, titles_from_data = True)
+Handover_chart.add_data(HardHandoverSuccessrate, titles_from_data = True)  #
+#Handover_chart.add_data(HardHandoverSuccessrateU2100, titles_from_data = True)
+#Handover_chart.add_data(HardHandoverSuccessrateU900, titles_from_data = True)
+Handover_chart.add_data(CSW2GInterRATHandoverOutSR, titles_from_data = True)  #
+#Handover_chart.add_data(CSW2GInterRATHandoverOutSRU2100, titles_from_data = True)
+#Handover_chart.add_data(CSW2GInterRATHandoverOutSRU900, titles_from_data = True)
+Handover_chart.set_categories(x_values)
+Handover_chart.legend.position = 'b'
+busy_hourCS_sheet.add_chart(Handover_chart, "A158")
+
+RRCassign_chart = LineChart()
+RRCassign_chart.width = 40
+RRCassign_chart.height = 10
+RRCassign_chart.add_data(RRCAssignmentSucessRateCSBH, titles_from_data = True)  #
+#RRCassign_chart.add_data(RRCAssignmentSucessRateCSBHU2100, titles_from_data = True)
+#RRCassign_chart.add_data(RRCAssignmentSucessRateCSBHU900, titles_from_data = True)
+RRCassign_chart.set_categories(x_values)
+RRCassign_chart.legend.position = 'b'
+busy_hourCS_sheet.add_chart(RRCassign_chart, "A178")
+
+RABCSassign_chart = LineChart()
+RABCSassign_chart.width = 40
+RABCSassign_chart.height = 10
+RABCSassign_chart.add_data(RABAssignmentSuccessRateCS, titles_from_data = True)  #
+#RABCSassign_chart.add_data(RABAssignmentSuccessRateCSU2100, titles_from_data = True)
+#RABCSassign_chart.add_data(RABAssignmentSuccessRateCSU900, titles_from_data = True)
+RABCSassign_chart.set_categories(x_values)
+RABCSassign_chart.legend.position = 'b'
+busy_hourCS_sheet.add_chart(RABCSassign_chart, "A198")
+
+RABPSassign_chart = LineChart()
+RABPSassign_chart.width = 40
+RABPSassign_chart.height = 10
+RABPSassign_chart.add_data(RABAssignmentSuccessRatePS, titles_from_data = True)  #
+#RABPSassign_chart.add_data(RABAssignmentSuccessRatePSU2100, titles_from_data = True)
+#RABPSassign_chart.add_data(RABAssignmentSuccessRatePSU900, titles_from_data = True)
+RABPSassign_chart.set_categories(x_valuesP)
+RABPSassign_chart.legend.position = 'b'
+busy_hourCS_sheet.add_chart(RABPSassign_chart, "A218")
+
+CCSR3G_chart = LineChart()
+CCSR3G_chart.width = 40
+CCSR3G_chart.height = 10
+CCSR3G_chart.add_data(CCSR3G, titles_from_data = True)  #
+#CCSR3G_chart.add_data(CCSR3GU2100, titles_from_data = True)
+#CCSR3G_chart.add_data(CCSR3GU900, titles_from_data = True)
+CCSR3G_chart.set_categories(x_values)
+CCSR3G_chart.legend.position = 'b'
+busy_hourCS_sheet.add_chart(CCSR3G_chart, "A238")
+
+DCSR3G_chart = LineChart()
+DCSR3G_chart.width = 40
+DCSR3G_chart.height = 10
+DCSR3G_chart.add_data(DCSR3G, titles_from_data = True)  #
+#DCSR3G_chart.add_data(DCSR3GU2100, titles_from_data = True)
+#DCSR3G_chart.add_data(DCSR3GU900, titles_from_data = True)
+DCSR3G_chart.set_categories(x_valuesP)
+DCSR3G_chart.legend.position = 'b'
+busy_hourCS_sheet.add_chart(DCSR3G_chart, "A258")
+
+# BHhourly NodeB   hourlyPSN   hourlyPSN_sheet
+x_valuesN = Reference(hourlyPSN_sheet, range_string=(f"NodeB_BH!$A$2:$B${last_row_BHPSN}"))
+MeanThrHSDPAkbps= Reference(hourlyPSN_sheet, min_col=3, min_row=1, max_row=last_row_BHPSN)
+MeanThrHSDPADCkbps= Reference(hourlyPSN_sheet, min_col=4, min_row=1, max_row=last_row_BHPSN)
+MeanThrHSUPAkbps= Reference(hourlyPSN_sheet, min_col=5, min_row=1, max_row=last_row_BHPSN)
+#MeanThrHSDPAU2100kbps= Reference(hourlyPSN_sheet, min_col=6, min_row=1, max_row=last_row_BHPSN)
+#MeanThrHSDPAU2100DCkbps= Reference(hourlyPSN_sheet, min_col=7, min_row=1, max_row=last_row_BHPSN)
+#MeanThrHSUPAU2100kbps= Reference(hourlyPSN_sheet, min_col=8, min_row=1, max_row=last_row_BHPSN)
+#MeanThrHSDPAU900kbps= Reference(hourlyPSN_sheet, min_col=9, min_row=1, max_row=last_row_BHPSN)
+#MeanThrHSDPAU900DCkbps= Reference(hourlyPSN_sheet, min_col=10, min_row=1, max_row=last_row_BHPSN)
+#MeanThrHSUPAU900kbps= Reference(hourlyPSN_sheet, min_col=11, min_row=1, max_row=last_row_BHPSN)
+
+MeanThrHSDPA_chart = LineChart()
+MeanThrHSDPA_chart.width = 40
+MeanThrHSDPA_chart.height = 10
+MeanThrHSDPA_chart.add_data(MeanThrHSDPAkbps, titles_from_data = True)  #
+#MeanThrHSDPA_chart.add_data(MeanThrHSDPAU2100kbps, titles_from_data = True)  #
+#MeanThrHSDPA_chart.add_data(MeanThrHSDPAU900kbps, titles_from_data = True)  #
+MeanThrHSDPA_chart.set_categories(x_valuesN)
+MeanThrHSDPA_chart.legend.position = 'b'
+hourlyPSN_sheet.add_chart(MeanThrHSDPA_chart, "A18")
+
+MeanThrHSUPAkbps_chart = LineChart()
+MeanThrHSUPAkbps_chart.width = 40
+MeanThrHSUPAkbps_chart.height = 10
+MeanThrHSUPAkbps_chart.add_data(MeanThrHSUPAkbps, titles_from_data = True)  #
+#MeanThrHSUPAkbps_chart.add_data(MeanThrHSUPAU2100kbps, titles_from_data = True)  #
+#MeanThrHSUPAkbps_chart.add_data(MeanThrHSUPAU900kbps, titles_from_data = True)  #
+MeanThrHSUPAkbps_chart.set_categories(x_valuesN)
+MeanThrHSUPAkbps_chart.legend.position = 'b'
+hourlyPSN_sheet.add_chart(MeanThrHSUPAkbps_chart, "A38")
+
+MeanThrHSDPADC_chart = LineChart()
+MeanThrHSDPADC_chart.width = 40
+MeanThrHSDPADC_chart.height = 10
+MeanThrHSDPADC_chart.add_data(MeanThrHSDPADCkbps, titles_from_data = True)  #
+#MeanThrHSDPADC_chart.add_data(MeanThrHSDPAU2100DCkbps, titles_from_data = True)  #
+#MeanThrHSDPADC_chart.add_data(MeanThrHSDPAU900DCkbps, titles_from_data = True)  #
+MeanThrHSDPADC_chart.set_categories(x_valuesN)
+MeanThrHSDPADC_chart.legend.position = 'b'
+hourlyPSN_sheet.add_chart(MeanThrHSDPADC_chart, "A58")
+
+
 
 my_file.save(f"{directory}{csv_name1}{output_comment}.xlsx")
 

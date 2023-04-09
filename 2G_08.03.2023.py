@@ -7,11 +7,11 @@ import openpyxl.styles
 
 
 directory = 'C:/work/Herson_audit/sts/2G/'
-csv_name = '2G_countersCS(2023-03-20'
+csv_name = '2G_countersCS(2023-03-31'
 output_comment = '_output'  # что добавится в конце к названию файла
 
-#sts_df = pd.read_excel(f"{directory}{csv_name}.xlsx", header=7)
-sts_df = pd.read_csv(f"{directory}{csv_name}.csv", sep=";", header=7)
+sts_df = pd.read_excel(f"{directory}{csv_name}.xlsx", header=7)
+#sts_df = pd.read_csv(f"{directory}{csv_name}.csv", sep=";", header=7)
 
 sts_df['date'] = sts_df['Start Time'].str.split(' ').str[0]
 sts_df['hour'] = sts_df['Start Time'].str.split(' ').str[1]

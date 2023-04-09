@@ -9,8 +9,8 @@ import openpyxl.styles
 conn = sqlite3.connect('C:/SQLite/firstDB/stsDB.db')
 # создаем курсор для выполнения запросов
 cursor = conn.cursor()
-start_date = '2023-02-10'
-end_date = '2023-02-16' # надо брать на день позже
+start_date = '2023-01-09'
+end_date = '2023-04-03' # надо брать на день позже
 
 # используйте операторы сравнения для выборки строк в заданном диапазоне
 query = f"SELECT * FROM LTEsts WHERE `Start Time` >= '{start_date}' AND `Start Time` <= '{end_date}'"
@@ -23,9 +23,9 @@ sts_df = pd.DataFrame(data, columns=[i[0] for i in cursor.description])
 
 active_cell_number = 398  # ввести количество активных сот !!!!  19    398
 
-directory = 'C:/test2/' # ввести директорию где лежит файл
-csv_name = 'testf'  # ввести имя файла
-output_comment = '_output_fromSQLdirectly'  # что добавится в конце к названию файла
+directory = 'C:/work/Herson_audit/sts/4G/' # ввести директорию где лежит файл
+csv_name = (f'4G{end_date}')  # ввести имя файла
+output_comment = '_output_weeks_2-13'  # что добавится в конце к названию файла
 
 sts_df['date'] = sts_df['Start Time'].str.split(' ').str[0]
 sts_df['hour'] = sts_df['Start Time'].str.split(' ').str[1]
@@ -669,6 +669,12 @@ list_dualband_2600 = [
 'eNodeB Function Name=UH0742, Local Cell ID=4, Cell Name=UH0742L4, eNodeB ID=10742, Cell FDD TDD indication=CELL_FDD', \
 'eNodeB Function Name=UH0742, Local Cell ID=5, Cell Name=UH0742L5, eNodeB ID=10742, Cell FDD TDD indication=CELL_FDD'
 ] # сот 79
+
+
+# фильтрация по кластеру:
+# кластер
+# cluster_UH0508 = ['UH0508']
+# sts_df = sts_df[sts_df['NE Name'].isin(cluster_UH0508)]
 
 # обработка weekly:
 weekly_df = sts_df.groupby(['week'])[list_1]. sum().reset_index()

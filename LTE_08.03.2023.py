@@ -9,11 +9,11 @@ active_cell_number = 398  # ввести количество активных �
 
 directory = 'C:/work/Herson_audit/sts/4G/' # ввести директорию где лежит файл C:\work\Herson_audit\sts\отчётная
 #csv_name = 'LTEsts_output'  # ввести имя файла LTEsts_output
-csv_name = '4G_counters(2023-03-20'  # ввести имя файла LTEsts_output
+csv_name = '4G_counters(2023-03-31'  # ввести имя файла LTEsts_output
 output_comment = '_output'  # что добавится в конце к названию файла
 
-#sts_df = pd.read_csv(f"{directory}{csv_name}.csv", sep=",", header=0, na_values='NIL')
-sts_df = pd.read_csv(f"{directory}{csv_name}.csv", sep=";", header=7, na_values='NIL')
+sts_df = pd.read_excel(f"{directory}{csv_name}.xlsx", header=7, na_values='NIL')
+#sts_df = pd.read_csv(f"{directory}{csv_name}.csv", sep=";", header=7, na_values='NIL')
 sts_df['date'] = sts_df['Start Time'].str.split(' ').str[0]
 sts_df['hour'] = sts_df['Start Time'].str.split(' ').str[1]
 sts_df['date'] = pd.to_datetime(sts_df['date'])
