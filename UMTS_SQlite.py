@@ -12,8 +12,8 @@ import openpyxl.styles
 conn = sqlite3.connect('C:/SQLite/firstDB/stsDB.db')
 # создаем курсор для выполнения запросов
 cursor = conn.cursor()
-start_date = '2023-01-09' # ввести вручную начальную дату !!!!
-end_date = '2023-04-07' # ввести вручную конечную дату !!!!надо брать на день позже
+start_date = '2023-04-01' # ввести вручную начальную дату !!!!
+end_date = '2023-04-17' # ввести вручную конечную дату !!!!надо брать на день позже
 
 # используйте операторы сравнения для выборки строк в заданном диапазоне
 query1 = f"SELECT * FROM UMTS_1v2 WHERE `Start Time` >= '{start_date}' AND `Start Time` <= '{end_date}'"
@@ -37,12 +37,12 @@ data3 = cursor.fetchall()
 data3 = [[None if col == 'NIL' else col for col in row] for row in data3]
 data3 = [[None if col == '' else col for col in row] for row in data3] # пробую решить проблему 'VS.DataOutput.AllHSDPA.Traffic (bit)'
 stsN_df = pd.DataFrame(data3, columns=[i[0] for i in cursor.description])
+conn.close()
+#active_cell_number = 471  # количество активных сот !!!!
 
-active_cell_number = 471  # количество активных сот !!!!
-
-directory = 'C:/work/Herson_audit/sts/3G/'
+directory = 'C:/wHesron/sts/3G/'
 csv_name1 = (f'3G{end_date}')
-output_comment = '_output_weeks_2-13'  # что добавится в конце к названию файла
+output_comment = '_output_cluster_UH_'  # что добавится в конце к названию файла
 
 sts1_df['date'] = sts1_df['Start Time'].str.split(' ').str[0]
 sts1_df['hour'] = sts1_df['Start Time'].str.split(' ').str[1]
@@ -56,10 +56,7 @@ stsN_df['date'] = stsN_df['Start Time'].str.split(' ').str[0]
 stsN_df['hour'] = stsN_df['Start Time'].str.split(' ').str[1]
 stsN_df['date'] = pd.to_datetime(stsN_df['date'])
 stsN_df['week'] = stsN_df['date'].dt.isocalendar().week
-
-# with pd.ExcelWriter(f"C:/test2/umts_Error.xlsx", engine='openpyxl') as writer:
-#      sts_df.to_excel(writer, sheet_name='stsN_df')
-
+print('sts сформированы')
 list_1 = ['RRC.AttConnEstab.EmgCall (None)','RRC.AttConnEstab.OrgConvCall (None)','RRC.AttConnEstab.TmConvCall (None)',\
           'RRC.SuccConnEstab.EmgCall (None)','RRC.SuccConnEstab.OrgConvCall (None)','RRC.SuccConnEstab.TmConvCall (None)',\
           'VS.AttCellUpdt.EmgCall.PCH (None)','VS.AttCellUpdt.OrgConvCall.PCH (None)',\
@@ -2088,7 +2085,6 @@ list_F3_2937 = [
 'Label=UH0748_U95, CellID=47485, LogicRNCID=501', \
 'Label=UH0748_U96, CellID=47486, LogicRNCID=501'
 ]  # кластер число активных сот 204
-
 list_U2100N = [
 'NodeB Function Name=UH3920, Local Cell ID=1, Cell Name=CELLNAME', \
 'NodeB Function Name=UH3920, Local Cell ID=2, Cell Name=CELLNAME', \
@@ -2915,9 +2911,6 @@ list_U900N = ['NodeB Function Name=UH0744, Local Cell ID=96, Cell Name=CELLNAME'
 'NodeB Function Name=UH0766, Local Cell ID=96, Cell Name=CELLNAME', \
 'NodeB Function Name=UH0766, Local Cell ID=95, Cell Name=CELLNAME', \
 'NodeB Function Name=UH0766, Local Cell ID=94, Cell Name=CELLNAME']
-
-
-
 # фильтрация по кластеру:
 cluster_UH1952cell = [
 'Label=UH1952_U1, CellID=19521, LogicRNCID=501',
@@ -3916,10 +3909,1018 @@ cluster_CR = [
 'Label=CR1852_U4, CellID=60744, LogicRNCID=501',
 ]
 
-#sts_df = sts_df[sts_df['BSC6910UCell'].isin(cluster_UH)]
-#sts_df = sts_df[sts_df['BSC6910UCell'].isin(cluster_UH)]
+cluster_Kahovka = [
+'Label=UH1882_U96, CellID=50033, LogicRNCID=501',
+'Label=UH1882_U95, CellID=50032, LogicRNCID=501',
+'Label=UH1882_U5, CellID=18825, LogicRNCID=501',
+'Label=UH1882_U4, CellID=18824, LogicRNCID=501',
+'Label=UH1882_U1, CellID=18821, LogicRNCID=501',
+'Label=UH1882_U2, CellID=18822, LogicRNCID=501',
+'Label=UH0995_U4, CellID=9954, LogicRNCID=501',
+'Label=UH0995_U5, CellID=9955, LogicRNCID=501',
+'Label=UH3918_U6, CellID=39186, LogicRNCID=501',
+'Label=UH3918_U3, CellID=39183, LogicRNCID=501',
+'Label=UH3918_U1, CellID=39181, LogicRNCID=501',
+'Label=UH0995_U3, CellID=9953, LogicRNCID=501',
+'Label=UH0995_U1, CellID=9951, LogicRNCID=501',
+'Label=UH0988_U1, CellID=9881, LogicRNCID=501',
+'Label=UH0988_U4, CellID=9884, LogicRNCID=501',
+'Label=UH0988_U3, CellID=9883, LogicRNCID=501',
+'Label=UH0988_U2, CellID=9882, LogicRNCID=501',
+'Label=UH0820_U95, CellID=48205, LogicRNCID=501',
+'Label=UH0820_U94, CellID=48204, LogicRNCID=501',
+'Label=UH0820_U96, CellID=48206, LogicRNCID=501',
+'Label=UH0988_U5, CellID=9885, LogicRNCID=501',
+'Label=UH0988_U6, CellID=9886, LogicRNCID=501',
+'Label=UH0995_U2, CellID=9952, LogicRNCID=501',
+'Label=UH3918_U4, CellID=39184, LogicRNCID=501',
+'Label=UH0995_U6, CellID=9956, LogicRNCID=501',
+'Label=UH1882_U3, CellID=18823, LogicRNCID=501',
+'Label=UH1882_U6, CellID=18826, LogicRNCID=501',
+'Label=UH1882_U94, CellID=50031, LogicRNCID=501',
+'Label=UH0820_U5, CellID=8205, LogicRNCID=501',
+'Label=UH0820_U1, CellID=8201, LogicRNCID=501',
+'Label=UH0820_U4, CellID=8204, LogicRNCID=501',
+'Label=UH0820_U2, CellID=8202, LogicRNCID=501',
+'Label=UH0820_U98, CellID=48208, LogicRNCID=501',
+'Label=UH0820_U99, CellID=48209, LogicRNCID=501',
+'Label=UH0820_U97, CellID=48207, LogicRNCID=501',
+]  # новый кластер для отчёта
+cluster_N_Kahovka = [
+'Label=UH0881_U94, CellID=48814, LogicRNCID=501',
+'Label=UH0881_U95, CellID=48815, LogicRNCID=501',
+'Label=UH0821_U95, CellID=48215, LogicRNCID=501',
+'Label=UH0821_U94, CellID=48214, LogicRNCID=501',
+'Label=UH2981_U4, CellID=29814, LogicRNCID=501',
+'Label=UH2981_U3, CellID=29813, LogicRNCID=501',
+'Label=UH2981_U6, CellID=29816, LogicRNCID=501',
+'Label=UH2981_U5, CellID=29815, LogicRNCID=501',
+'Label=UH1947_U3, CellID=19473, LogicRNCID=501',
+'Label=UH2981_U1, CellID=29811, LogicRNCID=501',
+'Label=UH1947_U6, CellID=19476, LogicRNCID=501',
+'Label=UH1947_U5, CellID=19475, LogicRNCID=501',
+'Label=UH1947_U4, CellID=19474, LogicRNCID=501',
+'Label=UH1947_U1, CellID=19471, LogicRNCID=501',
+'Label=UH1947_U2, CellID=19472, LogicRNCID=501',
+'Label=UH2981_U2, CellID=29812, LogicRNCID=501',
+'Label=UH0821_U96, CellID=48216, LogicRNCID=501',
+'Label=UH0881_U96, CellID=48816, LogicRNCID=501',
+'Label=UH3925_U6, CellID=39256, LogicRNCID=501',
+'Label=UH3925_U4, CellID=39254, LogicRNCID=501',
+'Label=UH3925_U3, CellID=39253, LogicRNCID=501',
+'Label=UH0970_U3, CellID=9703, LogicRNCID=501',
+'Label=UH0970_U6, CellID=9706, LogicRNCID=501',
+'Label=UH0970_U4, CellID=9704, LogicRNCID=501',
+'Label=UH0881_U3, CellID=8813, LogicRNCID=501',
+'Label=UH0970_U1, CellID=9701, LogicRNCID=501',
+'Label=UH0881_U6, CellID=8816, LogicRNCID=501',
+'Label=UH0821_U4, CellID=8214, LogicRNCID=501',
+'Label=UH0821_U2, CellID=8212, LogicRNCID=501',
+'Label=UH0881_U4, CellID=8814, LogicRNCID=501',
+'Label=UH0881_U2, CellID=8812, LogicRNCID=501',
+'Label=UH0881_U1, CellID=8811, LogicRNCID=501',
+'Label=UH0821_U6, CellID=8216, LogicRNCID=501',
+'Label=UH0821_U5, CellID=8215, LogicRNCID=501',
+'Label=UH0821_U3, CellID=8213, LogicRNCID=501',
+'Label=UH0821_U1, CellID=8211, LogicRNCID=501',
+'Label=UH0881_U5, CellID=8815, LogicRNCID=501',
+'Label=UH0970_U2, CellID=9702, LogicRNCID=501',
+'Label=UH0970_U5, CellID=9705, LogicRNCID=501',
+'Label=UH3925_U2, CellID=39252, LogicRNCID=501',
+'Label=UH3925_U5, CellID=39255, LogicRNCID=501',
+'Label=UH3925_U1, CellID=39251, LogicRNCID=501',
+'Label=UH0881_U97, CellID=48817, LogicRNCID=501',
+'Label=UH0821_U98, CellID=48218, LogicRNCID=501',
+'Label=UH0821_U99, CellID=48219, LogicRNCID=501',
+'Label=UH0821_U97, CellID=48217, LogicRNCID=501',
+]  # новый кластер для отчёта
+cluster_Genichesk = [
+'Label=UH0602_U94, CellID=46024, LogicRNCID=501',
+'Label=UH0602_U96, CellID=46026, LogicRNCID=501',
+'Label=UH0602_U95, CellID=46025, LogicRNCID=501',
+'Label=UH4600_U6, CellID=46006, LogicRNCID=501',
+'Label=UH4600_U5, CellID=46005, LogicRNCID=501',
+'Label=UH4600_U1, CellID=46001, LogicRNCID=501',
+'Label=UH4600_U2, CellID=46002, LogicRNCID=501',
+'Label=UH0966_U6, CellID=9666, LogicRNCID=501',
+'Label=UH0966_U3, CellID=9663, LogicRNCID=501',
+'Label=UH0966_U2, CellID=9662, LogicRNCID=501',
+'Label=UH0966_U1, CellID=9661, LogicRNCID=501',
+'Label=UH0952_U4, CellID=9524, LogicRNCID=501',
+'Label=UH0952_U3, CellID=9523, LogicRNCID=501',
+'Label=UH0952_U1, CellID=9521, LogicRNCID=501',
+'Label=UH0966_U4, CellID=9664, LogicRNCID=501',
+'Label=UH0952_U6, CellID=9526, LogicRNCID=501',
+'Label=UH0952_U2, CellID=9522, LogicRNCID=501',
+'Label=UH0952_U5, CellID=9525, LogicRNCID=501',
+'Label=UH0966_U5, CellID=9665, LogicRNCID=501',
+'Label=UH4600_U4, CellID=46004, LogicRNCID=501',
+'Label=UH4600_U3, CellID=46003, LogicRNCID=501',
+'Label=UH0602_U3, CellID=6023, LogicRNCID=501',
+'Label=UH0602_U6, CellID=6026, LogicRNCID=501',
+'Label=UH0602_U5, CellID=6025, LogicRNCID=501',
+'Label=UH0602_U1, CellID=6021, LogicRNCID=501',
+'Label=UH0602_U4, CellID=6024, LogicRNCID=501',
+'Label=UH0602_U2, CellID=6022, LogicRNCID=501',
+]  # новый кластер для отчёта
+cluster_Zhel_Port = [
+'Label=UH1907_U22, CellID=65493, LogicRNCID=501',
+'Label=UH1907_U11, CellID=65492, LogicRNCID=501',
+'Label=UH1907_U55, CellID=65496, LogicRNCID=501',
+'Label=UH1907_U96, CellID=50039, LogicRNCID=501',
+'Label=UH1907_U95, CellID=50038, LogicRNCID=501',
+'Label=UH1907_U44, CellID=65495, LogicRNCID=501',
+'Label=UH0832_U95, CellID=48325, LogicRNCID=501',
+'Label=UH0832_U94, CellID=48324, LogicRNCID=501',
+'Label=UH0960_U95, CellID=49605, LogicRNCID=501',
+'Label=UH1704_U5, CellID=17045, LogicRNCID=501',
+'Label=UH1704_U4, CellID=17044, LogicRNCID=501',
+'Label=UH1704_U2, CellID=17042, LogicRNCID=501',
+'Label=UH2932_U3, CellID=29323, LogicRNCID=501',
+'Label=UH2932_U6, CellID=29326, LogicRNCID=501',
+'Label=UH2932_U1, CellID=29321, LogicRNCID=501',
+'Label=UH2932_U4, CellID=29324, LogicRNCID=501',
+'Label=UH0832_U6, CellID=8326, LogicRNCID=501',
+'Label=UH0832_U5, CellID=8325, LogicRNCID=501',
+'Label=UH0832_U3, CellID=8323, LogicRNCID=501',
+'Label=UH0832_U2, CellID=8322, LogicRNCID=501',
+'Label=UH0832_U4, CellID=8324, LogicRNCID=501',
+'Label=UH0832_U1, CellID=8321, LogicRNCID=501',
+'Label=UH2932_U5, CellID=29325, LogicRNCID=501',
+'Label=UH2932_U2, CellID=29322, LogicRNCID=501',
+'Label=UH1704_U3, CellID=17043, LogicRNCID=501',
+'Label=UH1704_U6, CellID=17046, LogicRNCID=501',
+'Label=UH1704_U1, CellID=17041, LogicRNCID=501',
+'Label=UH0960_U94, CellID=49604, LogicRNCID=501',
+'Label=UH0960_U96, CellID=49606, LogicRNCID=501',
+'Label=UH0832_U96, CellID=48326, LogicRNCID=501',
+'Label=UH1907_U33, CellID=65494, LogicRNCID=501',
+'Label=UH1907_U94, CellID=50037, LogicRNCID=501',
+'Label=UH1907_U66, CellID=65497, LogicRNCID=501',
+'Label=UH1960_U2, CellID=19602, LogicRNCID=501',
+'Label=UH1905_U5, CellID=19055, LogicRNCID=501',
+'Label=UH1905_U4, CellID=19054, LogicRNCID=501',
+'Label=UH1960_U3, CellID=19603, LogicRNCID=501',
+'Label=UH1960_U1, CellID=19601, LogicRNCID=501',
+'Label=UH1905_U2, CellID=19052, LogicRNCID=501',
+'Label=UH1960_U5, CellID=19605, LogicRNCID=501',
+'Label=UH0960_U6, CellID=9606, LogicRNCID=501',
+'Label=UH0960_U4, CellID=9604, LogicRNCID=501',
+'Label=UH0960_U3, CellID=9603, LogicRNCID=501',
+'Label=UH0960_U1, CellID=9601, LogicRNCID=501',
+'Label=UH1703_U1, CellID=17031, LogicRNCID=501',
+'Label=UH1907_U1, CellID=19071, LogicRNCID=501',
+'Label=UH1958_U6, CellID=19586, LogicRNCID=501',
+'Label=UH1907_U6, CellID=19076, LogicRNCID=501',
+'Label=UH1907_U5, CellID=19075, LogicRNCID=501',
+'Label=UH1907_U4, CellID=19074, LogicRNCID=501',
+'Label=UH1907_U2, CellID=19072, LogicRNCID=501',
+'Label=UH1958_U5, CellID=19585, LogicRNCID=501',
+'Label=UH1703_U6, CellID=17036, LogicRNCID=501',
+'Label=UH1958_U2, CellID=19582, LogicRNCID=501',
+'Label=UH1703_U4, CellID=17034, LogicRNCID=501',
+'Label=UH1703_U5, CellID=17035, LogicRNCID=501',
+'Label=UH1958_U3, CellID=19583, LogicRNCID=501',
+'Label=UH1703_U3, CellID=17033, LogicRNCID=501',
+'Label=UH1703_U2, CellID=17032, LogicRNCID=501',
+'Label=UH1907_U3, CellID=19073, LogicRNCID=501',
+'Label=UH0960_U2, CellID=9602, LogicRNCID=501',
+'Label=UH0960_U5, CellID=9605, LogicRNCID=501',
+'Label=UH1960_U6, CellID=19606, LogicRNCID=501',
+'Label=UH1905_U1, CellID=19051, LogicRNCID=501',
+'Label=UH1960_U4, CellID=19604, LogicRNCID=501',
+]  # новый кластер для отчёта
+cluster_Lazurnoye = [
+'Label=UH1964_U5, CellID=19645, LogicRNCID=501',
+'Label=UH1964_U2, CellID=19642, LogicRNCID=501',
+'Label=UH1964_U1, CellID=19641, LogicRNCID=501',
+'Label=UH1964_U94, CellID=55387, LogicRNCID=501',
+'Label=UH1964_U95, CellID=55388, LogicRNCID=501',
+'Label=UH0963_U96, CellID=49636, LogicRNCID=501',
+'Label=UH0831_U96, CellID=48316, LogicRNCID=501',
+'Label=UH0831_U95, CellID=48315, LogicRNCID=501',
+'Label=UH0831_U94, CellID=48314, LogicRNCID=501',
+'Label=UH0963_U95, CellID=49635, LogicRNCID=501',
+'Label=UH0963_U94, CellID=49634, LogicRNCID=501',
+'Label=UH1964_U96, CellID=55389, LogicRNCID=501',
+'Label=UH1964_U4, CellID=19644, LogicRNCID=501',
+'Label=UH0963_U3, CellID=9633, LogicRNCID=501',
+'Label=UH0963_U6, CellID=9636, LogicRNCID=501',
+'Label=UH0963_U4, CellID=9634, LogicRNCID=501',
+'Label=UH0963_U1, CellID=9631, LogicRNCID=501',
+'Label=UH0963_U2, CellID=9632, LogicRNCID=501',
+'Label=UH1705_U1, CellID=17051, LogicRNCID=501',
+'Label=UH1705_U6, CellID=17056, LogicRNCID=501',
+'Label=UH1705_U5, CellID=17055, LogicRNCID=501',
+'Label=UH1705_U4, CellID=17054, LogicRNCID=501',
+'Label=UH1705_U3, CellID=17053, LogicRNCID=501',
+'Label=UH1707_U1, CellID=17071, LogicRNCID=501',
+'Label=UH1892_U3, CellID=18923, LogicRNCID=501',
+'Label=UH1707_U6, CellID=17076, LogicRNCID=501',
+'Label=UH1707_U5, CellID=17075, LogicRNCID=501',
+'Label=UH1707_U2, CellID=17072, LogicRNCID=501',
+'Label=UH0831_U2, CellID=8312, LogicRNCID=501',
+'Label=UH0831_U1, CellID=8311, LogicRNCID=501',
+'Label=UH0831_U6, CellID=8316, LogicRNCID=501',
+'Label=UH0831_U4, CellID=8314, LogicRNCID=501',
+'Label=UH0831_U3, CellID=8313, LogicRNCID=501',
+'Label=UH3989_U5, CellID=39895, LogicRNCID=501',
+'Label=UH3989_U4, CellID=39894, LogicRNCID=501',
+'Label=UH3989_U2, CellID=39892, LogicRNCID=501',
+'Label=UH3989_U3, CellID=39893, LogicRNCID=501',
+'Label=UH3989_U6, CellID=39896, LogicRNCID=501',
+'Label=UH3989_U1, CellID=39891, LogicRNCID=501',
+'Label=UH0831_U5, CellID=8315, LogicRNCID=501',
+'Label=UH1707_U4, CellID=17074, LogicRNCID=501',
+'Label=UH1892_U5, CellID=18925, LogicRNCID=501',
+'Label=UH1892_U2, CellID=18922, LogicRNCID=501',
+'Label=UH1892_U6, CellID=18926, LogicRNCID=501',
+'Label=UH1707_U3, CellID=17073, LogicRNCID=501',
+'Label=UH1705_U2, CellID=17052, LogicRNCID=501',
+'Label=UH0963_U5, CellID=9635, LogicRNCID=501',
+]  # новый кластер для отчёта
+cluster_Skadovsk = [
+'Label=UH0830_U95, CellID=48305, LogicRNCID=501',
+'Label=UH0830_U94, CellID=48304, LogicRNCID=501',
+'Label=UH0962_U96, CellID=49626, LogicRNCID=501',
+'Label=UH0962_U94, CellID=49624, LogicRNCID=501',
+'Label=UH0830_U6, CellID=8306, LogicRNCID=501',
+'Label=UH0830_U5, CellID=8305, LogicRNCID=501',
+'Label=UH0830_U3, CellID=8303, LogicRNCID=501',
+'Label=UH0830_U2, CellID=8302, LogicRNCID=501',
+'Label=UH0830_U1, CellID=8301, LogicRNCID=501',
+'Label=UH0830_U4, CellID=8304, LogicRNCID=501',
+'Label=UH0962_U95, CellID=49625, LogicRNCID=501',
+'Label=UH0830_U96, CellID=48306, LogicRNCID=501',
+'Label=UH3922_U5, CellID=39225, LogicRNCID=501',
+'Label=UH3922_U4, CellID=39224, LogicRNCID=501',
+'Label=UH3922_U2, CellID=39222, LogicRNCID=501',
+'Label=UH3922_U1, CellID=39221, LogicRNCID=501',
+'Label=UH3990_U4, CellID=39904, LogicRNCID=501',
+'Label=UH3990_U2, CellID=39902, LogicRNCID=501',
+'Label=UH3990_U6, CellID=39906, LogicRNCID=501',
+'Label=UH2938_U6, CellID=29386, LogicRNCID=501',
+'Label=UH2938_U5, CellID=29385, LogicRNCID=501',
+'Label=UH2938_U3, CellID=29383, LogicRNCID=501',
+'Label=UH2938_U2, CellID=29382, LogicRNCID=501',
+'Label=UH0961_U4, CellID=9614, LogicRNCID=501',
+'Label=UH0961_U3, CellID=9613, LogicRNCID=501',
+'Label=UH0961_U1, CellID=9611, LogicRNCID=501',
+'Label=UH0961_U6, CellID=9616, LogicRNCID=501',
+'Label=UH0962_U3, CellID=9623, LogicRNCID=501',
+'Label=UH0962_U5, CellID=9625, LogicRNCID=501',
+'Label=UH0962_U2, CellID=9622, LogicRNCID=501',
+'Label=UH0962_U1, CellID=9621, LogicRNCID=501',
+'Label=UH0962_U4, CellID=9624, LogicRNCID=501',
+'Label=UH0962_U6, CellID=9626, LogicRNCID=501',
+'Label=UH0961_U2, CellID=9612, LogicRNCID=501',
+'Label=UH0961_U5, CellID=9615, LogicRNCID=501',
+'Label=UH2938_U1, CellID=29381, LogicRNCID=501',
+'Label=UH3990_U1, CellID=39901, LogicRNCID=501',
+'Label=UH2938_U4, CellID=29384, LogicRNCID=501',
+'Label=UH3990_U5, CellID=39905, LogicRNCID=501',
+'Label=UH3990_U3, CellID=39903, LogicRNCID=501',
+]  # новый кластер для отчёта
+cluster_VsyoOstalnoye = [
+'Label=UH2709_U96, CellID=50067, LogicRNCID=501',
+'Label=UH2709_U95, CellID=50066, LogicRNCID=501',
+'Label=UH2709_U94, CellID=50065, LogicRNCID=501',
+'Label=UH2709_U5, CellID=27095, LogicRNCID=501',
+'Label=UH2709_U4, CellID=27094, LogicRNCID=501',
+'Label=UH2709_U2, CellID=27092, LogicRNCID=501',
+'Label=UH2709_U1, CellID=27091, LogicRNCID=501',
+'Label=UH1804_U95, CellID=50023, LogicRNCID=501',
+'Label=UH1804_U94, CellID=50022, LogicRNCID=501',
+'Label=UH0761_U94, CellID=47614, LogicRNCID=501',
+'Label=UH0746_U96, CellID=47466, LogicRNCID=501',
+'Label=UH1602_U94, CellID=51007, LogicRNCID=501',
+'Label=UH0869_U95, CellID=48695, LogicRNCID=501',
+'Label=UH0869_U94, CellID=48694, LogicRNCID=501',
+'Label=UH1936_U95, CellID=59365, LogicRNCID=501',
+'Label=UH0980_U6, CellID=9806, LogicRNCID=501',
+'Label=UH0980_U5, CellID=9805, LogicRNCID=501',
+'Label=UH0980_U3, CellID=9803, LogicRNCID=501',
+'Label=UH0980_U1, CellID=9801, LogicRNCID=501',
+'Label=UH1902_U96, CellID=50036, LogicRNCID=501',
+'Label=UH1902_U94, CellID=50034, LogicRNCID=501',
+'Label=UH0980_U2, CellID=9802, LogicRNCID=501',
+'Label=UH0974_U3, CellID=9743, LogicRNCID=501',
+'Label=UH0974_U1, CellID=9741, LogicRNCID=501',
+'Label=UH0974_U6, CellID=9746, LogicRNCID=501',
+'Label=UH0974_U4, CellID=9744, LogicRNCID=501',
+'Label=UH0854_U4, CellID=8544, LogicRNCID=501',
+'Label=UH0854_U3, CellID=8543, LogicRNCID=501',
+'Label=UH0854_U6, CellID=8546, LogicRNCID=501',
+'Label=UH1604_U96, CellID=50015, LogicRNCID=501',
+'Label=UH1604_U95, CellID=50014, LogicRNCID=501',
+'Label=UH0854_U1, CellID=8541, LogicRNCID=501',
+'Label=UH0717_U96, CellID=47176, LogicRNCID=501',
+'Label=UH0717_U94, CellID=47174, LogicRNCID=501',
+'Label=UH1603_U96, CellID=50012, LogicRNCID=501',
+'Label=UH1603_U95, CellID=50011, LogicRNCID=501',
+'Label=UH1801_U96, CellID=58016, LogicRNCID=501',
+'Label=UH1801_U94, CellID=58014, LogicRNCID=501',
+'Label=UH3928_U5, CellID=39285, LogicRNCID=501',
+'Label=UH3928_U4, CellID=39284, LogicRNCID=501',
+'Label=UH3928_U2, CellID=39282, LogicRNCID=501',
+'Label=UH3928_U1, CellID=39281, LogicRNCID=501',
+'Label=UH1984_U4, CellID=19844, LogicRNCID=501',
+'Label=UH1984_U2, CellID=19842, LogicRNCID=501',
+'Label=UH1918_U6, CellID=19186, LogicRNCID=501',
+'Label=UH1918_U5, CellID=19185, LogicRNCID=501',
+'Label=UH1918_U4, CellID=19184, LogicRNCID=501',
+'Label=UH1918_U2, CellID=19182, LogicRNCID=501',
+'Label=UH1918_U1, CellID=19181, LogicRNCID=501',
+'Label=UH0955_U95, CellID=49555, LogicRNCID=501',
+'Label=UH0955_U94, CellID=49554, LogicRNCID=501',
+'Label=UH0955_U3, CellID=9553, LogicRNCID=501',
+'Label=UH0955_U1, CellID=9551, LogicRNCID=501',
+'Label=UH0955_U6, CellID=9556, LogicRNCID=501',
+'Label=UH0955_U4, CellID=9554, LogicRNCID=501',
+'Label=UH0723_U95, CellID=47235, LogicRNCID=501',
+'Label=UH0723_U94, CellID=47234, LogicRNCID=501',
+'Label=UH3995_U2, CellID=39952, LogicRNCID=501',
+'Label=UH3996_U5, CellID=39965, LogicRNCID=501',
+'Label=UH3996_U4, CellID=39964, LogicRNCID=501',
+'Label=UH3996_U2, CellID=39962, LogicRNCID=501',
+'Label=UH1928_U95, CellID=50049, LogicRNCID=501',
+'Label=UH1928_U5, CellID=19285, LogicRNCID=501',
+'Label=UH1928_U4, CellID=19284, LogicRNCID=501',
+'Label=UH0636_U96, CellID=46366, LogicRNCID=501',
+'Label=UH1928_U3, CellID=19283, LogicRNCID=501',
+'Label=UH1928_U2, CellID=19282, LogicRNCID=501',
+'Label=UH3995_U1, CellID=39951, LogicRNCID=501',
+'Label=UH0636_U94, CellID=46364, LogicRNCID=501',
+'Label=UH0636_U95, CellID=46365, LogicRNCID=501',
+'Label=UH0636_U6, CellID=6366, LogicRNCID=501',
+'Label=UH0636_U3, CellID=6363, LogicRNCID=501',
+'Label=UH3995_U5, CellID=39955, LogicRNCID=501',
+'Label=UH1928_U96, CellID=50050, LogicRNCID=501',
+'Label=UH3995_U3, CellID=39953, LogicRNCID=501',
+'Label=UH1805_U96, CellID=50027, LogicRNCID=501',
+'Label=UH1805_U95, CellID=50026, LogicRNCID=501',
+'Label=UH1805_U94, CellID=50025, LogicRNCID=501',
+'Label=UH0849_U95, CellID=48495, LogicRNCID=501',
+'Label=UH0849_U94, CellID=48494, LogicRNCID=501',
+'Label=UH0849_U96, CellID=48496, LogicRNCID=501',
+'Label=UH0611_U96, CellID=46116, LogicRNCID=501',
+'Label=UH0611_U95, CellID=46115, LogicRNCID=501',
+'Label=UH0611_U94, CellID=46114, LogicRNCID=501',
+'Label=UH0747_U94, CellID=47474, LogicRNCID=501',
+'Label=UH0760_U97, CellID=50074, LogicRNCID=501',
+'Label=UH0750_U96, CellID=47506, LogicRNCID=501',
+'Label=UH0750_U95, CellID=47505, LogicRNCID=501',
+'Label=UH0760_U95, CellID=50072, LogicRNCID=501',
+'Label=UH0760_U94, CellID=50071, LogicRNCID=501',
+'Label=UH0736_U94, CellID=47364, LogicRNCID=501',
+'Label=UH0739_U96, CellID=47396, LogicRNCID=501',
+'Label=UH0732_U96, CellID=47326, LogicRNCID=501',
+'Label=UH0745_U94, CellID=47454, LogicRNCID=501',
+'Label=UH0740_U96, CellID=47406, LogicRNCID=501',
+'Label=UH0739_U95, CellID=47395, LogicRNCID=501',
+'Label=UH0736_U96, CellID=47366, LogicRNCID=501',
+'Label=UH0704_U96, CellID=47046, LogicRNCID=501',
+'Label=UH0736_U95, CellID=47365, LogicRNCID=501',
+'Label=UH0745_U96, CellID=47456, LogicRNCID=501',
+'Label=UH0704_U95, CellID=47045, LogicRNCID=501',
+'Label=UH1803_U96, CellID=50021, LogicRNCID=501',
+'Label=UH1803_U94, CellID=50019, LogicRNCID=501',
+'Label=UH1803_U95, CellID=50020, LogicRNCID=501',
+'Label=UH0965_U95, CellID=49655, LogicRNCID=501',
+'Label=UH0965_U94, CellID=49654, LogicRNCID=501',
+'Label=UH0844_U96, CellID=48446, LogicRNCID=501',
+'Label=UH0845_U96, CellID=48456, LogicRNCID=501',
+'Label=UH0845_U95, CellID=48455, LogicRNCID=501',
+'Label=UH0770_U94, CellID=47704, LogicRNCID=501',
+'Label=UH0744_U95, CellID=47445, LogicRNCID=501',
+'Label=UH0738_U96, CellID=47386, LogicRNCID=501',
+'Label=UH0738_U95, CellID=47385, LogicRNCID=501',
+'Label=UH0734_U95, CellID=47345, LogicRNCID=501',
+'Label=UH0770_U96, CellID=47706, LogicRNCID=501',
+'Label=UH0823_U95, CellID=48235, LogicRNCID=501',
+'Label=UH0845_U94, CellID=48454, LogicRNCID=501',
+'Label=UH1951_U94, CellID=50062, LogicRNCID=501',
+'Label=UH0734_U94, CellID=47344, LogicRNCID=501',
+'Label=UH0767_U96, CellID=47676, LogicRNCID=501',
+'Label=UH0844_U94, CellID=48444, LogicRNCID=501',
+'Label=UH0738_U94, CellID=47384, LogicRNCID=501',
+'Label=UH0767_U94, CellID=47674, LogicRNCID=501',
+'Label=UH1951_U96, CellID=50064, LogicRNCID=501',
+'Label=UH0840_U94, CellID=48404, LogicRNCID=501',
+'Label=UH0843_U95, CellID=48435, LogicRNCID=501',
+'Label=UH1602_U95, CellID=51008, LogicRNCID=501',
+'Label=UH0973_U95, CellID=49735, LogicRNCID=501',
+'Label=UH0737_U95, CellID=47375, LogicRNCID=501',
+'Label=UH0737_U94, CellID=47374, LogicRNCID=501',
+'Label=UH0973_U96, CellID=49736, LogicRNCID=501',
+'Label=UH0752_U96, CellID=47526, LogicRNCID=501',
+'Label=UH0752_U95, CellID=47525, LogicRNCID=501',
+'Label=UH0843_U94, CellID=48434, LogicRNCID=501',
+'Label=UH0702_U96, CellID=47026, LogicRNCID=501',
+'Label=UH0973_U94, CellID=49734, LogicRNCID=501',
+'Label=UH0951_U3, CellID=9513, LogicRNCID=501',
+'Label=UH0715_U94, CellID=47154, LogicRNCID=501',
+'Label=UH0703_U96, CellID=47036, LogicRNCID=501',
+'Label=UH0703_U95, CellID=47035, LogicRNCID=501',
+'Label=UH0841_U96, CellID=48416, LogicRNCID=501',
+'Label=UH0841_U95, CellID=48415, LogicRNCID=501',
+'Label=UH0752_U94, CellID=47524, LogicRNCID=501',
+'Label=UH0715_U95, CellID=47155, LogicRNCID=501',
+'Label=UH0951_U6, CellID=9516, LogicRNCID=501',
+'Label=UH0841_U94, CellID=48414, LogicRNCID=501',
+'Label=UH0840_U95, CellID=48405, LogicRNCID=501',
+'Label=UH0839_U96, CellID=48396, LogicRNCID=501',
+'Label=UH0839_U95, CellID=48395, LogicRNCID=501',
+'Label=UH0838_U96, CellID=48386, LogicRNCID=501',
+'Label=UH0838_U95, CellID=48385, LogicRNCID=501',
+'Label=UH0765_U94, CellID=47654, LogicRNCID=501',
+'Label=UH0758_U94, CellID=47584, LogicRNCID=501',
+'Label=UH0835_U96, CellID=48356, LogicRNCID=501',
+'Label=UH0835_U95, CellID=48355, LogicRNCID=501',
+'Label=UH0833_U96, CellID=48336, LogicRNCID=501',
+'Label=UH0825_U96, CellID=48256, LogicRNCID=501',
+'Label=UH0825_U94, CellID=48254, LogicRNCID=501',
+'Label=UH0766_U94, CellID=47666, LogicRNCID=501',
+'Label=UH0825_U95, CellID=48255, LogicRNCID=501',
+'Label=UH0833_U95, CellID=48335, LogicRNCID=501',
+'Label=UH0833_U94, CellID=48334, LogicRNCID=501',
+'Label=UH0766_U96, CellID=47664, LogicRNCID=501',
+'Label=UH0807_U94, CellID=48074, LogicRNCID=501',
+'Label=UH0600_U1, CellID=6001, LogicRNCID=501',
+'Label=UH0758_U95, CellID=47585, LogicRNCID=501',
+'Label=UH0754_U95, CellID=47545, LogicRNCID=501',
+'Label=UH0714_U95, CellID=47145, LogicRNCID=501',
+'Label=UH0714_U94, CellID=47144, LogicRNCID=501',
+'Label=UH0614_U95, CellID=46145, LogicRNCID=501',
+'Label=UH0614_U94, CellID=46144, LogicRNCID=501',
+'Label=UH0713_U95, CellID=47135, LogicRNCID=501',
+'Label=UH0600_U5, CellID=6005, LogicRNCID=501',
+'Label=UH0756_U94, CellID=47564, LogicRNCID=501',
+'Label=UH0600_U2, CellID=6002, LogicRNCID=501',
+'Label=UH0708_U95, CellID=47085, LogicRNCID=501',
+'Label=UH0708_U94, CellID=47084, LogicRNCID=501',
+'Label=UH0706_U96, CellID=47066, LogicRNCID=501',
+'Label=UH0614_U96, CellID=46146, LogicRNCID=501',
+'Label=UH0705_U94, CellID=47054, LogicRNCID=501',
+'Label=UH0731_U95, CellID=47315, LogicRNCID=501',
+'Label=UH0756_U96, CellID=47566, LogicRNCID=501',
+'Label=UH0706_U94, CellID=47064, LogicRNCID=501',
+'Label=UH0705_U96, CellID=47056, LogicRNCID=501',
+'Label=UH0751_U96, CellID=47516, LogicRNCID=501',
+'Label=UH0751_U94, CellID=47514, LogicRNCID=501',
+'Label=UH0742_U96, CellID=47426, LogicRNCID=501',
+'Label=UH0742_U95, CellID=47425, LogicRNCID=501',
+'Label=UH0742_U94, CellID=47424, LogicRNCID=501',
+'Label=UH0735_U95, CellID=47355, LogicRNCID=501',
+'Label=UH0743_U96, CellID=47436, LogicRNCID=501',
+'Label=UH0623_U96, CellID=46236, LogicRNCID=501',
+'Label=UH0623_U95, CellID=46235, LogicRNCID=501',
+'Label=UH0622_U96, CellID=46226, LogicRNCID=501',
+'Label=UH0623_U94, CellID=46234, LogicRNCID=501',
+'Label=UH0623_U1, CellID=6231, LogicRNCID=501',
+'Label=UH0618_U96, CellID=46186, LogicRNCID=501',
+'Label=UH0623_U6, CellID=6236, LogicRNCID=501',
+'Label=UH0623_U5, CellID=6235, LogicRNCID=501',
+'Label=UH0601_U95, CellID=46015, LogicRNCID=501',
+'Label=UH0623_U4, CellID=6234, LogicRNCID=501',
+'Label=UH0623_U2, CellID=6232, LogicRNCID=501',
+'Label=UH0601_U94, CellID=46014, LogicRNCID=501',
+'Label=UH0622_U95, CellID=46225, LogicRNCID=501',
+'Label=UH0508_U6, CellID=5086, LogicRNCID=501',
+'Label=UH0508_U3, CellID=5083, LogicRNCID=501',
+'Label=UH0508_U2, CellID=5082, LogicRNCID=501',
+'Label=UH0742_U2, CellID=7422, LogicRNCID=501',
+'Label=UH0842_U3, CellID=8423, LogicRNCID=501',
+'Label=UH0842_U2, CellID=8422, LogicRNCID=501',
+'Label=UH0842_U1, CellID=8421, LogicRNCID=501',
+'Label=UH0822_U6, CellID=8226, LogicRNCID=501',
+'Label=UH0822_U4, CellID=8224, LogicRNCID=501',
+'Label=UH0841_U6, CellID=8416, LogicRNCID=501',
+'Label=UH0841_U4, CellID=8414, LogicRNCID=501',
+'Label=UH0841_U3, CellID=8413, LogicRNCID=501',
+'Label=UH0841_U2, CellID=8412, LogicRNCID=501',
+'Label=UH0842_U6, CellID=8426, LogicRNCID=501',
+'Label=UH0842_U5, CellID=8425, LogicRNCID=501',
+'Label=UH0822_U3, CellID=8223, LogicRNCID=501',
+'Label=UH0822_U2, CellID=8222, LogicRNCID=501',
+'Label=UH0841_U1, CellID=8411, LogicRNCID=501',
+'Label=UH0742_U5, CellID=7425, LogicRNCID=501',
+'Label=UH0841_U5, CellID=8415, LogicRNCID=501',
+'Label=UH0822_U5, CellID=8225, LogicRNCID=501',
+'Label=UH0742_U1, CellID=7421, LogicRNCID=501',
+'Label=UH0842_U4, CellID=8424, LogicRNCID=501',
+'Label=UH0822_U1, CellID=8221, LogicRNCID=501',
+'Label=UH0742_U4, CellID=7424, LogicRNCID=501',
+'Label=UH0508_U5, CellID=5085, LogicRNCID=501',
+'Label=UH0623_U3, CellID=6233, LogicRNCID=501',
+'Label=UH0601_U96, CellID=46016, LogicRNCID=501',
+'Label=UH0618_U95, CellID=46185, LogicRNCID=501',
+'Label=UH0618_U94, CellID=46184, LogicRNCID=501',
+'Label=UH0735_U94, CellID=47354, LogicRNCID=501',
+'Label=UH0622_U94, CellID=46224, LogicRNCID=501',
+'Label=UH0735_U96, CellID=47356, LogicRNCID=501',
+'Label=UH0743_U95, CellID=47435, LogicRNCID=501',
+'Label=UH0705_U95, CellID=47055, LogicRNCID=501',
+'Label=UH0731_U94, CellID=47314, LogicRNCID=501',
+'Label=UH0731_U96, CellID=47316, LogicRNCID=501',
+'Label=UH0706_U95, CellID=47065, LogicRNCID=501',
+'Label=UH0708_U96, CellID=47086, LogicRNCID=501',
+'Label=UH0600_U4, CellID=6004, LogicRNCID=501',
+'Label=UH0713_U96, CellID=47136, LogicRNCID=501',
+'Label=UH0713_U94, CellID=47134, LogicRNCID=501',
+'Label=UH0754_U94, CellID=47544, LogicRNCID=501',
+'Label=UH0766_U95, CellID=47665, LogicRNCID=501',
+'Label=UH0765_U96, CellID=47656, LogicRNCID=501',
+'Label=UH0807_U96, CellID=48076, LogicRNCID=501',
+'Label=UH0807_U95, CellID=48075, LogicRNCID=501',
+'Label=UH0838_U94, CellID=48384, LogicRNCID=501',
+'Label=UH0758_U96, CellID=47586, LogicRNCID=501',
+'Label=UH0835_U94, CellID=48354, LogicRNCID=501',
+'Label=UH0839_U94, CellID=48394, LogicRNCID=501',
+'Label=UH0840_U96, CellID=48406, LogicRNCID=501',
+'Label=UH0703_U94, CellID=47034, LogicRNCID=501',
+'Label=UH0715_U96, CellID=47156, LogicRNCID=501',
+'Label=UH0951_U94, CellID=49514, LogicRNCID=501',
+'Label=UH0951_U96, CellID=49516, LogicRNCID=501',
+'Label=UH0702_U95, CellID=47025, LogicRNCID=501',
+'Label=UH0702_U94, CellID=47024, LogicRNCID=501',
+'Label=UH0843_U96, CellID=48436, LogicRNCID=501',
+'Label=UH0737_U96, CellID=47376, LogicRNCID=501',
+'Label=UH1602_U96, CellID=51009, LogicRNCID=501',
+'Label=UH1951_U95, CellID=50063, LogicRNCID=501',
+'Label=UH0744_U96, CellID=47446, LogicRNCID=501',
+'Label=UH0767_U95, CellID=47675, LogicRNCID=501',
+'Label=UH0744_U94, CellID=47444, LogicRNCID=501',
+'Label=UH0770_U95, CellID=47705, LogicRNCID=501',
+'Label=UH0734_U96, CellID=47346, LogicRNCID=501',
+'Label=UH0823_U94, CellID=48234, LogicRNCID=501',
+'Label=UH0823_U96, CellID=48236, LogicRNCID=501',
+'Label=UH0844_U95, CellID=48445, LogicRNCID=501',
+'Label=UH0965_U96, CellID=49656, LogicRNCID=501',
+'Label=UH0759_U95, CellID=47595, LogicRNCID=501',
+'Label=UH0750_U94, CellID=47504, LogicRNCID=501',
+'Label=UH0732_U94, CellID=47324, LogicRNCID=501',
+'Label=UH0740_U95, CellID=47405, LogicRNCID=501',
+'Label=UH0732_U95, CellID=47325, LogicRNCID=501',
+'Label=UH0740_U94, CellID=47404, LogicRNCID=501',
+'Label=UH0760_U96, CellID=50073, LogicRNCID=501',
+'Label=UH0759_U96, CellID=47596, LogicRNCID=501',
+'Label=UH0745_U95, CellID=47455, LogicRNCID=501',
+'Label=UH0747_U95, CellID=47475, LogicRNCID=501',
+'Label=UH0636_U2, CellID=6362, LogicRNCID=501',
+'Label=UH3995_U4, CellID=39954, LogicRNCID=501',
+'Label=UH0636_U5, CellID=6365, LogicRNCID=501',
+'Label=UH3995_U6, CellID=39956, LogicRNCID=501',
+'Label=UH3996_U1, CellID=39961, LogicRNCID=501',
+'Label=UH1928_U1, CellID=19281, LogicRNCID=501',
+'Label=UH1928_U6, CellID=19286, LogicRNCID=501',
+'Label=UH3996_U3, CellID=39963, LogicRNCID=501',
+'Label=UH3996_U6, CellID=39966, LogicRNCID=501',
+'Label=UH0723_U96, CellID=47236, LogicRNCID=501',
+'Label=UH0955_U5, CellID=9555, LogicRNCID=501',
+'Label=UH0955_U2, CellID=9552, LogicRNCID=501',
+'Label=UH0955_U96, CellID=49556, LogicRNCID=501',
+'Label=UH1918_U3, CellID=19183, LogicRNCID=501',
+'Label=UH1984_U1, CellID=19841, LogicRNCID=501',
+'Label=UH1984_U5, CellID=19845, LogicRNCID=501',
+'Label=UH3928_U3, CellID=39283, LogicRNCID=501',
+'Label=UH3928_U6, CellID=39286, LogicRNCID=501',
+'Label=UH1603_U94, CellID=50010, LogicRNCID=501',
+'Label=UH0717_U95, CellID=47175, LogicRNCID=501',
+'Label=UH1604_U94, CellID=50013, LogicRNCID=501',
+'Label=UH0854_U5, CellID=8545, LogicRNCID=501',
+'Label=UH0854_U2, CellID=8542, LogicRNCID=501',
+'Label=UH0974_U5, CellID=9745, LogicRNCID=501',
+'Label=UH0974_U2, CellID=9742, LogicRNCID=501',
+'Label=UH1902_U95, CellID=50035, LogicRNCID=501',
+'Label=UH0980_U4, CellID=9804, LogicRNCID=501',
+'Label=UH1936_U96, CellID=59366, LogicRNCID=501',
+'Label=UH0869_U96, CellID=48696, LogicRNCID=501',
+'Label=UH0746_U95, CellID=47465, LogicRNCID=501',
+'Label=UH0761_U96, CellID=47616, LogicRNCID=501',
+'Label=UH1804_U96, CellID=50024, LogicRNCID=501',
+'Label=UH2709_U3, CellID=27093, LogicRNCID=501',
+'Label=UH2709_U6, CellID=27096, LogicRNCID=501',
+'Label=UH0849_U5, CellID=8495, LogicRNCID=501',
+'Label=UH0849_U3, CellID=8493, LogicRNCID=501',
+'Label=UH0849_U2, CellID=8492, LogicRNCID=501',
+'Label=UH0849_U1, CellID=8491, LogicRNCID=501',
+'Label=UH3920_U4, CellID=39204, LogicRNCID=501',
+'Label=UH3920_U2, CellID=39202, LogicRNCID=501',
+'Label=UH2984_U6, CellID=29846, LogicRNCID=501',
+'Label=UH2984_U5, CellID=29845, LogicRNCID=501',
+'Label=UH2984_U2, CellID=29842, LogicRNCID=501',
+'Label=UH2984_U1, CellID=29841, LogicRNCID=501',
+'Label=UH0839_U6, CellID=8396, LogicRNCID=501',
+'Label=UH0839_U5, CellID=8395, LogicRNCID=501',
+'Label=UH0965_U2, CellID=9652, LogicRNCID=501',
+'Label=UH0965_U1, CellID=9651, LogicRNCID=501',
+'Label=UH0839_U2, CellID=8392, LogicRNCID=501',
+'Label=UH1906_U2, CellID=19062, LogicRNCID=501',
+'Label=UH0965_U6, CellID=9656, LogicRNCID=501',
+'Label=UH0965_U3, CellID=9653, LogicRNCID=501',
+'Label=UH1805_U4, CellID=18054, LogicRNCID=501',
+'Label=UH1805_U1, CellID=18051, LogicRNCID=501',
+'Label=UH0839_U3, CellID=8393, LogicRNCID=501',
+'Label=UH1906_U5, CellID=19065, LogicRNCID=501',
+'Label=UH1906_U4, CellID=19064, LogicRNCID=501',
+'Label=UH1805_U5, CellID=18055, LogicRNCID=501',
+'Label=UH1805_U3, CellID=18053, LogicRNCID=501',
+'Label=UH1906_U3, CellID=19063, LogicRNCID=501',
+'Label=UH1916_U6, CellID=19166, LogicRNCID=501',
+'Label=UH1916_U5, CellID=19165, LogicRNCID=501',
+'Label=UH1916_U4, CellID=19164, LogicRNCID=501',
+'Label=UH1945_U3, CellID=19453, LogicRNCID=501',
+'Label=UH1916_U1, CellID=19161, LogicRNCID=501',
+'Label=UH1945_U6, CellID=19456, LogicRNCID=501',
+'Label=UH0823_U5, CellID=8235, LogicRNCID=501',
+'Label=UH0823_U3, CellID=8233, LogicRNCID=501',
+'Label=UH0823_U2, CellID=8232, LogicRNCID=501',
+'Label=UH1945_U1, CellID=19451, LogicRNCID=501',
+'Label=UH0823_U1, CellID=8231, LogicRNCID=501',
+'Label=UH0738_U5, CellID=7385, LogicRNCID=501',
+'Label=UH0738_U4, CellID=7384, LogicRNCID=501',
+'Label=UH0738_U3, CellID=7383, LogicRNCID=501',
+'Label=UH0743_U6, CellID=7436, LogicRNCID=501',
+'Label=UH0743_U5, CellID=7435, LogicRNCID=501',
+'Label=UH0743_U3, CellID=7433, LogicRNCID=501',
+'Label=UH0743_U2, CellID=7432, LogicRNCID=501',
+'Label=UH1916_U3, CellID=19163, LogicRNCID=501',
+'Label=UH1945_U4, CellID=19454, LogicRNCID=501',
+'Label=UH0743_U1, CellID=7431, LogicRNCID=501',
+'Label=UH2763_U2, CellID=27632, LogicRNCID=501',
+'Label=UH3921_U2, CellID=39212, LogicRNCID=501',
+'Label=UH2763_U1, CellID=27631, LogicRNCID=501',
+'Label=UH3921_U6, CellID=39216, LogicRNCID=501',
+'Label=UH2763_U6, CellID=27636, LogicRNCID=501',
+'Label=UH2763_U4, CellID=27634, LogicRNCID=501',
+'Label=UH2763_U3, CellID=27633, LogicRNCID=501',
+'Label=UH3921_U1, CellID=39211, LogicRNCID=501',
+'Label=UH1951_U1, CellID=19511, LogicRNCID=501',
+'Label=UH3921_U5, CellID=39215, LogicRNCID=501',
+'Label=UH3921_U4, CellID=39214, LogicRNCID=501',
+'Label=UH1702_U1, CellID=17021, LogicRNCID=501',
+'Label=UH1951_U5, CellID=19515, LogicRNCID=501',
+'Label=UH1951_U4, CellID=19514, LogicRNCID=501',
+'Label=UH1702_U5, CellID=17025, LogicRNCID=501',
+'Label=UH1702_U4, CellID=17024, LogicRNCID=501',
+'Label=UH3921_U3, CellID=39213, LogicRNCID=501',
+'Label=UH0717_U4, CellID=7174, LogicRNCID=501',
+'Label=UH0717_U3, CellID=7173, LogicRNCID=501',
+'Label=UH1951_U3, CellID=19513, LogicRNCID=501',
+'Label=UH0717_U6, CellID=7176, LogicRNCID=501',
+'Label=UH0717_U5, CellID=7175, LogicRNCID=501',
+'Label=UH0747_U5, CellID=7475, LogicRNCID=501',
+'Label=UH0622_U1, CellID=6221, LogicRNCID=501',
+'Label=UH0622_U6, CellID=6226, LogicRNCID=501',
+'Label=UH0622_U4, CellID=6224, LogicRNCID=501',
+'Label=UH0622_U3, CellID=6223, LogicRNCID=501',
+'Label=UH0711_U4, CellID=7114, LogicRNCID=501',
+'Label=UH0711_U3, CellID=7113, LogicRNCID=501',
+'Label=UH0711_U6, CellID=7116, LogicRNCID=501',
+'Label=UH0734_U2, CellID=7342, LogicRNCID=501',
+'Label=UH0770_U3, CellID=7703, LogicRNCID=501',
+'Label=UH0770_U2, CellID=7702, LogicRNCID=501',
+'Label=UH0763_U4, CellID=7634, LogicRNCID=501',
+'Label=UH0763_U2, CellID=7632, LogicRNCID=501',
+'Label=UH0763_U1, CellID=7631, LogicRNCID=501',
+'Label=UH0763_U6, CellID=7636, LogicRNCID=501',
+'Label=UH0770_U5, CellID=7705, LogicRNCID=501',
+'Label=UH0734_U5, CellID=7345, LogicRNCID=501',
+'Label=UH0763_U5, CellID=7635, LogicRNCID=501',
+'Label=UH0734_U1, CellID=7341, LogicRNCID=501',
+'Label=UH0763_U3, CellID=7633, LogicRNCID=501',
+'Label=UH0611_U4, CellID=6114, LogicRNCID=501',
+'Label=UH2983_U3, CellID=29833, LogicRNCID=501',
+'Label=UH2983_U2, CellID=29832, LogicRNCID=501',
+'Label=UH0994_U6, CellID=9946, LogicRNCID=501',
+'Label=UH0994_U5, CellID=9945, LogicRNCID=501',
+'Label=UH0994_U4, CellID=9944, LogicRNCID=501',
+'Label=UH0840_U1, CellID=8401, LogicRNCID=501',
+'Label=UH0807_U2, CellID=8072, LogicRNCID=501',
+'Label=UH2983_U5, CellID=29835, LogicRNCID=501',
+'Label=UH0840_U4, CellID=8404, LogicRNCID=501',
+'Label=UH0994_U3, CellID=9943, LogicRNCID=501',
+'Label=UH0994_U1, CellID=9941, LogicRNCID=501',
+'Label=UH0840_U6, CellID=8406, LogicRNCID=501',
+'Label=UH0807_U1, CellID=8071, LogicRNCID=501',
+'Label=UH2983_U1, CellID=29831, LogicRNCID=501',
+'Label=UH1939_U4, CellID=19394, LogicRNCID=501',
+'Label=UH0807_U3, CellID=8073, LogicRNCID=501',
+'Label=UH0611_U1, CellID=6111, LogicRNCID=501',
+'Label=UH1939_U6, CellID=19396, LogicRNCID=501',
+'Label=UH1939_U1, CellID=19391, LogicRNCID=501',
+'Label=UH0611_U3, CellID=6113, LogicRNCID=501',
+'Label=UH0807_U6, CellID=8076, LogicRNCID=501',
+'Label=UH0807_U4, CellID=8074, LogicRNCID=501',
+'Label=UH1939_U2, CellID=19392, LogicRNCID=501',
+'Label=UH1976_U4, CellID=19764, LogicRNCID=501',
+'Label=UH1976_U3, CellID=19763, LogicRNCID=501',
+'Label=UH1908_U3, CellID=19083, LogicRNCID=501',
+'Label=UH1908_U2, CellID=19082, LogicRNCID=501',
+'Label=UH1976_U1, CellID=19761, LogicRNCID=501',
+'Label=UH1908_U6, CellID=19086, LogicRNCID=501',
+'Label=UH0706_U1, CellID=7061, LogicRNCID=501',
+'Label=UH1908_U4, CellID=19084, LogicRNCID=501',
+'Label=UH1976_U6, CellID=19766, LogicRNCID=501',
+'Label=UH0714_U3, CellID=7143, LogicRNCID=501',
+'Label=UH0714_U5, CellID=7145, LogicRNCID=501',
+'Label=UH0838_U3, CellID=8383, LogicRNCID=501',
+'Label=UH0838_U2, CellID=8382, LogicRNCID=501',
+'Label=UH0972_U2, CellID=9722, LogicRNCID=501',
+'Label=UH0714_U1, CellID=7141, LogicRNCID=501',
+'Label=UH0838_U5, CellID=8385, LogicRNCID=501',
+'Label=UH0714_U2, CellID=7142, LogicRNCID=501',
+'Label=UH0838_U1, CellID=8381, LogicRNCID=501',
+'Label=UH0981_U1, CellID=9811, LogicRNCID=501',
+'Label=UH1935_U5, CellID=19355, LogicRNCID=501',
+'Label=UH0972_U3, CellID=9723, LogicRNCID=501',
+'Label=UH0981_U4, CellID=9814, LogicRNCID=501',
+'Label=UH1935_U3, CellID=19353, LogicRNCID=501',
+'Label=UH1935_U2, CellID=19352, LogicRNCID=501',
+'Label=UH0981_U6, CellID=9816, LogicRNCID=501',
+'Label=UH0981_U5, CellID=9815, LogicRNCID=501',
+'Label=UH0972_U4, CellID=9724, LogicRNCID=501',
+'Label=UH0973_U3, CellID=9733, LogicRNCID=501',
+'Label=UH0973_U2, CellID=9732, LogicRNCID=501',
+'Label=UH0972_U6, CellID=9726, LogicRNCID=501',
+'Label=UH0972_U5, CellID=9725, LogicRNCID=501',
+'Label=UH0973_U4, CellID=9734, LogicRNCID=501',
+'Label=UH0981_U3, CellID=9813, LogicRNCID=501',
+'Label=UH0973_U6, CellID=9736, LogicRNCID=501',
+'Label=UH0618_U3, CellID=6183, LogicRNCID=501',
+'Label=UH0618_U1, CellID=6181, LogicRNCID=501',
+'Label=UH0825_U6, CellID=8256, LogicRNCID=501',
+'Label=UH0825_U3, CellID=8253, LogicRNCID=501',
+'Label=UH0825_U2, CellID=8252, LogicRNCID=501',
+'Label=UH0601_U6, CellID=6016, LogicRNCID=501',
+'Label=UH0618_U6, CellID=6186, LogicRNCID=501',
+'Label=UH0601_U4, CellID=6014, LogicRNCID=501',
+'Label=UH0601_U3, CellID=6013, LogicRNCID=501',
+'Label=UH0601_U1, CellID=6011, LogicRNCID=501',
+'Label=UH1803_U6, CellID=18036, LogicRNCID=501',
+'Label=UH0825_U4, CellID=8254, LogicRNCID=501',
+'Label=UH1803_U1, CellID=18031, LogicRNCID=501',
+'Label=UH1803_U4, CellID=18034, LogicRNCID=501',
+'Label=UH0618_U5, CellID=6185, LogicRNCID=501',
+'Label=UH1833_U1, CellID=18331, LogicRNCID=501',
+'Label=UH0845_U6, CellID=8456, LogicRNCID=501',
+'Label=UH0845_U5, CellID=8455, LogicRNCID=501',
+'Label=UH0845_U3, CellID=8453, LogicRNCID=501',
+'Label=UH1803_U3, CellID=18033, LogicRNCID=501',
+'Label=UH0844_U5, CellID=8445, LogicRNCID=501',
+'Label=UH0845_U2, CellID=8452, LogicRNCID=501',
+'Label=UH0835_U6, CellID=8356, LogicRNCID=501',
+'Label=UH0835_U5, CellID=8355, LogicRNCID=501',
+'Label=UH0844_U4, CellID=8444, LogicRNCID=501',
+'Label=UH0844_U3, CellID=8443, LogicRNCID=501',
+'Label=UH1833_U6, CellID=18336, LogicRNCID=501',
+'Label=UH0845_U1, CellID=8451, LogicRNCID=501',
+'Label=UH0844_U6, CellID=8446, LogicRNCID=501',
+'Label=UH0835_U3, CellID=8353, LogicRNCID=501',
+'Label=UH0835_U2, CellID=8352, LogicRNCID=501',
+'Label=UH1833_U3, CellID=18333, LogicRNCID=501',
+'Label=UH1833_U2, CellID=18332, LogicRNCID=501',
+'Label=UH0844_U1, CellID=8441, LogicRNCID=501',
+'Label=UH2950_U1, CellID=29501, LogicRNCID=501',
+'Label=UH0758_U3, CellID=7583, LogicRNCID=501',
+'Label=UH2950_U6, CellID=29506, LogicRNCID=501',
+'Label=UH2950_U4, CellID=29504, LogicRNCID=501',
+'Label=UH2950_U3, CellID=29503, LogicRNCID=501',
+'Label=UH0758_U2, CellID=7582, LogicRNCID=501',
+'Label=UH0758_U1, CellID=7581, LogicRNCID=501',
+'Label=UH0758_U6, CellID=7586, LogicRNCID=501',
+'Label=UH0758_U4, CellID=7584, LogicRNCID=501',
+'Label=UH0708_U2, CellID=7082, LogicRNCID=501',
+'Label=UH2913_U5, CellID=29135, LogicRNCID=501',
+'Label=UH2913_U4, CellID=29134, LogicRNCID=501',
+'Label=UH2913_U3, CellID=29133, LogicRNCID=501',
+'Label=UH0950_U3, CellID=9503, LogicRNCID=501',
+'Label=UH2913_U1, CellID=29131, LogicRNCID=501',
+'Label=UH2913_U2, CellID=29132, LogicRNCID=501',
+'Label=UH0950_U4, CellID=9504, LogicRNCID=501',
+'Label=UH2913_U6, CellID=29136, LogicRNCID=501',
+'Label=UH0758_U5, CellID=7585, LogicRNCID=501',
+'Label=UH2950_U2, CellID=29502, LogicRNCID=501',
+'Label=UH2950_U5, CellID=29505, LogicRNCID=501',
+'Label=UH0835_U1, CellID=8351, LogicRNCID=501',
+'Label=UH1833_U4, CellID=18334, LogicRNCID=501',
+'Label=UH1833_U5, CellID=18335, LogicRNCID=501',
+'Label=UH0835_U4, CellID=8354, LogicRNCID=501',
+'Label=UH0844_U2, CellID=8442, LogicRNCID=501',
+'Label=UH1803_U2, CellID=18032, LogicRNCID=501',
+'Label=UH0845_U4, CellID=8454, LogicRNCID=501',
+'Label=UH0618_U4, CellID=6184, LogicRNCID=501',
+'Label=UH1803_U5, CellID=18035, LogicRNCID=501',
+'Label=UH0825_U5, CellID=8255, LogicRNCID=501',
+'Label=UH0601_U2, CellID=6012, LogicRNCID=501',
+'Label=UH0601_U5, CellID=6015, LogicRNCID=501',
+'Label=UH0825_U1, CellID=8251, LogicRNCID=501',
+'Label=UH0618_U2, CellID=6182, LogicRNCID=501',
+'Label=UH0981_U2, CellID=9812, LogicRNCID=501',
+'Label=UH0838_U4, CellID=8384, LogicRNCID=501',
+'Label=UH0973_U1, CellID=9731, LogicRNCID=501',
+'Label=UH1935_U1, CellID=19351, LogicRNCID=501',
+'Label=UH0973_U5, CellID=9735, LogicRNCID=501',
+'Label=UH1935_U6, CellID=19356, LogicRNCID=501',
+'Label=UH1935_U4, CellID=19354, LogicRNCID=501',
+'Label=UH0972_U1, CellID=9721, LogicRNCID=501',
+'Label=UH0838_U6, CellID=8386, LogicRNCID=501',
+'Label=UH0714_U6, CellID=7146, LogicRNCID=501',
+'Label=UH0714_U4, CellID=7144, LogicRNCID=501',
+'Label=UH0706_U4, CellID=7064, LogicRNCID=501',
+'Label=UH1908_U5, CellID=19085, LogicRNCID=501',
+'Label=UH1908_U1, CellID=19081, LogicRNCID=501',
+'Label=UH1976_U2, CellID=19762, LogicRNCID=501',
+'Label=UH1976_U5, CellID=19765, LogicRNCID=501',
+'Label=UH0807_U5, CellID=8075, LogicRNCID=501',
+'Label=UH1939_U5, CellID=19395, LogicRNCID=501',
+'Label=UH0611_U6, CellID=6116, LogicRNCID=501',
+'Label=UH0840_U3, CellID=8403, LogicRNCID=501',
+'Label=UH0994_U2, CellID=9942, LogicRNCID=501',
+'Label=UH2983_U6, CellID=29836, LogicRNCID=501',
+'Label=UH1939_U3, CellID=19393, LogicRNCID=501',
+'Label=UH0840_U5, CellID=8405, LogicRNCID=501',
+'Label=UH2983_U4, CellID=29834, LogicRNCID=501',
+'Label=UH0840_U2, CellID=8402, LogicRNCID=501',
+'Label=UH0711_U1, CellID=7111, LogicRNCID=501',
+'Label=UH0734_U3, CellID=7343, LogicRNCID=501',
+'Label=UH0734_U4, CellID=7344, LogicRNCID=501',
+'Label=UH0734_U6, CellID=7346, LogicRNCID=501',
+'Label=UH0770_U1, CellID=7701, LogicRNCID=501',
+'Label=UH0770_U4, CellID=7704, LogicRNCID=501',
+'Label=UH0770_U6, CellID=7706, LogicRNCID=501',
+'Label=UH0711_U5, CellID=7115, LogicRNCID=501',
+'Label=UH0711_U2, CellID=7112, LogicRNCID=501',
+'Label=UH0622_U2, CellID=6222, LogicRNCID=501',
+'Label=UH0622_U5, CellID=6225, LogicRNCID=501',
+'Label=UH0747_U2, CellID=7472, LogicRNCID=501',
+'Label=UH0717_U1, CellID=7171, LogicRNCID=501',
+'Label=UH1951_U2, CellID=19512, LogicRNCID=501',
+'Label=UH0717_U2, CellID=7172, LogicRNCID=501',
+'Label=UH1702_U3, CellID=17023, LogicRNCID=501',
+'Label=UH1702_U6, CellID=17026, LogicRNCID=501',
+'Label=UH1951_U6, CellID=19516, LogicRNCID=501',
+'Label=UH2763_U5, CellID=27635, LogicRNCID=501',
+'Label=UH1702_U2, CellID=17022, LogicRNCID=501',
+'Label=UH0823_U6, CellID=8236, LogicRNCID=501',
+'Label=UH0743_U4, CellID=7434, LogicRNCID=501',
+'Label=UH0738_U2, CellID=7382, LogicRNCID=501',
+'Label=UH0738_U1, CellID=7381, LogicRNCID=501',
+'Label=UH0738_U6, CellID=7386, LogicRNCID=501',
+'Label=UH1945_U5, CellID=19455, LogicRNCID=501',
+'Label=UH0823_U4, CellID=8234, LogicRNCID=501',
+'Label=UH1945_U2, CellID=19452, LogicRNCID=501',
+'Label=UH1916_U2, CellID=19162, LogicRNCID=501',
+'Label=UH1906_U1, CellID=19061, LogicRNCID=501',
+'Label=UH1805_U6, CellID=18056, LogicRNCID=501',
+'Label=UH1906_U6, CellID=19066, LogicRNCID=501',
+'Label=UH1805_U2, CellID=18052, LogicRNCID=501',
+'Label=UH0965_U5, CellID=9655, LogicRNCID=501',
+'Label=UH0839_U1, CellID=8391, LogicRNCID=501',
+'Label=UH0965_U4, CellID=9654, LogicRNCID=501',
+'Label=UH0839_U4, CellID=8394, LogicRNCID=501',
+'Label=UH2984_U3, CellID=29843, LogicRNCID=501',
+'Label=UH2984_U4, CellID=29844, LogicRNCID=501',
+'Label=UH3920_U1, CellID=39201, LogicRNCID=501',
+'Label=UH3920_U5, CellID=39205, LogicRNCID=501',
+'Label=UH0849_U4, CellID=8494, LogicRNCID=501',
+'Label=UH0849_U6, CellID=8496, LogicRNCID=501',
+'Label=UH0950_U1, CellID=9501, LogicRNCID=501',
+'Label=UH0950_U6, CellID=9506, LogicRNCID=501',
+'Label=UH0708_U3, CellID=7083, LogicRNCID=501',
+'Label=UH0708_U5, CellID=7085, LogicRNCID=501',
+'Label=UH0708_U1, CellID=7081, LogicRNCID=501',
+'Label=UH1936_U5, CellID=19365, LogicRNCID=501',
+'Label=UH1936_U4, CellID=19364, LogicRNCID=501',
+'Label=UH1936_U2, CellID=19362, LogicRNCID=501',
+'Label=UH1936_U1, CellID=19361, LogicRNCID=501',
+'Label=UH0950_U5, CellID=9505, LogicRNCID=501',
+'Label=UH0950_U2, CellID=9502, LogicRNCID=501',
+'Label=UH1801_U3, CellID=18013, LogicRNCID=501',
+'Label=UH1801_U6, CellID=18016, LogicRNCID=501',
+'Label=UH1801_U4, CellID=18014, LogicRNCID=501',
+'Label=UH1801_U1, CellID=18011, LogicRNCID=501',
+'Label=UH0765_U3, CellID=7653, LogicRNCID=501',
+'Label=UH0617_U3, CellID=6173, LogicRNCID=501',
+'Label=UH0765_U5, CellID=7655, LogicRNCID=501',
+'Label=UH0765_U1, CellID=7651, LogicRNCID=501',
+'Label=UH0617_U6, CellID=6176, LogicRNCID=501',
+'Label=UH0617_U4, CellID=6174, LogicRNCID=501',
+'Label=UH0617_U2, CellID=6172, LogicRNCID=501',
+'Label=UH0610_U3, CellID=6103, LogicRNCID=501',
+'Label=UH0610_U6, CellID=6106, LogicRNCID=501',
+'Label=UH0610_U2, CellID=6102, LogicRNCID=501',
+'Label=UH1854_U6, CellID=18546, LogicRNCID=501',
+'Label=UH1854_U5, CellID=18545, LogicRNCID=501',
+'Label=UH1854_U3, CellID=18543, LogicRNCID=501',
+'Label=UH0951_U1, CellID=9511, LogicRNCID=501',
+'Label=UH1854_U2, CellID=18542, LogicRNCID=501',
+'Label=UH1945_U96, CellID=50058, LogicRNCID=501',
+'Label=UH1945_U95, CellID=50057, LogicRNCID=501',
+'Label=UH0646_U96, CellID=51012, LogicRNCID=501',
+'Label=UH0646_U95, CellID=51011, LogicRNCID=501',
+'Label=UH0763_U96, CellID=47636, LogicRNCID=501',
+'Label=UH0763_U95, CellID=47635, LogicRNCID=501',
+'Label=UH0761_U97, CellID=47617, LogicRNCID=501',
+'Label=UH0869_U97, CellID=48697, LogicRNCID=501',
+'Label=UH1945_U99, CellID=50061, LogicRNCID=501',
+'Label=UH1945_U98, CellID=50060, LogicRNCID=501',
+'Label=UH0839_U99, CellID=48399, LogicRNCID=501',
+'Label=UH0839_U97, CellID=48397, LogicRNCID=501',
+'Label=UH0880_U6, CellID=8806, LogicRNCID=501',
+'Label=UH0880_U4, CellID=8804, LogicRNCID=501',
+'Label=UH0880_U1, CellID=8801, LogicRNCID=501',
+'Label=UH0880_U11, CellID=65520, LogicRNCID=501',
+'Label=UH0879_U96, CellID=55060, LogicRNCID=501',
+'Label=UH0879_U5, CellID=8795, LogicRNCID=501',
+'Label=UH0879_U3, CellID=8793, LogicRNCID=501',
+'Label=UH0879_U94, CellID=55062, LogicRNCID=501',
+'Label=UH0879_U95, CellID=55061, LogicRNCID=501',
+'Label=UH0766_U5, CellID=7665, LogicRNCID=501',
+'Label=UH0766_U4, CellID=7664, LogicRNCID=501',
+'Label=UH0766_U2, CellID=7662, LogicRNCID=501',
+'Label=UH0766_U1, CellID=7661, LogicRNCID=501',
+'Label=UH0711_U95, CellID=47115, LogicRNCID=501',
+'Label=UH0711_U94, CellID=47114, LogicRNCID=501',
+'Label=test_rtk_U2, CellID=11112, LogicRNCID=501',
+'Label=UH0748_U94, CellID=47484, LogicRNCID=501',
+'Label=UH0748_U96, CellID=47486, LogicRNCID=501',
+'Label=UH0748_U1, CellID=7481, LogicRNCID=501',
+'Label=UH0748_U6, CellID=7486, LogicRNCID=501',
+'Label=UH0748_U4, CellID=7484, LogicRNCID=501',
+'Label=UH0748_U3, CellID=7483, LogicRNCID=501',
+'Label=UH1925_U94, CellID=50048, LogicRNCID=501',
+'Label=UH1925_U96, CellID=50046, LogicRNCID=501',
+'Label=UH1913_U96, CellID=50042, LogicRNCID=501',
+'Label=UH1913_U95, CellID=50041, LogicRNCID=501',
+'Label=UH1913_U94, CellID=50040, LogicRNCID=501',
+'Label=UH0822_U94, CellID=48224, LogicRNCID=501',
+'Label=UH0822_U96, CellID=48226, LogicRNCID=501',
+'Label=UH0846_U4, CellID=8464, LogicRNCID=501',
+'Label=UH0846_U3, CellID=8463, LogicRNCID=501',
+'Label=UH0846_U96, CellID=48466, LogicRNCID=501',
+'Label=UH0846_U95, CellID=48465, LogicRNCID=501',
+'Label=UH1952_U6, CellID=19526, LogicRNCID=501',
+'Label=UH1952_U3, CellID=19523, LogicRNCID=501',
+'Label=UH1952_U2, CellID=19522, LogicRNCID=501',
+'Label=UH1952_U5, CellID=19525, LogicRNCID=501',
+'Label=UH1952_U1, CellID=19521, LogicRNCID=501',
+'Label=CR1852_U5, CellID=60745, LogicRNCID=501',
+'Label=CR1852_U4, CellID=60744, LogicRNCID=501',
+'Label=CR1852_U2, CellID=60742, LogicRNCID=501',
+'Label=CR1852_U1, CellID=60741, LogicRNCID=501',
+'Label=CR1858_U5, CellID=60415, LogicRNCID=501',
+'Label=CR1858_U4, CellID=60414, LogicRNCID=501',
+'Label=CR1858_U2, CellID=60412, LogicRNCID=501',
+'Label=CR1858_U1, CellID=60411, LogicRNCID=501',
+'Label=CR1858_U3, CellID=60413, LogicRNCID=501',
+'Label=CR1858_U6, CellID=60416, LogicRNCID=501',
+'Label=CR1852_U3, CellID=60743, LogicRNCID=501',
+'Label=CR1852_U6, CellID=60746, LogicRNCID=501',
+'Label=UH1952_U4, CellID=19524, LogicRNCID=501',
+'Label=UH0846_U94, CellID=48464, LogicRNCID=501',
+'Label=UH0846_U1, CellID=8461, LogicRNCID=501',
+'Label=UH0846_U6, CellID=8466, LogicRNCID=501',
+'Label=UH0822_U95, CellID=48225, LogicRNCID=501',
+'Label=UH1925_U95, CellID=50047, LogicRNCID=501',
+'Label=UH0748_U2, CellID=7482, LogicRNCID=501',
+'Label=UH0748_U5, CellID=7485, LogicRNCID=501',
+'Label=UH0748_U95, CellID=47485, LogicRNCID=501',
+'Label=test_rtk_U1, CellID=11111, LogicRNCID=501',
+'Label=UH0711_U96, CellID=47116, LogicRNCID=501',
+'Label=UH0766_U3, CellID=7663, LogicRNCID=501',
+'Label=UH0766_U6, CellID=7666, LogicRNCID=501',
+'Label=UH0879_U2, CellID=8792, LogicRNCID=501',
+'Label=UH0879_U6, CellID=8796, LogicRNCID=501',
+'Label=UH0880_U3, CellID=8803, LogicRNCID=501',
+'Label=UH0880_U14, CellID=65521, LogicRNCID=501',
+'Label=UH1945_U97, CellID=50059, LogicRNCID=501',
+'Label=UH0965_U97, CellID=49657, LogicRNCID=501',
+'Label=UH0763_U94, CellID=47634, LogicRNCID=501',
+'Label=UH0646_U94, CellID=51010, LogicRNCID=501',
+'Label=UH1945_U94, CellID=50056, LogicRNCID=501',
+'Label=UH0951_U4, CellID=9514, LogicRNCID=501',
+'Label=UH1854_U4, CellID=18544, LogicRNCID=501',
+'Label=UH1854_U1, CellID=18541, LogicRNCID=501',
+'Label=UH0610_U5, CellID=6105, LogicRNCID=501',
+'Label=UH0617_U1, CellID=6171, LogicRNCID=501',
+'Label=UH0617_U5, CellID=6175, LogicRNCID=501',
+'Label=UH0765_U6, CellID=7656, LogicRNCID=501',
+'Label=UH0765_U2, CellID=7652, LogicRNCID=501',
+'Label=UH0765_U4, CellID=7654, LogicRNCID=501',
+'Label=UH0708_U4, CellID=7084, LogicRNCID=501',
+'Label=UH1936_U3, CellID=19363, LogicRNCID=501',
+'Label=UH1936_U6, CellID=19366, LogicRNCID=501',
+'Label=UH0708_U6, CellID=7086, LogicRNCID=501',
+]  # новый кластер для отчёта
+
+sts_df = sts_df[sts_df['BSC6910UCell'].isin(cluster_UH)]
+print('sts_df отфильтрована')
 #stsN_df = stsN_df[stsN_df['NE Name'].isin(cluster_UH)]
 
+active_cell_number = sts_df['BSC6910UCell'].nunique()
+print('active_cell_number= ',  active_cell_number)
 
 # ===обработка weekly  для всей сети без разбивки на кластера===
 weekly_df = sts_df.groupby(['week'])[list_1]. sum().reset_index()
@@ -3944,10 +4945,14 @@ weekly_df['PS Blocking Rate (%)'] = (weekly_df['VS.RAB.FailEstabPS.DLIUBBand.Con
                                     weekly_df['VS.RAB.FailEstabPS.DLPower.Cong (None)'] + weekly_df['VS.RAB.FailEstabPS.HSDPAUser.Cong (None)'] + weekly_df['VS.RAB.FailEstabPS.HSUPAUser.Cong (None)']) / \
                                     (weekly_df['VS.RAB.AttEstabPS.Str (None)'] + weekly_df['VS.RAB.AttEstabPS.Int (None)'] + weekly_df['VS.RAB.AttEstabPS.Bkg (None)']) *100
 
-weekly_df['PS RAB Drop Rate (%)'] = (weekly_df['VS.RAB.AbnormRel.PS (None)'] + weekly_df['VS.RAB.AbnormRel.PS.PCH (None)'] + weekly_df['VS.RAB.AbnormRel.PS.D2P (None)'] + \
+# weekly_df['PS RAB Drop Rate (%)'] = (weekly_df['VS.RAB.AbnormRel.PS (None)'] + weekly_df['VS.RAB.AbnormRel.PS.PCH (None)'] + weekly_df['VS.RAB.AbnormRel.PS.D2P (None)'] + \
+#                                     weekly_df['VS.RAB.AbnormRel.PS.F2P (None)']) / \
+#                                    (weekly_df['VS.RAB.AbnormRel.PS (None)'] + weekly_df['VS.RAB.NormRel.PS (None)'] + weekly_df['VS.RAB.AbnormRel.PS.PCH (None)'] + \
+#                                     weekly_df['VS.RAB.NormRel.PS.PCH (None)']) * 100
+weekly_df['PS RAB Drop Rate (%)'] = (weekly_df['VS.RAB.AbnormRel.PS (None)'] - weekly_df['VS.RAB.AbnormRel.PS.PCH (None)'] - weekly_df['VS.RAB.AbnormRel.PS.D2P (None)'] - \
                                     weekly_df['VS.RAB.AbnormRel.PS.F2P (None)']) / \
-                                   (weekly_df['VS.RAB.AbnormRel.PS (None)'] + weekly_df['VS.RAB.NormRel.PS (None)'] + weekly_df['VS.RAB.AbnormRel.PS.PCH (None)'] + \
-                                    weekly_df['VS.RAB.NormRel.PS.PCH (None)']) * 100
+                                   (weekly_df['VS.RAB.AbnormRel.PS (None)'] + weekly_df['VS.RAB.NormRel.PS (None)'] - weekly_df['VS.RAB.AbnormRel.PS.PCH (None)'] - \
+                                    weekly_df['VS.RAB.NormRel.PS.PCH (None)'] + weekly_df['VS.DCCC.D2P.Succ (None)'] + weekly_df['VS.DCCC.Succ.F2P (None)']+weekly_df['VS.DCCC.Succ.F2U (None)'] + weekly_df['VS.DCCC.Succ.D2U (None)']) * 100
 weekly_df['PS HS- Drop Rate (%)'] =  weekly_df['VS.HSDPA.RAB.AbnormRel (None)'] / (weekly_df['VS.HSDPA.RAB.AbnormRel (None)'] + weekly_df['VS.HSDPA.RAB.NormRel (None)'] + weekly_df['VS.HSDPA.H2D.Succ (None)'] + weekly_df['VS.HSDPA.H2F.Succ (None)'] +weekly_df['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + weekly_df['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
 weekly_df['HSDPA Throughput, kbps'] = weekly_df['VS.HSDPA.MeanChThroughput (kbit/s)'] / active_cell_number / 24 / 7 # количество сот
 weekly_df['HSUPA Throughput, kbps'] = weekly_df['VS.HSUPA.MeanChThroughput (kbit/s)'] / active_cell_number / 24 / 7 # количество сот
@@ -4017,10 +5022,15 @@ daily_df['PS Blocking Rate (%)'] = (daily_df['VS.RAB.FailEstabPS.DLIUBBand.Cong 
                                     daily_df['VS.RAB.FailEstabPS.DLCE.Cong (None)'] + daily_df['VS.RAB.FailEstabPS.Code.Cong (None)'] + daily_df['VS.RAB.FailEstabPS.ULPower.Cong (None)'] + \
                                     daily_df['VS.RAB.FailEstabPS.DLPower.Cong (None)'] + daily_df['VS.RAB.FailEstabPS.HSDPAUser.Cong (None)'] + daily_df['VS.RAB.FailEstabPS.HSUPAUser.Cong (None)']) / \
                                     (daily_df['VS.RAB.AttEstabPS.Str (None)'] + daily_df['VS.RAB.AttEstabPS.Int (None)'] + daily_df['VS.RAB.AttEstabPS.Bkg (None)']) *100
-daily_df['PS RAB Drop Rate (%)'] = (daily_df['VS.RAB.AbnormRel.PS (None)'] + daily_df['VS.RAB.AbnormRel.PS.PCH (None)'] + daily_df['VS.RAB.AbnormRel.PS.D2P (None)'] + \
+# daily_df['PS RAB Drop Rate (%)'] = (daily_df['VS.RAB.AbnormRel.PS (None)'] + daily_df['VS.RAB.AbnormRel.PS.PCH (None)'] + daily_df['VS.RAB.AbnormRel.PS.D2P (None)'] + \
+#                                     daily_df['VS.RAB.AbnormRel.PS.F2P (None)']) / \
+#                                    (daily_df['VS.RAB.AbnormRel.PS (None)'] + daily_df['VS.RAB.NormRel.PS (None)'] + daily_df['VS.RAB.AbnormRel.PS.PCH (None)'] + \
+#                                     daily_df['VS.RAB.NormRel.PS.PCH (None)']) * 100
+daily_df['PS RAB Drop Rate (%)'] = (daily_df['VS.RAB.AbnormRel.PS (None)'] - daily_df['VS.RAB.AbnormRel.PS.PCH (None)'] - daily_df['VS.RAB.AbnormRel.PS.D2P (None)'] - \
                                     daily_df['VS.RAB.AbnormRel.PS.F2P (None)']) / \
-                                   (daily_df['VS.RAB.AbnormRel.PS (None)'] + daily_df['VS.RAB.NormRel.PS (None)'] + daily_df['VS.RAB.AbnormRel.PS.PCH (None)'] + \
-                                    daily_df['VS.RAB.NormRel.PS.PCH (None)']) * 100
+                                   (daily_df['VS.RAB.AbnormRel.PS (None)'] + daily_df['VS.RAB.NormRel.PS (None)'] - daily_df['VS.RAB.AbnormRel.PS.PCH (None)'] - \
+                                    daily_df['VS.RAB.NormRel.PS.PCH (None)'] + daily_df['VS.DCCC.D2P.Succ (None)']+daily_df['VS.DCCC.Succ.F2P (None)']+daily_df['VS.DCCC.Succ.F2U (None)']+daily_df['VS.DCCC.Succ.D2U (None)']) * 100
+
 daily_df['PS HS- Drop Rate (%)'] =  daily_df['VS.HSDPA.RAB.AbnormRel (None)'] / (daily_df['VS.HSDPA.RAB.AbnormRel (None)'] + daily_df['VS.HSDPA.RAB.NormRel (None)'] + daily_df['VS.HSDPA.H2D.Succ (None)'] + daily_df['VS.HSDPA.H2F.Succ (None)'] +daily_df['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + daily_df['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
 daily_df['HSDPA Throughput, kbps'] = daily_df['VS.HSDPA.MeanChThroughput (kbit/s)'] / 538 / 24 # количество сот 538
 daily_df['HSUPA Throughput, kbps'] = daily_df['VS.HSUPA.MeanChThroughput (kbit/s)'] / 538 / 24# количество сот 538
@@ -4081,10 +5091,17 @@ daily_dfU2100['PS Blocking Rate (%)_U2100'] = (daily_dfU2100['VS.RAB.FailEstabPS
                                     daily_dfU2100['VS.RAB.FailEstabPS.DLCE.Cong (None)'] + daily_dfU2100['VS.RAB.FailEstabPS.Code.Cong (None)'] + daily_dfU2100['VS.RAB.FailEstabPS.ULPower.Cong (None)'] + \
                                     daily_dfU2100['VS.RAB.FailEstabPS.DLPower.Cong (None)'] + daily_dfU2100['VS.RAB.FailEstabPS.HSDPAUser.Cong (None)'] + daily_dfU2100['VS.RAB.FailEstabPS.HSUPAUser.Cong (None)']) / \
                                     (daily_dfU2100['VS.RAB.AttEstabPS.Str (None)'] + daily_dfU2100['VS.RAB.AttEstabPS.Int (None)'] + daily_dfU2100['VS.RAB.AttEstabPS.Bkg (None)']) *100
-daily_dfU2100['PS RAB Drop Rate (%)_U2100'] = (daily_dfU2100['VS.RAB.AbnormRel.PS (None)'] + daily_dfU2100['VS.RAB.AbnormRel.PS.PCH (None)'] + daily_dfU2100['VS.RAB.AbnormRel.PS.D2P (None)'] + \
+# daily_dfU2100['PS RAB Drop Rate (%)_U2100'] = (daily_dfU2100['VS.RAB.AbnormRel.PS (None)'] + daily_dfU2100['VS.RAB.AbnormRel.PS.PCH (None)'] + daily_dfU2100['VS.RAB.AbnormRel.PS.D2P (None)'] + \
+#                                     daily_dfU2100['VS.RAB.AbnormRel.PS.F2P (None)']) / \
+#                                    (daily_dfU2100['VS.RAB.AbnormRel.PS (None)'] + daily_dfU2100['VS.RAB.NormRel.PS (None)'] + daily_dfU2100['VS.RAB.AbnormRel.PS.PCH (None)'] + \
+#                                     daily_dfU2100['VS.RAB.NormRel.PS.PCH (None)']) * 100
+
+daily_dfU2100['PS RAB Drop Rate (%)_U2100'] = (daily_dfU2100['VS.RAB.AbnormRel.PS (None)'] - daily_dfU2100['VS.RAB.AbnormRel.PS.PCH (None)'] - daily_dfU2100['VS.RAB.AbnormRel.PS.D2P (None)'] - \
                                     daily_dfU2100['VS.RAB.AbnormRel.PS.F2P (None)']) / \
-                                   (daily_dfU2100['VS.RAB.AbnormRel.PS (None)'] + daily_dfU2100['VS.RAB.NormRel.PS (None)'] + daily_dfU2100['VS.RAB.AbnormRel.PS.PCH (None)'] + \
-                                    daily_dfU2100['VS.RAB.NormRel.PS.PCH (None)']) * 100
+                                   (daily_dfU2100['VS.RAB.AbnormRel.PS (None)'] + daily_dfU2100['VS.RAB.NormRel.PS (None)'] - daily_dfU2100['VS.RAB.AbnormRel.PS.PCH (None)'] - \
+                                    daily_dfU2100['VS.RAB.NormRel.PS.PCH (None)'] + daily_dfU2100['VS.DCCC.D2P.Succ (None)']+daily_dfU2100['VS.DCCC.Succ.F2P (None)']+daily_dfU2100['VS.DCCC.Succ.F2U (None)']+daily_dfU2100['VS.DCCC.Succ.D2U (None)']) * 100
+
+
 daily_dfU2100['PS HS- Drop Rate (%)_U2100'] =  daily_dfU2100['VS.HSDPA.RAB.AbnormRel (None)'] / (daily_dfU2100['VS.HSDPA.RAB.AbnormRel (None)'] + daily_dfU2100['VS.HSDPA.RAB.NormRel (None)'] + daily_dfU2100['VS.HSDPA.H2D.Succ (None)'] + daily_dfU2100['VS.HSDPA.H2F.Succ (None)'] +daily_dfU2100['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + daily_dfU2100['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
 daily_dfU2100['HSDPA Throughput, kbps_U2100'] = daily_dfU2100['VS.HSDPA.MeanChThroughput (kbit/s)'] / 471 / 24 # количество сот 471!!!
 daily_dfU2100['HSUPA Throughput, kbps_U2100'] = daily_dfU2100['VS.HSUPA.MeanChThroughput (kbit/s)'] / 471 / 24# количество сот 471!!!
@@ -4145,10 +5162,15 @@ daily_dfU900['PS Blocking Rate (%)_U900'] = (daily_dfU900['VS.RAB.FailEstabPS.DL
                                     daily_dfU900['VS.RAB.FailEstabPS.DLCE.Cong (None)'] + daily_dfU900['VS.RAB.FailEstabPS.Code.Cong (None)'] + daily_dfU900['VS.RAB.FailEstabPS.ULPower.Cong (None)'] + \
                                     daily_dfU900['VS.RAB.FailEstabPS.DLPower.Cong (None)'] + daily_dfU900['VS.RAB.FailEstabPS.HSDPAUser.Cong (None)'] + daily_dfU900['VS.RAB.FailEstabPS.HSUPAUser.Cong (None)']) / \
                                     (daily_dfU900['VS.RAB.AttEstabPS.Str (None)'] + daily_dfU900['VS.RAB.AttEstabPS.Int (None)'] + daily_dfU900['VS.RAB.AttEstabPS.Bkg (None)']) *100
-daily_dfU900['PS RAB Drop Rate (%)_U900'] = (daily_dfU900['VS.RAB.AbnormRel.PS (None)'] + daily_dfU900['VS.RAB.AbnormRel.PS.PCH (None)'] + daily_dfU900['VS.RAB.AbnormRel.PS.D2P (None)'] + \
+# daily_dfU900['PS RAB Drop Rate (%)_U900'] = (daily_dfU900['VS.RAB.AbnormRel.PS (None)'] + daily_dfU900['VS.RAB.AbnormRel.PS.PCH (None)'] + daily_dfU900['VS.RAB.AbnormRel.PS.D2P (None)'] + \
+#                                     daily_dfU900['VS.RAB.AbnormRel.PS.F2P (None)']) / \
+#                                    (daily_dfU900['VS.RAB.AbnormRel.PS (None)'] + daily_dfU900['VS.RAB.NormRel.PS (None)'] + daily_dfU900['VS.RAB.AbnormRel.PS.PCH (None)'] + \
+#                                     daily_dfU900['VS.RAB.NormRel.PS.PCH (None)']) * 100
+daily_dfU900['PS RAB Drop Rate (%)_U900'] = (daily_dfU900['VS.RAB.AbnormRel.PS (None)'] - daily_dfU900['VS.RAB.AbnormRel.PS.PCH (None)'] - daily_dfU900['VS.RAB.AbnormRel.PS.D2P (None)'] - \
                                     daily_dfU900['VS.RAB.AbnormRel.PS.F2P (None)']) / \
-                                   (daily_dfU900['VS.RAB.AbnormRel.PS (None)'] + daily_dfU900['VS.RAB.NormRel.PS (None)'] + daily_dfU900['VS.RAB.AbnormRel.PS.PCH (None)'] + \
-                                    daily_dfU900['VS.RAB.NormRel.PS.PCH (None)']) * 100
+                                   (daily_dfU900['VS.RAB.AbnormRel.PS (None)'] + daily_dfU900['VS.RAB.NormRel.PS (None)'] - daily_dfU900['VS.RAB.AbnormRel.PS.PCH (None)'] - \
+                                    daily_dfU900['VS.RAB.NormRel.PS.PCH (None)'] + daily_dfU900['VS.DCCC.D2P.Succ (None)']+daily_dfU900['VS.DCCC.Succ.F2P (None)']+daily_dfU900['VS.DCCC.Succ.F2U (None)']+daily_dfU900['VS.DCCC.Succ.D2U (None)']) * 100
+
 daily_dfU900['PS HS- Drop Rate (%)_U900'] =  daily_dfU900['VS.HSDPA.RAB.AbnormRel (None)'] / (daily_dfU900['VS.HSDPA.RAB.AbnormRel (None)'] + daily_dfU900['VS.HSDPA.RAB.NormRel (None)'] + daily_dfU900['VS.HSDPA.H2D.Succ (None)'] + daily_dfU900['VS.HSDPA.H2F.Succ (None)'] +daily_dfU900['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + daily_dfU900['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
 daily_dfU900['HSDPA Throughput, kbps_U900'] = daily_dfU900['VS.HSDPA.MeanChThroughput (kbit/s)'] / 216 / 24 # количество сот 216!!!
 daily_dfU900['HSUPA Throughput, kbps_U900'] = daily_dfU900['VS.HSUPA.MeanChThroughput (kbit/s)'] / 216 / 24# количество сот 216
@@ -4433,10 +5455,17 @@ hourly_df['PS Blocking Rate (%)'] = (hourly_df['VS.RAB.FailEstabPS.DLIUBBand.Con
                                     hourly_df['VS.RAB.FailEstabPS.DLCE.Cong (None)'] + hourly_df['VS.RAB.FailEstabPS.Code.Cong (None)'] + hourly_df['VS.RAB.FailEstabPS.ULPower.Cong (None)'] + \
                                     hourly_df['VS.RAB.FailEstabPS.DLPower.Cong (None)'] + hourly_df['VS.RAB.FailEstabPS.HSDPAUser.Cong (None)'] + hourly_df['VS.RAB.FailEstabPS.HSUPAUser.Cong (None)']) / \
                                     (hourly_df['VS.RAB.AttEstabPS.Str (None)'] + hourly_df['VS.RAB.AttEstabPS.Int (None)'] + hourly_df['VS.RAB.AttEstabPS.Bkg (None)']) *100
-hourly_df['PS RAB Drop Rate (%)'] = (hourly_df['VS.RAB.AbnormRel.PS (None)'] + hourly_df['VS.RAB.AbnormRel.PS.PCH (None)'] + hourly_df['VS.RAB.AbnormRel.PS.D2P (None)'] + \
+# hourly_df['PS RAB Drop Rate (%)'] = (hourly_df['VS.RAB.AbnormRel.PS (None)'] + hourly_df['VS.RAB.AbnormRel.PS.PCH (None)'] + hourly_df['VS.RAB.AbnormRel.PS.D2P (None)'] + \
+#                                     hourly_df['VS.RAB.AbnormRel.PS.F2P (None)']) / \
+#                                    (hourly_df['VS.RAB.AbnormRel.PS (None)'] + hourly_df['VS.RAB.NormRel.PS (None)'] + hourly_df['VS.RAB.AbnormRel.PS.PCH (None)'] + \
+#                                     hourly_df['VS.RAB.NormRel.PS.PCH (None)']) * 100
+
+hourly_df['PS RAB Drop Rate (%)'] = (hourly_df['VS.RAB.AbnormRel.PS (None)'] - hourly_df['VS.RAB.AbnormRel.PS.PCH (None)'] - hourly_df['VS.RAB.AbnormRel.PS.D2P (None)'] - \
                                     hourly_df['VS.RAB.AbnormRel.PS.F2P (None)']) / \
-                                   (hourly_df['VS.RAB.AbnormRel.PS (None)'] + hourly_df['VS.RAB.NormRel.PS (None)'] + hourly_df['VS.RAB.AbnormRel.PS.PCH (None)'] + \
-                                    hourly_df['VS.RAB.NormRel.PS.PCH (None)']) * 100
+                                   (hourly_df['VS.RAB.AbnormRel.PS (None)'] + hourly_df['VS.RAB.NormRel.PS (None)'] - hourly_df['VS.RAB.AbnormRel.PS.PCH (None)'] - \
+                                    hourly_df['VS.RAB.NormRel.PS.PCH (None)'] + hourly_df['VS.DCCC.D2P.Succ (None)']+hourly_df['VS.DCCC.Succ.F2P (None)']+hourly_df['VS.DCCC.Succ.F2U (None)']+hourly_df['VS.DCCC.Succ.D2U (None)']) * 100
+
+
 hourly_df['PS HS- Drop Rate (%)'] =  hourly_df['VS.HSDPA.RAB.AbnormRel (None)'] / (hourly_df['VS.HSDPA.RAB.AbnormRel (None)'] + hourly_df['VS.HSDPA.RAB.NormRel (None)'] + hourly_df['VS.HSDPA.H2D.Succ (None)'] + hourly_df['VS.HSDPA.H2F.Succ (None)'] +hourly_df['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + hourly_df['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
 hourly_df['HSDPA Throughput, kbps'] = hourly_df['VS.HSDPA.MeanChThroughput (kbit/s)'] / 538 / 24 # количество сот 538
 hourly_df['HSUPA Throughput, kbps'] = hourly_df['VS.HSUPA.MeanChThroughput (kbit/s)'] / 538 / 24# количество сот 538
@@ -4497,10 +5526,16 @@ hourly_dfU2100['PS Blocking Rate (%)_U2100'] = (hourly_dfU2100['VS.RAB.FailEstab
                                     hourly_dfU2100['VS.RAB.FailEstabPS.DLCE.Cong (None)'] + hourly_dfU2100['VS.RAB.FailEstabPS.Code.Cong (None)'] + hourly_dfU2100['VS.RAB.FailEstabPS.ULPower.Cong (None)'] + \
                                     hourly_dfU2100['VS.RAB.FailEstabPS.DLPower.Cong (None)'] + hourly_dfU2100['VS.RAB.FailEstabPS.HSDPAUser.Cong (None)'] + hourly_dfU2100['VS.RAB.FailEstabPS.HSUPAUser.Cong (None)']) / \
                                     (hourly_dfU2100['VS.RAB.AttEstabPS.Str (None)'] + hourly_dfU2100['VS.RAB.AttEstabPS.Int (None)'] + hourly_dfU2100['VS.RAB.AttEstabPS.Bkg (None)']) *100
-hourly_dfU2100['PS RAB Drop Rate (%)_U2100'] = (hourly_dfU2100['VS.RAB.AbnormRel.PS (None)'] + hourly_dfU2100['VS.RAB.AbnormRel.PS.PCH (None)'] + hourly_dfU2100['VS.RAB.AbnormRel.PS.D2P (None)'] + \
+# hourly_dfU2100['PS RAB Drop Rate (%)_U2100'] = (hourly_dfU2100['VS.RAB.AbnormRel.PS (None)'] + hourly_dfU2100['VS.RAB.AbnormRel.PS.PCH (None)'] + hourly_dfU2100['VS.RAB.AbnormRel.PS.D2P (None)'] + \
+#                                     hourly_dfU2100['VS.RAB.AbnormRel.PS.F2P (None)']) / \
+#                                    (hourly_dfU2100['VS.RAB.AbnormRel.PS (None)'] + hourly_dfU2100['VS.RAB.NormRel.PS (None)'] + hourly_dfU2100['VS.RAB.AbnormRel.PS.PCH (None)'] + \
+#                                     hourly_dfU2100['VS.RAB.NormRel.PS.PCH (None)']) * 100
+hourly_dfU2100['PS RAB Drop Rate (%)_U2100'] = (hourly_dfU2100['VS.RAB.AbnormRel.PS (None)'] - hourly_dfU2100['VS.RAB.AbnormRel.PS.PCH (None)'] - hourly_dfU2100['VS.RAB.AbnormRel.PS.D2P (None)'] - \
                                     hourly_dfU2100['VS.RAB.AbnormRel.PS.F2P (None)']) / \
-                                   (hourly_dfU2100['VS.RAB.AbnormRel.PS (None)'] + hourly_dfU2100['VS.RAB.NormRel.PS (None)'] + hourly_dfU2100['VS.RAB.AbnormRel.PS.PCH (None)'] + \
-                                    hourly_dfU2100['VS.RAB.NormRel.PS.PCH (None)']) * 100
+                                   (hourly_dfU2100['VS.RAB.AbnormRel.PS (None)'] + hourly_dfU2100['VS.RAB.NormRel.PS (None)'] - hourly_dfU2100['VS.RAB.AbnormRel.PS.PCH (None)'] - \
+                                    hourly_dfU2100['VS.RAB.NormRel.PS.PCH (None)'] + hourly_dfU2100['VS.DCCC.D2P.Succ (None)']+hourly_dfU2100['VS.DCCC.Succ.F2P (None)']+hourly_dfU2100['VS.DCCC.Succ.F2U (None)']+hourly_dfU2100['VS.DCCC.Succ.D2U (None)']) * 100
+
+
 hourly_dfU2100['PS HS- Drop Rate (%)_U2100'] =  hourly_dfU2100['VS.HSDPA.RAB.AbnormRel (None)'] / (hourly_dfU2100['VS.HSDPA.RAB.AbnormRel (None)'] + hourly_dfU2100['VS.HSDPA.RAB.NormRel (None)'] + hourly_dfU2100['VS.HSDPA.H2D.Succ (None)'] + hourly_dfU2100['VS.HSDPA.H2F.Succ (None)'] +hourly_dfU2100['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + hourly_dfU2100['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
 hourly_dfU2100['HSDPA Throughput, kbps_U2100'] = hourly_dfU2100['VS.HSDPA.MeanChThroughput (kbit/s)'] / 471 / 24 # количество сот 471!!!
 hourly_dfU2100['HSUPA Throughput, kbps_U2100'] = hourly_dfU2100['VS.HSUPA.MeanChThroughput (kbit/s)'] / 471 / 24# количество сот 471!!!
@@ -4561,10 +5596,16 @@ hourly_dfU900['PS Blocking Rate (%)_U900'] = (hourly_dfU900['VS.RAB.FailEstabPS.
                                     hourly_dfU900['VS.RAB.FailEstabPS.DLCE.Cong (None)'] + hourly_dfU900['VS.RAB.FailEstabPS.Code.Cong (None)'] + hourly_dfU900['VS.RAB.FailEstabPS.ULPower.Cong (None)'] + \
                                     hourly_dfU900['VS.RAB.FailEstabPS.DLPower.Cong (None)'] + hourly_dfU900['VS.RAB.FailEstabPS.HSDPAUser.Cong (None)'] + hourly_dfU900['VS.RAB.FailEstabPS.HSUPAUser.Cong (None)']) / \
                                     (hourly_dfU900['VS.RAB.AttEstabPS.Str (None)'] + hourly_dfU900['VS.RAB.AttEstabPS.Int (None)'] + hourly_dfU900['VS.RAB.AttEstabPS.Bkg (None)']) *100
-hourly_dfU900['PS RAB Drop Rate (%)_U900'] = (hourly_dfU900['VS.RAB.AbnormRel.PS (None)'] + hourly_dfU900['VS.RAB.AbnormRel.PS.PCH (None)'] + hourly_dfU900['VS.RAB.AbnormRel.PS.D2P (None)'] + \
+# hourly_dfU900['PS RAB Drop Rate (%)_U900'] = (hourly_dfU900['VS.RAB.AbnormRel.PS (None)'] + hourly_dfU900['VS.RAB.AbnormRel.PS.PCH (None)'] + hourly_dfU900['VS.RAB.AbnormRel.PS.D2P (None)'] + \
+#                                     hourly_dfU900['VS.RAB.AbnormRel.PS.F2P (None)']) / \
+#                                    (hourly_dfU900['VS.RAB.AbnormRel.PS (None)'] + hourly_dfU900['VS.RAB.NormRel.PS (None)'] + hourly_dfU900['VS.RAB.AbnormRel.PS.PCH (None)'] + \
+#                                     hourly_dfU900['VS.RAB.NormRel.PS.PCH (None)']) * 100
+hourly_dfU900['PS RAB Drop Rate (%)_U900'] = (hourly_dfU900['VS.RAB.AbnormRel.PS (None)'] - hourly_dfU900['VS.RAB.AbnormRel.PS.PCH (None)'] - hourly_dfU900['VS.RAB.AbnormRel.PS.D2P (None)'] - \
                                     hourly_dfU900['VS.RAB.AbnormRel.PS.F2P (None)']) / \
-                                   (hourly_dfU900['VS.RAB.AbnormRel.PS (None)'] + hourly_dfU900['VS.RAB.NormRel.PS (None)'] + hourly_dfU900['VS.RAB.AbnormRel.PS.PCH (None)'] + \
-                                    hourly_dfU900['VS.RAB.NormRel.PS.PCH (None)']) * 100
+                                   (hourly_dfU900['VS.RAB.AbnormRel.PS (None)'] + hourly_dfU900['VS.RAB.NormRel.PS (None)'] - hourly_dfU900['VS.RAB.AbnormRel.PS.PCH (None)'] - \
+                                    hourly_dfU900['VS.RAB.NormRel.PS.PCH (None)'] + hourly_dfU900['VS.DCCC.D2P.Succ (None)']+hourly_dfU900['VS.DCCC.Succ.F2P (None)']+hourly_dfU900['VS.DCCC.Succ.F2U (None)']+hourly_dfU900['VS.DCCC.Succ.D2U (None)']) * 100
+
+
 hourly_dfU900['PS HS- Drop Rate (%)_U900'] =  hourly_dfU900['VS.HSDPA.RAB.AbnormRel (None)'] / (hourly_dfU900['VS.HSDPA.RAB.AbnormRel (None)'] + hourly_dfU900['VS.HSDPA.RAB.NormRel (None)'] + hourly_dfU900['VS.HSDPA.H2D.Succ (None)'] + hourly_dfU900['VS.HSDPA.H2F.Succ (None)'] +hourly_dfU900['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + hourly_dfU900['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
 hourly_dfU900['HSDPA Throughput, kbps_U900'] = hourly_dfU900['VS.HSDPA.MeanChThroughput (kbit/s)'] / 216 / 24 # количество сот 216!!!
 hourly_dfU900['HSUPA Throughput, kbps_U900'] = hourly_dfU900['VS.HSUPA.MeanChThroughput (kbit/s)'] / 216 / 24# количество сот 216
@@ -4853,10 +5894,16 @@ hourlyPS_df['PS Blocking Rate (%)'] = (hourlyPS_df['VS.RAB.FailEstabPS.DLIUBBand
                                     hourlyPS_df['VS.RAB.FailEstabPS.DLCE.Cong (None)'] + hourlyPS_df['VS.RAB.FailEstabPS.Code.Cong (None)'] + hourlyPS_df['VS.RAB.FailEstabPS.ULPower.Cong (None)'] + \
                                     hourlyPS_df['VS.RAB.FailEstabPS.DLPower.Cong (None)'] + hourlyPS_df['VS.RAB.FailEstabPS.HSDPAUser.Cong (None)'] + hourlyPS_df['VS.RAB.FailEstabPS.HSUPAUser.Cong (None)']) / \
                                     (hourlyPS_df['VS.RAB.AttEstabPS.Str (None)'] + hourlyPS_df['VS.RAB.AttEstabPS.Int (None)'] + hourlyPS_df['VS.RAB.AttEstabPS.Bkg (None)']) *100
-hourlyPS_df['PS RAB Drop Rate (%)'] = (hourlyPS_df['VS.RAB.AbnormRel.PS (None)'] + hourlyPS_df['VS.RAB.AbnormRel.PS.PCH (None)'] + hourlyPS_df['VS.RAB.AbnormRel.PS.D2P (None)'] + \
+# hourlyPS_df['PS RAB Drop Rate (%)'] = (hourlyPS_df['VS.RAB.AbnormRel.PS (None)'] + hourlyPS_df['VS.RAB.AbnormRel.PS.PCH (None)'] + hourlyPS_df['VS.RAB.AbnormRel.PS.D2P (None)'] + \
+#                                     hourlyPS_df['VS.RAB.AbnormRel.PS.F2P (None)']) / \
+#                                    (hourlyPS_df['VS.RAB.AbnormRel.PS (None)'] + hourlyPS_df['VS.RAB.NormRel.PS (None)'] + hourlyPS_df['VS.RAB.AbnormRel.PS.PCH (None)'] + \
+#                                     hourlyPS_df['VS.RAB.NormRel.PS.PCH (None)']) * 100
+hourlyPS_df['PS RAB Drop Rate (%)'] = (hourlyPS_df['VS.RAB.AbnormRel.PS (None)'] - hourlyPS_df['VS.RAB.AbnormRel.PS.PCH (None)'] - hourlyPS_df['VS.RAB.AbnormRel.PS.D2P (None)'] - \
                                     hourlyPS_df['VS.RAB.AbnormRel.PS.F2P (None)']) / \
-                                   (hourlyPS_df['VS.RAB.AbnormRel.PS (None)'] + hourlyPS_df['VS.RAB.NormRel.PS (None)'] + hourlyPS_df['VS.RAB.AbnormRel.PS.PCH (None)'] + \
-                                    hourlyPS_df['VS.RAB.NormRel.PS.PCH (None)']) * 100
+                                   (hourlyPS_df['VS.RAB.AbnormRel.PS (None)'] + hourlyPS_df['VS.RAB.NormRel.PS (None)'] - hourlyPS_df['VS.RAB.AbnormRel.PS.PCH (None)'] - \
+                                    hourlyPS_df['VS.RAB.NormRel.PS.PCH (None)'] + hourlyPS_df['VS.DCCC.D2P.Succ (None)']+hourlyPS_df['VS.DCCC.Succ.F2P (None)']+hourlyPS_df['VS.DCCC.Succ.F2U (None)']+hourlyPS_df['VS.DCCC.Succ.D2U (None)']) * 100
+
+
 hourlyPS_df['PS HS- Drop Rate (%)'] =  hourlyPS_df['VS.HSDPA.RAB.AbnormRel (None)'] / (hourlyPS_df['VS.HSDPA.RAB.AbnormRel (None)'] + hourlyPS_df['VS.HSDPA.RAB.NormRel (None)'] + hourlyPS_df['VS.HSDPA.H2D.Succ (None)'] + hourlyPS_df['VS.HSDPA.H2F.Succ (None)'] +hourlyPS_df['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + hourlyPS_df['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
 hourlyPS_df['HSDPA Throughput, kbps'] = hourlyPS_df['VS.HSDPA.MeanChThroughput (kbit/s)'] / active_cell_number # количество сот
 hourlyPS_df['HSUPA Throughput, kbps'] = hourlyPS_df['VS.HSUPA.MeanChThroughput (kbit/s)'] / active_cell_number # количество сот
@@ -5067,6 +6114,7 @@ CStraffic_chart = LineChart()
 CStraffic_chart.width = 40
 CStraffic_chart.height = 10
 CStraffic_chart.add_data(CStraffic3GErl, titles_from_data = True)  #
+CStraffic_chart.add_data(PStraffic3GULDLGB, titles_from_data = True)
 CStraffic_chart.set_categories(x_values)
 CStraffic_chart.legend.position = 'b'
 weekly_sheet.add_chart(CStraffic_chart, "A18")
@@ -5165,6 +6213,7 @@ DCSR3G_chart = LineChart()
 DCSR3G_chart.width = 40
 DCSR3G_chart.height = 10
 DCSR3G_chart.add_data(DCSR3G, titles_from_data = True)  #
+DCSR3G_chart.add_data(CCSR3G, titles_from_data = True)  #
 DCSR3G_chart.set_categories(x_values)
 DCSR3G_chart.legend.position = 'b'
 weekly_sheet.add_chart(DCSR3G_chart, "A258")
@@ -5994,7 +7043,5 @@ hourlyPSN_sheet.add_chart(MeanThrHSDPADC_chart, "A58")
 my_file.save(f"{directory}{csv_name1}{output_comment}.xlsx")
 
 print('готово')
-frequency = 2500  # Set Frequency To 2500 Hertz
-duration = 1000  # Set Duration To 1000 ms == 1 second
-winsound.Beep(frequency, duration)
-winsound.Beep(frequency, duration)
+winsound.Beep(2500, 1000)
+winsound.Beep(3000, 1000)

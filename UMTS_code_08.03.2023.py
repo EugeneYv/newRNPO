@@ -2978,6 +2978,10 @@ weekly_df['PS RAB Drop Rate (%)'] = (weekly_df['VS.RAB.AbnormRel.PS (None)'] + w
                                     weekly_df['VS.RAB.AbnormRel.PS.F2P (None)']) / \
                                    (weekly_df['VS.RAB.AbnormRel.PS (None)'] + weekly_df['VS.RAB.NormRel.PS (None)'] + weekly_df['VS.RAB.AbnormRel.PS.PCH (None)'] + \
                                     weekly_df['VS.RAB.NormRel.PS.PCH (None)']) * 100
+weekly_df['PS RAB Drop Rate (%)'] = (weekly_df['VS.RAB.AbnormRel.PS (None)'] - weekly_df['VS.RAB.AbnormRel.PS.PCH (None)'] - weekly_df['VS.RAB.AbnormRel.PS.D2P (None)'] - \
+                                    weekly_df['VS.RAB.AbnormRel.PS.F2P (None)']) / \
+                                   (weekly_df['VS.RAB.AbnormRel.PS (None)'] + weekly_df['VS.RAB.NormRel.PS (None)'] - weekly_df['VS.RAB.AbnormRel.PS.PCH (None)'] - \
+                                    weekly_df['VS.RAB.NormRel.PS.PCH (None)'] + weekly_df['VS.DCCC.D2P.Succ (None)'] + weekly_df['VS.DCCC.Succ.F2P (None)']+weekly_df['VS.DCCC.Succ.F2U (None)'] + weekly_df['VS.DCCC.Succ.D2U (None)']) * 100
 weekly_df['PS HS- Drop Rate (%)'] =  weekly_df['VS.HSDPA.RAB.AbnormRel (None)'] / (weekly_df['VS.HSDPA.RAB.AbnormRel (None)'] + weekly_df['VS.HSDPA.RAB.NormRel (None)'] + weekly_df['VS.HSDPA.H2D.Succ (None)'] + weekly_df['VS.HSDPA.H2F.Succ (None)'] +weekly_df['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + weekly_df['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
 weekly_df['HSDPA Throughput, kbps'] = weekly_df['VS.HSDPA.MeanChThroughput (kbit/s)'] / active_cell_number / 24 / 7 # количество сот
 weekly_df['HSUPA Throughput, kbps'] = weekly_df['VS.HSUPA.MeanChThroughput (kbit/s)'] / active_cell_number / 24 / 7 # количество сот
@@ -3046,10 +3050,15 @@ daily_df['PS Blocking Rate (%)'] = (daily_df['VS.RAB.FailEstabPS.DLIUBBand.Cong 
                                     daily_df['VS.RAB.FailEstabPS.DLCE.Cong (None)'] + daily_df['VS.RAB.FailEstabPS.Code.Cong (None)'] + daily_df['VS.RAB.FailEstabPS.ULPower.Cong (None)'] + \
                                     daily_df['VS.RAB.FailEstabPS.DLPower.Cong (None)'] + daily_df['VS.RAB.FailEstabPS.HSDPAUser.Cong (None)'] + daily_df['VS.RAB.FailEstabPS.HSUPAUser.Cong (None)']) / \
                                     (daily_df['VS.RAB.AttEstabPS.Str (None)'] + daily_df['VS.RAB.AttEstabPS.Int (None)'] + daily_df['VS.RAB.AttEstabPS.Bkg (None)']) *100
-daily_df['PS RAB Drop Rate (%)'] = (daily_df['VS.RAB.AbnormRel.PS (None)'] + daily_df['VS.RAB.AbnormRel.PS.PCH (None)'] + daily_df['VS.RAB.AbnormRel.PS.D2P (None)'] + \
+# daily_df['PS RAB Drop Rate (%)'] = (daily_df['VS.RAB.AbnormRel.PS (None)'] + daily_df['VS.RAB.AbnormRel.PS.PCH (None)'] + daily_df['VS.RAB.AbnormRel.PS.D2P (None)'] + \
+#                                     daily_df['VS.RAB.AbnormRel.PS.F2P (None)']) / \
+#                                    (daily_df['VS.RAB.AbnormRel.PS (None)'] + daily_df['VS.RAB.NormRel.PS (None)'] + daily_df['VS.RAB.AbnormRel.PS.PCH (None)'] + \
+#                                     daily_df['VS.RAB.NormRel.PS.PCH (None)']) * 100
+daily_df['PS RAB Drop Rate (%)'] = (daily_df['VS.RAB.AbnormRel.PS (None)'] - daily_df['VS.RAB.AbnormRel.PS.PCH (None)'] - daily_df['VS.RAB.AbnormRel.PS.D2P (None)'] - \
                                     daily_df['VS.RAB.AbnormRel.PS.F2P (None)']) / \
-                                   (daily_df['VS.RAB.AbnormRel.PS (None)'] + daily_df['VS.RAB.NormRel.PS (None)'] + daily_df['VS.RAB.AbnormRel.PS.PCH (None)'] + \
-                                    daily_df['VS.RAB.NormRel.PS.PCH (None)']) * 100
+                                   (daily_df['VS.RAB.AbnormRel.PS (None)'] + daily_df['VS.RAB.NormRel.PS (None)'] - daily_df['VS.RAB.AbnormRel.PS.PCH (None)'] - \
+                                    daily_df['VS.RAB.NormRel.PS.PCH (None)'] + daily_df['VS.DCCC.D2P.Succ (None)']+daily_df['VS.DCCC.Succ.F2P (None)']+daily_df['VS.DCCC.Succ.F2U (None)']+daily_df['VS.DCCC.Succ.D2U (None)']) * 100
+
 daily_df['PS HS- Drop Rate (%)'] =  daily_df['VS.HSDPA.RAB.AbnormRel (None)'] / (daily_df['VS.HSDPA.RAB.AbnormRel (None)'] + daily_df['VS.HSDPA.RAB.NormRel (None)'] + daily_df['VS.HSDPA.H2D.Succ (None)'] + daily_df['VS.HSDPA.H2F.Succ (None)'] +daily_df['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + daily_df['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
 daily_df['HSDPA Throughput, kbps'] = daily_df['VS.HSDPA.MeanChThroughput (kbit/s)'] / 538 / 24 # количество сот 538
 daily_df['HSUPA Throughput, kbps'] = daily_df['VS.HSUPA.MeanChThroughput (kbit/s)'] / 538 / 24# количество сот 538
@@ -3114,6 +3123,11 @@ daily_dfU2100['PS RAB Drop Rate (%)_U2100'] = (daily_dfU2100['VS.RAB.AbnormRel.P
                                     daily_dfU2100['VS.RAB.AbnormRel.PS.F2P (None)']) / \
                                    (daily_dfU2100['VS.RAB.AbnormRel.PS (None)'] + daily_dfU2100['VS.RAB.NormRel.PS (None)'] + daily_dfU2100['VS.RAB.AbnormRel.PS.PCH (None)'] + \
                                     daily_dfU2100['VS.RAB.NormRel.PS.PCH (None)']) * 100
+daily_dfU2100['PS RAB Drop Rate (%)_U2100'] = (daily_dfU2100['VS.RAB.AbnormRel.PS (None)'] - daily_dfU2100['VS.RAB.AbnormRel.PS.PCH (None)'] - daily_dfU2100['VS.RAB.AbnormRel.PS.D2P (None)'] - \
+                                    daily_dfU2100['VS.RAB.AbnormRel.PS.F2P (None)']) / \
+                                   (daily_dfU2100['VS.RAB.AbnormRel.PS (None)'] + daily_dfU2100['VS.RAB.NormRel.PS (None)'] - daily_dfU2100['VS.RAB.AbnormRel.PS.PCH (None)'] - \
+                                    daily_dfU2100['VS.RAB.NormRel.PS.PCH (None)'] + daily_dfU2100['VS.DCCC.D2P.Succ (None)']+daily_dfU2100['VS.DCCC.Succ.F2P (None)']+daily_dfU2100['VS.DCCC.Succ.F2U (None)']+daily_dfU2100['VS.DCCC.Succ.D2U (None)']) * 100
+
 daily_dfU2100['PS HS- Drop Rate (%)_U2100'] =  daily_dfU2100['VS.HSDPA.RAB.AbnormRel (None)'] / (daily_dfU2100['VS.HSDPA.RAB.AbnormRel (None)'] + daily_dfU2100['VS.HSDPA.RAB.NormRel (None)'] + daily_dfU2100['VS.HSDPA.H2D.Succ (None)'] + daily_dfU2100['VS.HSDPA.H2F.Succ (None)'] +daily_dfU2100['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + daily_dfU2100['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
 daily_dfU2100['HSDPA Throughput, kbps_U2100'] = daily_dfU2100['VS.HSDPA.MeanChThroughput (kbit/s)'] / 471 / 24 # количество сот 471!!!
 daily_dfU2100['HSUPA Throughput, kbps_U2100'] = daily_dfU2100['VS.HSUPA.MeanChThroughput (kbit/s)'] / 471 / 24# количество сот 471!!!
@@ -3178,6 +3192,11 @@ daily_dfU900['PS RAB Drop Rate (%)_U900'] = (daily_dfU900['VS.RAB.AbnormRel.PS (
                                     daily_dfU900['VS.RAB.AbnormRel.PS.F2P (None)']) / \
                                    (daily_dfU900['VS.RAB.AbnormRel.PS (None)'] + daily_dfU900['VS.RAB.NormRel.PS (None)'] + daily_dfU900['VS.RAB.AbnormRel.PS.PCH (None)'] + \
                                     daily_dfU900['VS.RAB.NormRel.PS.PCH (None)']) * 100
+daily_dfU900['PS RAB Drop Rate (%)_U900'] = (daily_dfU900['VS.RAB.AbnormRel.PS (None)'] - daily_dfU900['VS.RAB.AbnormRel.PS.PCH (None)'] - daily_dfU900['VS.RAB.AbnormRel.PS.D2P (None)'] - \
+                                    daily_dfU900['VS.RAB.AbnormRel.PS.F2P (None)']) / \
+                                   (daily_dfU900['VS.RAB.AbnormRel.PS (None)'] + daily_dfU900['VS.RAB.NormRel.PS (None)'] - daily_dfU900['VS.RAB.AbnormRel.PS.PCH (None)'] - \
+                                    daily_dfU900['VS.RAB.NormRel.PS.PCH (None)'] + daily_dfU900['VS.DCCC.D2P.Succ (None)']+daily_dfU900['VS.DCCC.Succ.F2P (None)']+daily_dfU900['VS.DCCC.Succ.F2U (None)']+daily_dfU900['VS.DCCC.Succ.D2U (None)']) * 100
+
 daily_dfU900['PS HS- Drop Rate (%)_U900'] =  daily_dfU900['VS.HSDPA.RAB.AbnormRel (None)'] / (daily_dfU900['VS.HSDPA.RAB.AbnormRel (None)'] + daily_dfU900['VS.HSDPA.RAB.NormRel (None)'] + daily_dfU900['VS.HSDPA.H2D.Succ (None)'] + daily_dfU900['VS.HSDPA.H2F.Succ (None)'] +daily_dfU900['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + daily_dfU900['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
 daily_dfU900['HSDPA Throughput, kbps_U900'] = daily_dfU900['VS.HSDPA.MeanChThroughput (kbit/s)'] / 216 / 24 # количество сот 216!!!
 daily_dfU900['HSUPA Throughput, kbps_U900'] = daily_dfU900['VS.HSUPA.MeanChThroughput (kbit/s)'] / 216 / 24# количество сот 216
@@ -3462,10 +3481,16 @@ hourly_df['PS Blocking Rate (%)'] = (hourly_df['VS.RAB.FailEstabPS.DLIUBBand.Con
                                     hourly_df['VS.RAB.FailEstabPS.DLCE.Cong (None)'] + hourly_df['VS.RAB.FailEstabPS.Code.Cong (None)'] + hourly_df['VS.RAB.FailEstabPS.ULPower.Cong (None)'] + \
                                     hourly_df['VS.RAB.FailEstabPS.DLPower.Cong (None)'] + hourly_df['VS.RAB.FailEstabPS.HSDPAUser.Cong (None)'] + hourly_df['VS.RAB.FailEstabPS.HSUPAUser.Cong (None)']) / \
                                     (hourly_df['VS.RAB.AttEstabPS.Str (None)'] + hourly_df['VS.RAB.AttEstabPS.Int (None)'] + hourly_df['VS.RAB.AttEstabPS.Bkg (None)']) *100
-hourly_df['PS RAB Drop Rate (%)'] = (hourly_df['VS.RAB.AbnormRel.PS (None)'] + hourly_df['VS.RAB.AbnormRel.PS.PCH (None)'] + hourly_df['VS.RAB.AbnormRel.PS.D2P (None)'] + \
+# hourly_df['PS RAB Drop Rate (%)'] = (hourly_df['VS.RAB.AbnormRel.PS (None)'] + hourly_df['VS.RAB.AbnormRel.PS.PCH (None)'] + hourly_df['VS.RAB.AbnormRel.PS.D2P (None)'] + \
+#                                     hourly_df['VS.RAB.AbnormRel.PS.F2P (None)']) / \
+#                                    (hourly_df['VS.RAB.AbnormRel.PS (None)'] + hourly_df['VS.RAB.NormRel.PS (None)'] + hourly_df['VS.RAB.AbnormRel.PS.PCH (None)'] + \
+#                                     hourly_df['VS.RAB.NormRel.PS.PCH (None)']) * 100
+hourly_df['PS RAB Drop Rate (%)'] = (hourly_df['VS.RAB.AbnormRel.PS (None)'] - hourly_df['VS.RAB.AbnormRel.PS.PCH (None)'] - hourly_df['VS.RAB.AbnormRel.PS.D2P (None)'] - \
                                     hourly_df['VS.RAB.AbnormRel.PS.F2P (None)']) / \
-                                   (hourly_df['VS.RAB.AbnormRel.PS (None)'] + hourly_df['VS.RAB.NormRel.PS (None)'] + hourly_df['VS.RAB.AbnormRel.PS.PCH (None)'] + \
-                                    hourly_df['VS.RAB.NormRel.PS.PCH (None)']) * 100
+                                   (hourly_df['VS.RAB.AbnormRel.PS (None)'] + hourly_df['VS.RAB.NormRel.PS (None)'] - hourly_df['VS.RAB.AbnormRel.PS.PCH (None)'] - \
+                                    hourly_df['VS.RAB.NormRel.PS.PCH (None)'] + hourly_df['VS.DCCC.D2P.Succ (None)']+hourly_df['VS.DCCC.Succ.F2P (None)']+hourly_df['VS.DCCC.Succ.F2U (None)']+hourly_df['VS.DCCC.Succ.D2U (None)']) * 100
+
+
 hourly_df['PS HS- Drop Rate (%)'] =  hourly_df['VS.HSDPA.RAB.AbnormRel (None)'] / (hourly_df['VS.HSDPA.RAB.AbnormRel (None)'] + hourly_df['VS.HSDPA.RAB.NormRel (None)'] + hourly_df['VS.HSDPA.H2D.Succ (None)'] + hourly_df['VS.HSDPA.H2F.Succ (None)'] +hourly_df['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + hourly_df['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
 hourly_df['HSDPA Throughput, kbps'] = hourly_df['VS.HSDPA.MeanChThroughput (kbit/s)'] / 538 / 24 # количество сот 538
 hourly_df['HSUPA Throughput, kbps'] = hourly_df['VS.HSUPA.MeanChThroughput (kbit/s)'] / 538 / 24# количество сот 538
@@ -3526,10 +3551,16 @@ hourly_dfU2100['PS Blocking Rate (%)_U2100'] = (hourly_dfU2100['VS.RAB.FailEstab
                                     hourly_dfU2100['VS.RAB.FailEstabPS.DLCE.Cong (None)'] + hourly_dfU2100['VS.RAB.FailEstabPS.Code.Cong (None)'] + hourly_dfU2100['VS.RAB.FailEstabPS.ULPower.Cong (None)'] + \
                                     hourly_dfU2100['VS.RAB.FailEstabPS.DLPower.Cong (None)'] + hourly_dfU2100['VS.RAB.FailEstabPS.HSDPAUser.Cong (None)'] + hourly_dfU2100['VS.RAB.FailEstabPS.HSUPAUser.Cong (None)']) / \
                                     (hourly_dfU2100['VS.RAB.AttEstabPS.Str (None)'] + hourly_dfU2100['VS.RAB.AttEstabPS.Int (None)'] + hourly_dfU2100['VS.RAB.AttEstabPS.Bkg (None)']) *100
-hourly_dfU2100['PS RAB Drop Rate (%)_U2100'] = (hourly_dfU2100['VS.RAB.AbnormRel.PS (None)'] + hourly_dfU2100['VS.RAB.AbnormRel.PS.PCH (None)'] + hourly_dfU2100['VS.RAB.AbnormRel.PS.D2P (None)'] + \
+# hourly_dfU2100['PS RAB Drop Rate (%)_U2100'] = (hourly_dfU2100['VS.RAB.AbnormRel.PS (None)'] + hourly_dfU2100['VS.RAB.AbnormRel.PS.PCH (None)'] + hourly_dfU2100['VS.RAB.AbnormRel.PS.D2P (None)'] + \
+#                                     hourly_dfU2100['VS.RAB.AbnormRel.PS.F2P (None)']) / \
+#                                    (hourly_dfU2100['VS.RAB.AbnormRel.PS (None)'] + hourly_dfU2100['VS.RAB.NormRel.PS (None)'] + hourly_dfU2100['VS.RAB.AbnormRel.PS.PCH (None)'] + \
+#                                     hourly_dfU2100['VS.RAB.NormRel.PS.PCH (None)']) * 100
+hourly_dfU2100['PS RAB Drop Rate (%)_U2100'] = (hourly_dfU2100['VS.RAB.AbnormRel.PS (None)'] - hourly_dfU2100['VS.RAB.AbnormRel.PS.PCH (None)'] - hourly_dfU2100['VS.RAB.AbnormRel.PS.D2P (None)'] - \
                                     hourly_dfU2100['VS.RAB.AbnormRel.PS.F2P (None)']) / \
-                                   (hourly_dfU2100['VS.RAB.AbnormRel.PS (None)'] + hourly_dfU2100['VS.RAB.NormRel.PS (None)'] + hourly_dfU2100['VS.RAB.AbnormRel.PS.PCH (None)'] + \
-                                    hourly_dfU2100['VS.RAB.NormRel.PS.PCH (None)']) * 100
+                                   (hourly_dfU2100['VS.RAB.AbnormRel.PS (None)'] + hourly_dfU2100['VS.RAB.NormRel.PS (None)'] - hourly_dfU2100['VS.RAB.AbnormRel.PS.PCH (None)'] - \
+                                    hourly_dfU2100['VS.RAB.NormRel.PS.PCH (None)'] + hourly_dfU2100['VS.DCCC.D2P.Succ (None)']+hourly_dfU2100['VS.DCCC.Succ.F2P (None)']+hourly_dfU2100['VS.DCCC.Succ.F2U (None)']+hourly_dfU2100['VS.DCCC.Succ.D2U (None)']) * 100
+
+
 hourly_dfU2100['PS HS- Drop Rate (%)_U2100'] =  hourly_dfU2100['VS.HSDPA.RAB.AbnormRel (None)'] / (hourly_dfU2100['VS.HSDPA.RAB.AbnormRel (None)'] + hourly_dfU2100['VS.HSDPA.RAB.NormRel (None)'] + hourly_dfU2100['VS.HSDPA.H2D.Succ (None)'] + hourly_dfU2100['VS.HSDPA.H2F.Succ (None)'] +hourly_dfU2100['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + hourly_dfU2100['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
 hourly_dfU2100['HSDPA Throughput, kbps_U2100'] = hourly_dfU2100['VS.HSDPA.MeanChThroughput (kbit/s)'] / 471 / 24 # количество сот 471!!!
 hourly_dfU2100['HSUPA Throughput, kbps_U2100'] = hourly_dfU2100['VS.HSUPA.MeanChThroughput (kbit/s)'] / 471 / 24# количество сот 471!!!
@@ -3590,10 +3621,16 @@ hourly_dfU900['PS Blocking Rate (%)_U900'] = (hourly_dfU900['VS.RAB.FailEstabPS.
                                     hourly_dfU900['VS.RAB.FailEstabPS.DLCE.Cong (None)'] + hourly_dfU900['VS.RAB.FailEstabPS.Code.Cong (None)'] + hourly_dfU900['VS.RAB.FailEstabPS.ULPower.Cong (None)'] + \
                                     hourly_dfU900['VS.RAB.FailEstabPS.DLPower.Cong (None)'] + hourly_dfU900['VS.RAB.FailEstabPS.HSDPAUser.Cong (None)'] + hourly_dfU900['VS.RAB.FailEstabPS.HSUPAUser.Cong (None)']) / \
                                     (hourly_dfU900['VS.RAB.AttEstabPS.Str (None)'] + hourly_dfU900['VS.RAB.AttEstabPS.Int (None)'] + hourly_dfU900['VS.RAB.AttEstabPS.Bkg (None)']) *100
-hourly_dfU900['PS RAB Drop Rate (%)_U900'] = (hourly_dfU900['VS.RAB.AbnormRel.PS (None)'] + hourly_dfU900['VS.RAB.AbnormRel.PS.PCH (None)'] + hourly_dfU900['VS.RAB.AbnormRel.PS.D2P (None)'] + \
+# hourly_dfU900['PS RAB Drop Rate (%)_U900'] = (hourly_dfU900['VS.RAB.AbnormRel.PS (None)'] + hourly_dfU900['VS.RAB.AbnormRel.PS.PCH (None)'] + hourly_dfU900['VS.RAB.AbnormRel.PS.D2P (None)'] + \
+#                                     hourly_dfU900['VS.RAB.AbnormRel.PS.F2P (None)']) / \
+#                                    (hourly_dfU900['VS.RAB.AbnormRel.PS (None)'] + hourly_dfU900['VS.RAB.NormRel.PS (None)'] + hourly_dfU900['VS.RAB.AbnormRel.PS.PCH (None)'] + \
+#                                     hourly_dfU900['VS.RAB.NormRel.PS.PCH (None)']) * 100
+hourly_dfU900['PS RAB Drop Rate (%)_U900'] = (hourly_dfU900['VS.RAB.AbnormRel.PS (None)'] - hourly_dfU900['VS.RAB.AbnormRel.PS.PCH (None)'] - hourly_dfU900['VS.RAB.AbnormRel.PS.D2P (None)'] - \
                                     hourly_dfU900['VS.RAB.AbnormRel.PS.F2P (None)']) / \
-                                   (hourly_dfU900['VS.RAB.AbnormRel.PS (None)'] + hourly_dfU900['VS.RAB.NormRel.PS (None)'] + hourly_dfU900['VS.RAB.AbnormRel.PS.PCH (None)'] + \
-                                    hourly_dfU900['VS.RAB.NormRel.PS.PCH (None)']) * 100
+                                   (hourly_dfU900['VS.RAB.AbnormRel.PS (None)'] + hourly_dfU900['VS.RAB.NormRel.PS (None)'] - hourly_dfU900['VS.RAB.AbnormRel.PS.PCH (None)'] - \
+                                    hourly_dfU900['VS.RAB.NormRel.PS.PCH (None)'] + hourly_dfU900['VS.DCCC.D2P.Succ (None)']+hourly_dfU900['VS.DCCC.Succ.F2P (None)']+hourly_dfU900['VS.DCCC.Succ.F2U (None)']+hourly_dfU900['VS.DCCC.Succ.D2U (None)']) * 100
+
+
 hourly_dfU900['PS HS- Drop Rate (%)_U900'] =  hourly_dfU900['VS.HSDPA.RAB.AbnormRel (None)'] / (hourly_dfU900['VS.HSDPA.RAB.AbnormRel (None)'] + hourly_dfU900['VS.HSDPA.RAB.NormRel (None)'] + hourly_dfU900['VS.HSDPA.H2D.Succ (None)'] + hourly_dfU900['VS.HSDPA.H2F.Succ (None)'] +hourly_dfU900['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + hourly_dfU900['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
 hourly_dfU900['HSDPA Throughput, kbps_U900'] = hourly_dfU900['VS.HSDPA.MeanChThroughput (kbit/s)'] / 216 / 24 # количество сот 216!!!
 hourly_dfU900['HSUPA Throughput, kbps_U900'] = hourly_dfU900['VS.HSUPA.MeanChThroughput (kbit/s)'] / 216 / 24# количество сот 216
@@ -3882,10 +3919,15 @@ hourlyPS_df['PS Blocking Rate (%)'] = (hourlyPS_df['VS.RAB.FailEstabPS.DLIUBBand
                                     hourlyPS_df['VS.RAB.FailEstabPS.DLCE.Cong (None)'] + hourlyPS_df['VS.RAB.FailEstabPS.Code.Cong (None)'] + hourlyPS_df['VS.RAB.FailEstabPS.ULPower.Cong (None)'] + \
                                     hourlyPS_df['VS.RAB.FailEstabPS.DLPower.Cong (None)'] + hourlyPS_df['VS.RAB.FailEstabPS.HSDPAUser.Cong (None)'] + hourlyPS_df['VS.RAB.FailEstabPS.HSUPAUser.Cong (None)']) / \
                                     (hourlyPS_df['VS.RAB.AttEstabPS.Str (None)'] + hourlyPS_df['VS.RAB.AttEstabPS.Int (None)'] + hourlyPS_df['VS.RAB.AttEstabPS.Bkg (None)']) *100
-hourlyPS_df['PS RAB Drop Rate (%)'] = (hourlyPS_df['VS.RAB.AbnormRel.PS (None)'] + hourlyPS_df['VS.RAB.AbnormRel.PS.PCH (None)'] + hourlyPS_df['VS.RAB.AbnormRel.PS.D2P (None)'] + \
+# hourlyPS_df['PS RAB Drop Rate (%)'] = (hourlyPS_df['VS.RAB.AbnormRel.PS (None)'] + hourlyPS_df['VS.RAB.AbnormRel.PS.PCH (None)'] + hourlyPS_df['VS.RAB.AbnormRel.PS.D2P (None)'] + \
+#                                     hourlyPS_df['VS.RAB.AbnormRel.PS.F2P (None)']) / \
+#                                    (hourlyPS_df['VS.RAB.AbnormRel.PS (None)'] + hourlyPS_df['VS.RAB.NormRel.PS (None)'] + hourlyPS_df['VS.RAB.AbnormRel.PS.PCH (None)'] + \
+#                                     hourlyPS_df['VS.RAB.NormRel.PS.PCH (None)']) * 100
+hourlyPS_df['PS RAB Drop Rate (%)'] = (hourlyPS_df['VS.RAB.AbnormRel.PS (None)'] - hourlyPS_df['VS.RAB.AbnormRel.PS.PCH (None)'] - hourlyPS_df['VS.RAB.AbnormRel.PS.D2P (None)'] - \
                                     hourlyPS_df['VS.RAB.AbnormRel.PS.F2P (None)']) / \
-                                   (hourlyPS_df['VS.RAB.AbnormRel.PS (None)'] + hourlyPS_df['VS.RAB.NormRel.PS (None)'] + hourlyPS_df['VS.RAB.AbnormRel.PS.PCH (None)'] + \
-                                    hourlyPS_df['VS.RAB.NormRel.PS.PCH (None)']) * 100
+                                   (hourlyPS_df['VS.RAB.AbnormRel.PS (None)'] + hourlyPS_df['VS.RAB.NormRel.PS (None)'] - hourlyPS_df['VS.RAB.AbnormRel.PS.PCH (None)'] - \
+                                    hourlyPS_df['VS.RAB.NormRel.PS.PCH (None)'] + hourlyPS_df['VS.DCCC.D2P.Succ (None)']+hourlyPS_df['VS.DCCC.Succ.F2P (None)']+hourlyPS_df['VS.DCCC.Succ.F2U (None)']+hourlyPS_df['VS.DCCC.Succ.D2U (None)']) * 100
+
 hourlyPS_df['PS HS- Drop Rate (%)'] =  hourlyPS_df['VS.HSDPA.RAB.AbnormRel (None)'] / (hourlyPS_df['VS.HSDPA.RAB.AbnormRel (None)'] + hourlyPS_df['VS.HSDPA.RAB.NormRel (None)'] + hourlyPS_df['VS.HSDPA.H2D.Succ (None)'] + hourlyPS_df['VS.HSDPA.H2F.Succ (None)'] +hourlyPS_df['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + hourlyPS_df['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
 hourlyPS_df['HSDPA Throughput, kbps'] = hourlyPS_df['VS.HSDPA.MeanChThroughput (kbit/s)'] / active_cell_number # количество сот
 hourlyPS_df['HSUPA Throughput, kbps'] = hourlyPS_df['VS.HSUPA.MeanChThroughput (kbit/s)'] / active_cell_number # количество сот
