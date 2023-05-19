@@ -1699,8 +1699,8 @@ cluster_UH_UMTS = [
 conn = sqlite3.connect('C:/SQLite/firstDB/stsDB.db')
 # создаем курсор для выполнения запросов
 cursor = conn.cursor()
-start_date = '2023-03-25'
-end_date = '2023-04-03' # надо брать на день позже
+start_date = '2023-02-10'
+end_date = '2023-02-26' # надо брать на день позже
 
 ## GSM
 query1 = f'''SELECT "Start Time", "GCELL", "K3014:Traffic Volume on TCH (Erl)" FROM GSMsts WHERE `Start Time` >= '{start_date}' AND `Start Time` <= '{end_date}' '''
@@ -1730,12 +1730,12 @@ conn.close()
 sts_df_LTE = pd.pivot_table(sts_df_LTE, index = 'Cell', columns = 'Start Time', values = 'L.ChMeas.PRB.DL.Used.Avg (None)')
 conn.close()
 
-with pd.ExcelWriter(f"C:/work/Herson_audit/sts/2G/traffic_alarm{start_date}-{end_date}.xlsx", engine='openpyxl') as writer:
+with pd.ExcelWriter(f"C:/wHesron/sts/2G/traffic_alarm{start_date}-{end_date}.xlsx", engine='openpyxl') as writer:
     sts_df_GSM.to_excel(writer, sheet_name='GSM')
     sts_df_UMTS.to_excel(writer, sheet_name='UMTS')
     sts_df_LTE.to_excel(writer, sheet_name='LTE')
 
-my_file = openpyxl.load_workbook(f"C:/work/Herson_audit/sts/2G/traffic_alarm{start_date}-{end_date}.xlsx")
+my_file = openpyxl.load_workbook(f"C:/wHesron/sts/2G/traffic_alarm{start_date}-{end_date}.xlsx")
 GSM_sheet = my_file["GSM"]
 UMTS_sheet = my_file["UMTS"]
 LTE_sheet = my_file["LTE"]
@@ -1777,7 +1777,8 @@ for row in range(1, LTE_sheet.max_row):
         if cell.value == 0:
             cell.fill = fill
 
-my_file.save(f"C:/work/Herson_audit/sts/2G/traffic_alarm{start_date}-{end_date}.xlsx")
+my_file.save(f"C:/wHesron/sts/2G/traffic_alarm{start_date}-{end_date}.xlsx")
 
 winsound.Beep(2500, 1000)
+winsound.Beep(2800, 1000)
 print('готово')

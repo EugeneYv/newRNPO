@@ -9,8 +9,8 @@ import openpyxl.styles
 conn = sqlite3.connect('C:/SQLite/firstDB/stsDB.db')
 # создаем курсор для выполнения запросов
 cursor = conn.cursor()
-start_date = '2023-01-09'
-end_date = '2023-04-03' # надо брать на день позже
+start_date = '2023-05-08'
+end_date = '2023-05-19' # надо брать на день позже
 
 # используйте операторы сравнения для выборки строк в заданном диапазоне
 query = f"SELECT * FROM LTEsts WHERE `Start Time` >= '{start_date}' AND `Start Time` <= '{end_date}'"
@@ -21,11 +21,11 @@ data = cursor.fetchall()
 data = [[None if col == 'NIL' else col for col in row] for row in data]
 sts_df = pd.DataFrame(data, columns=[i[0] for i in cursor.description])
 
-active_cell_number = 398  # ввести количество активных сот !!!!  19    398
+#active_cell_number = 398  # ввести количество активных сот !!!!  19    398
 
-directory = 'C:/work/Herson_audit/sts/4G/' # ввести директорию где лежит файл
+directory = 'C:/wHesron/sts/4G/' # ввести директорию где лежит файл
 csv_name = (f'4G{end_date}')  # ввести имя файла
-output_comment = '_output_weeks_2-13'  # что добавится в конце к названию файла
+output_comment = 'cluster_UH'  # что добавится в конце к названию файла
 
 sts_df['date'] = sts_df['Start Time'].str.split(' ').str[0]
 sts_df['hour'] = sts_df['Start Time'].str.split(' ').str[1]
@@ -489,7 +489,6 @@ list_1800 = [
 'eNodeB Function Name=UH1907, Local Cell ID=2, Cell Name=UH1907L2, eNodeB ID=11907, Cell FDD TDD indication=CELL_FDD', \
 'eNodeB Function Name=UH1907, Local Cell ID=1, Cell Name=UH1907L1, eNodeB ID=11907, Cell FDD TDD indication=CELL_FDD'
 ]  # кластер число сот 327
-
 list_dualband_1800 = [
 'eNodeB Function Name=UH0734, Local Cell ID=3, Cell Name=UH0734L3, eNodeB ID=10734, Cell FDD TDD indication=CELL_FDD', \
 'eNodeB Function Name=UH0734, Local Cell ID=2, Cell Name=UH0734L2, eNodeB ID=10734, Cell FDD TDD indication=CELL_FDD', \
@@ -670,11 +669,267 @@ list_dualband_2600 = [
 'eNodeB Function Name=UH0742, Local Cell ID=5, Cell Name=UH0742L5, eNodeB ID=10742, Cell FDD TDD indication=CELL_FDD'
 ] # сот 79
 
+cluster_Kahovka = [
+'UH1882',
+'UH0995',
+'UH0820',
+'UH3918',
+'UH0988',
+]  # новый кластер для отчёта
+cluster_N_Kahovka = [
+'UH0881',
+'UH2981',
+'UH3925',
+'UH1947',
+'UH0970',
+'UH0821',
+]  # новый кластер для отчёта
+cluster_Genichesk = [
+'UH0952',
+'UH4600',
+'UH0602',
+'UH0966',
+]  # новый кластер для отчёта
+cluster_Zhel_Port = [
+'UH1907',
+'UH1704',
+'UH1905',
+'UH0832',
+'UH2932',
+'UH1958',
+'UH1960',
+'UH1703',
+'UH0960',
+]  # новый кластер для отчёта
+cluster_Lazurnoye = [
+'UH1964',
+'UH0964',
+'UH1705',
+'UH1707',
+'UH0963',
+'UH3989',
+'UH0831',
+'UH1892',
+]  # новый кластер для отчёта
+cluster_Skadovsk = [
+'UH2938',
+'UH3990',
+'UH0962',
+'UH0830',
+'UH0961',
+'UH3922',
+]  # новый кластер для отчёта
+cluster_VsyoOstalnoye = [
+'UH0713',
+'UH0758',
+'UH1901',
+'UH0754',
+'UH2763',
+'UH0736',
+'UH1945',
+'UH1933',
+'UH1913',
+'UH0747',
+'UH0752',
+'UH1801',
+'UH0737',
+'UH0738',
+'UH0965',
+'UH0843',
+'UH0880',
+'UH0731',
+'UH0751',
+'UH2984',
+'UH0845',
+'UH1939',
+'UH0765',
+'UH0972',
+'UH0991',
+'UH0973',
+'UH0842',
+'UH1910',
+'UH0617',
+'UH0734',
+'UH0748',
+'UH0976',
+'UH0994',
+'UH1916',
+'UH0981',
+'UH0742',
+'UH0735',
+'UH3996',
+'UH1976',
+'UH0841',
+'UH0702',
+'UH0715',
+'UH0623',
+'UH0601',
+'UH0743',
+'UH0708',
+'UH0714',
+'UH0763',
+'UH1920',
+'UH0636',
+'UH1854',
+'UH1919',
+'UH1908',
+'UH1900',
+'UH0622',
+'UH1909',
+'UH0717',
+'UH1936',
+'UH1925',
+'UH0840',
+'UH0618',
+'UH0825',
+'UH0770',
+'UH0951',
+'UH0869',
+'UH1951',
+'UH1906',
+'UH1917',
+'UH1805',
+'UH1702',
+'UH0971',
+'UH0975',
+'UH0838',
+'UH0839',
+'UH0849',
+'UH0846',
+'UH3928',
+'UH0508',
+'UH3921',
+'UH0614',
+'UH0611',
+'UH0879',
+'UH0711',
+'UH0646',
+'UH1902',
+]  # новый кластер для отчёта
+cluster_CR = []
+cluster_UH = [
+'UH0766',
+'UH1920',
+'UH1939',
+'UH3925',
+'UH3996',
+'UH1704',
+'UH1947',
+'UH1917',
+'UH0832',
+'UH1707',
+'UH0879',
+'UH0831',
+'UH1910',
+'UH1958',
+'UH1906',
+'UH0975',
+'UH0963',
+'UH0971',
+'UH0839',
+'UH1702',
+'UH1900',
+'UH3922',
+'UH3921',
+'UH0611',
+'UH0952',
+'UH0711',
+'UH0614',
+'UH0731',
+'UH0622',
+'UH0743',
+'UH0742',
+'UH0735',
+'UH0961',
+'UH0991',
+'UH0972',
+'UH0973',
+'UH0960',
+'UH0820',
+'UH2932',
+'UH1907',
+'UH2984',
+'UH1801',
+'UH0646',
+'UH0601',
+'UH0623',
+'UH1905',
+'UH0838',
+'UH1936',
+'UH2763',
+'UH1703',
+'UH0994',
+'UH0981',
+'UH0738',
+'UH0976',
+'UH0770',
+'UH0869',
+'UH0636',
+'UH1960',
+'UH0880',
+'UH0951',
+'UH1908',
+'UH0508',
+'UH0841',
+'UH1805',
+'UH1901',
+'UH1902',
+'UH0736',
+'UH0765',
+'UH0752',
+'UH3928',
+'UH0965',
+'UH0825',
+'UH0737',
+'UH1976',
+'UH1933',
+'UH0849',
+'UH0830',
+'UH1951',
+'UH0748',
+'UH0842',
+'UH0988',
+'UH1705',
+'UH1854',
+'UH1919',
+'UH0702',
+'UH0715',
+'UH0734',
+'UH3989',
+'UH4600',
+'UH0714',
+'UH0708',
+'UH0763',
+'UH0717',
+'UH0713',
+'UH0602',
+'UH0618',
+'UH0617',
+'UH0962',
+'UH0966',
+'UH0840',
+'UH1945',
+'UH0758',
+'UH2938',
+'UH3990',
+'UH0970',
+'UH0751',
+'UH0754',
+'UH1925',
+'UH1913',
+'UH1909',
+'UH0747',
+'UH0845',
+'UH0843',
+'UH0846',
+]
 
 # фильтрация по кластеру:
 # кластер
 # cluster_UH0508 = ['UH0508']
-# sts_df = sts_df[sts_df['NE Name'].isin(cluster_UH0508)]
+sts_df = sts_df[sts_df['NE Name'].isin(cluster_UH)]
+
+active_cell_number = sts_df['Cell'].nunique()
 
 # обработка weekly:
 weekly_df = sts_df.groupby(['week'])[list_1]. sum().reset_index()
@@ -1763,12 +2018,9 @@ DCSR4G_chart.legend.position = 'b'
 busyhour_sheet.add_chart(DCSR4G_chart, "A258")
 
 my_file.save(f"{directory}{csv_name}{output_comment}.xlsx")
-#daily_df.to_excel("C:/test/sts4G/daily.xls", engine='openpyxl', sheet_name='Book1')
-print('готово')
-frequency = 2500  # Set Frequency To 2500 Hertz
-duration = 1000  # Set Duration To 1000 ms == 1 second
-winsound.Beep(frequency, duration)
-
 
 # закрываем соединение с базой данных
 conn.close()
+print('готово')
+winsound.Beep(2500, 1000)
+winsound.Beep(3000, 1000)

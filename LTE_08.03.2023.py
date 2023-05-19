@@ -5,11 +5,11 @@ from openpyxl.chart import (LineChart, Reference)
 import openpyxl.styles
 '''вывод посуточной статистики для LTE. импортный файл - в МАЕ вывести в формате xlsx, потом в экселе переделать в csv'''
 
-active_cell_number = 398  # ввести количество активных сот !!!!  19    398
+active_cell_number = 36  # ввести количество активных сот !!!!  19    398
 
-directory = 'C:/work/Herson_audit/sts/4G/' # ввести директорию где лежит файл C:\work\Herson_audit\sts\отчётная
+directory = 'C:/w_tickets/MM-419/' # ввести директорию где лежит файл C:\w_tickets\MM-419
 #csv_name = 'LTEsts_output'  # ввести имя файла LTEsts_output
-csv_name = '4G_counters(2023-03-31'  # ввести имя файла LTEsts_output
+csv_name = '4G_counters(2023-04-17'  # ввести имя файла LTEsts_output
 output_comment = '_output'  # что добавится в конце к названию файла
 
 sts_df = pd.read_excel(f"{directory}{csv_name}.xlsx", header=7, na_values='NIL')
@@ -656,6 +656,8 @@ list_dualband_2600 = [
 'eNodeB Function Name=UH0742, Local Cell ID=4, Cell Name=UH0742L4, eNodeB ID=10742, Cell FDD TDD indication=CELL_FDD', \
 'eNodeB Function Name=UH0742, Local Cell ID=5, Cell Name=UH0742L5, eNodeB ID=10742, Cell FDD TDD indication=CELL_FDD'
 ] # сот 79
+
+#sts_df = sts_df[sts_df['BSC6910UCell'].isin(cluster_UH)]
 
 # обработка weekly:
 weekly_df = sts_df.groupby(['week'])[list_1]. sum().reset_index()

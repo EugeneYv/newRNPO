@@ -6,13 +6,13 @@ import openpyxl.styles
 ''' количество активных сот 538!!! - используется для расчёта скорости HSDPA HSUPA на RNC 
 вывод посуточной статистики для UMTS. импортный файл - в МАЕ вывести в формате xlsx два файла, потом в экселе переделать в csv
 '''
-active_cell_number = 471  # количество активных сот !!!!
+#active_cell_number = 471  # количество активных сот !!!!
 
 directory = 'C:/work/Herson_audit/sts/3G/'
 csv_name1 = '3G_counters1(2023-03-31'
 csv_name2 = '3G_counters2(2023-03-31'
 NodeB_name = '3G_NodeB_thr(2023-03-31'
-output_comment = '_output'  # что добавится в конце к названию файла
+output_comment = '_output_list_newcells'  # что добавится в конце к названию файла
 
 sts1_df = pd.read_excel(f"{directory}{csv_name1}.xlsx", header=7, na_values='NIL')
 #sts1_df = pd.read_csv(f"{directory}{csv_name1}.csv", sep=";", header=7, na_values='NIL')
@@ -2947,9 +2947,11 @@ list_newcellsNodeB = [
 'NodeB Function Name=UH0752, Local Cell ID=95, Cell Name=CELLNAME',
 'NodeB Function Name=UH1913, Local Cell ID=96, Cell Name=CELLNAME',
 ]  # список недавно запущенных сот после перераспределения BBP плат
-#sts_df = sts_df[sts_df['BSC6910UCell'].isin(list_newcells)]  # вывод только недавно запущенных сот после перераспределения BBP плат
+
+sts_df = sts_df[sts_df['BSC6910UCell'].isin(list_newcells)]  # вывод только недавно запущенных сот после перераспределения BBP плат
 #stsN_df = stsN_df[stsN_df['ULoCell'].isin(list_newcellsNodeB)]  # вывод только недавно запущенных сот после перераспределения BBP плат
 
+active_cell_number = sts_df['BSC6910UCell'].nunique()
 
 # ===обработка weekly  для всей сети без разбивки на кластера===
 weekly_df = sts_df.groupby(['week'])[list_1]. sum().reset_index()
@@ -3060,8 +3062,8 @@ daily_df['PS RAB Drop Rate (%)'] = (daily_df['VS.RAB.AbnormRel.PS (None)'] - dai
                                     daily_df['VS.RAB.NormRel.PS.PCH (None)'] + daily_df['VS.DCCC.D2P.Succ (None)']+daily_df['VS.DCCC.Succ.F2P (None)']+daily_df['VS.DCCC.Succ.F2U (None)']+daily_df['VS.DCCC.Succ.D2U (None)']) * 100
 
 daily_df['PS HS- Drop Rate (%)'] =  daily_df['VS.HSDPA.RAB.AbnormRel (None)'] / (daily_df['VS.HSDPA.RAB.AbnormRel (None)'] + daily_df['VS.HSDPA.RAB.NormRel (None)'] + daily_df['VS.HSDPA.H2D.Succ (None)'] + daily_df['VS.HSDPA.H2F.Succ (None)'] +daily_df['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + daily_df['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
-daily_df['HSDPA Throughput, kbps'] = daily_df['VS.HSDPA.MeanChThroughput (kbit/s)'] / 538 / 24 # количество сот 538
-daily_df['HSUPA Throughput, kbps'] = daily_df['VS.HSUPA.MeanChThroughput (kbit/s)'] / 538 / 24# количество сот 538
+daily_df['HSDPA Throughput, kbps'] = daily_df['VS.HSDPA.MeanChThroughput (kbit/s)'] / active_cell_number / 24 # количество сот 538
+daily_df['HSUPA Throughput, kbps'] = daily_df['VS.HSUPA.MeanChThroughput (kbit/s)'] / active_cell_number / 24# количество сот 538
 daily_df['Soft Handover Success rate, %'] = (daily_df['VS.SHO.SuccRLAdd (None)'] + daily_df['VS.SHO.SuccRLDel (None)']) / (daily_df['VS.SHO.AttRLAdd (None)'] + daily_df['VS.SHO.AttRLDel (None)']) * 100
 daily_df['Hard Handover Success rate, %'] = daily_df['VS.HHO.SuccInterFreqOut (None)'] / daily_df['VS.HHO.AttInterFreqOut (None)'] * 100
 daily_df['CS W2G Inter-RAT Handover Out SR'] = daily_df['IRATHO.SuccOutCS (None)'] / (daily_df['IRATHO.AttOutCS (None)'] - daily_df['VS.IRATHOCS.Cancel.ReEstab (None)']) * 100
@@ -3098,6 +3100,7 @@ daily_df = daily_df.drop(list_1, axis=1)
 
 # фильтрация по U2100
 daily_dfU2100 = sts_df[sts_df['BSC6910UCell'].isin(list_U2100)]
+active_cell_numberU2100 = daily_dfU2100['BSC6910UCell'].nunique()
 daily_dfU2100 = daily_dfU2100.groupby(['date'])[list_1]. sum().reset_index()
 daily_dfU2100['CS traffic 3G, Erl_U2100'] = daily_dfU2100['CS Voice Traffic Volume (Erl)']
 daily_dfU2100['PS traffic 3G UL+DL, GB_U2100'] = (daily_dfU2100['VS.HSUPA.MeanChThroughput.TotalBytes (byte)'] + daily_dfU2100['VS.PS.Bkg.DL.8.Traffic (bit)'] + daily_dfU2100['VS.PS.Bkg.DL.16.Traffic (bit)'] + \
@@ -3129,8 +3132,8 @@ daily_dfU2100['PS RAB Drop Rate (%)_U2100'] = (daily_dfU2100['VS.RAB.AbnormRel.P
                                     daily_dfU2100['VS.RAB.NormRel.PS.PCH (None)'] + daily_dfU2100['VS.DCCC.D2P.Succ (None)']+daily_dfU2100['VS.DCCC.Succ.F2P (None)']+daily_dfU2100['VS.DCCC.Succ.F2U (None)']+daily_dfU2100['VS.DCCC.Succ.D2U (None)']) * 100
 
 daily_dfU2100['PS HS- Drop Rate (%)_U2100'] =  daily_dfU2100['VS.HSDPA.RAB.AbnormRel (None)'] / (daily_dfU2100['VS.HSDPA.RAB.AbnormRel (None)'] + daily_dfU2100['VS.HSDPA.RAB.NormRel (None)'] + daily_dfU2100['VS.HSDPA.H2D.Succ (None)'] + daily_dfU2100['VS.HSDPA.H2F.Succ (None)'] +daily_dfU2100['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + daily_dfU2100['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
-daily_dfU2100['HSDPA Throughput, kbps_U2100'] = daily_dfU2100['VS.HSDPA.MeanChThroughput (kbit/s)'] / 471 / 24 # количество сот 471!!!
-daily_dfU2100['HSUPA Throughput, kbps_U2100'] = daily_dfU2100['VS.HSUPA.MeanChThroughput (kbit/s)'] / 471 / 24# количество сот 471!!!
+daily_dfU2100['HSDPA Throughput, kbps_U2100'] = daily_dfU2100['VS.HSDPA.MeanChThroughput (kbit/s)'] / active_cell_numberU2100 / 24 # количество сот 471!!!
+daily_dfU2100['HSUPA Throughput, kbps_U2100'] = daily_dfU2100['VS.HSUPA.MeanChThroughput (kbit/s)'] / active_cell_numberU2100 / 24# количество сот 471!!!
 daily_dfU2100['Soft Handover Success rate, %_U2100'] = (daily_dfU2100['VS.SHO.SuccRLAdd (None)'] + daily_dfU2100['VS.SHO.SuccRLDel (None)']) / (daily_dfU2100['VS.SHO.AttRLAdd (None)'] + daily_dfU2100['VS.SHO.AttRLDel (None)']) * 100
 daily_dfU2100['Hard Handover Success rate, %_U2100'] = daily_dfU2100['VS.HHO.SuccInterFreqOut (None)'] / daily_dfU2100['VS.HHO.AttInterFreqOut (None)'] * 100
 daily_dfU2100['CS W2G Inter-RAT Handover Out SR_U2100'] = daily_dfU2100['IRATHO.SuccOutCS (None)'] / (daily_dfU2100['IRATHO.AttOutCS (None)'] - daily_dfU2100['VS.IRATHOCS.Cancel.ReEstab (None)']) * 100
@@ -3167,6 +3170,7 @@ daily_dfU2100 = daily_dfU2100.drop(list_1, axis=1)
 
 # фильтрация по U900
 daily_dfU900 = sts_df[sts_df['BSC6910UCell'].isin(list_U900)]
+active_cell_numberU900 = daily_dfU900['BSC6910UCell'].nunique()
 daily_dfU900 = daily_dfU900.groupby(['date'])[list_1]. sum().reset_index()
 daily_dfU900['CS traffic 3G, Erl_U900'] = daily_dfU900['CS Voice Traffic Volume (Erl)']
 daily_dfU900['PS traffic 3G UL+DL, GB_U900'] = (daily_dfU900['VS.HSUPA.MeanChThroughput.TotalBytes (byte)'] + daily_dfU900['VS.PS.Bkg.DL.8.Traffic (bit)'] + daily_dfU900['VS.PS.Bkg.DL.16.Traffic (bit)'] + \
@@ -3198,8 +3202,8 @@ daily_dfU900['PS RAB Drop Rate (%)_U900'] = (daily_dfU900['VS.RAB.AbnormRel.PS (
                                     daily_dfU900['VS.RAB.NormRel.PS.PCH (None)'] + daily_dfU900['VS.DCCC.D2P.Succ (None)']+daily_dfU900['VS.DCCC.Succ.F2P (None)']+daily_dfU900['VS.DCCC.Succ.F2U (None)']+daily_dfU900['VS.DCCC.Succ.D2U (None)']) * 100
 
 daily_dfU900['PS HS- Drop Rate (%)_U900'] =  daily_dfU900['VS.HSDPA.RAB.AbnormRel (None)'] / (daily_dfU900['VS.HSDPA.RAB.AbnormRel (None)'] + daily_dfU900['VS.HSDPA.RAB.NormRel (None)'] + daily_dfU900['VS.HSDPA.H2D.Succ (None)'] + daily_dfU900['VS.HSDPA.H2F.Succ (None)'] +daily_dfU900['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + daily_dfU900['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
-daily_dfU900['HSDPA Throughput, kbps_U900'] = daily_dfU900['VS.HSDPA.MeanChThroughput (kbit/s)'] / 216 / 24 # количество сот 216!!!
-daily_dfU900['HSUPA Throughput, kbps_U900'] = daily_dfU900['VS.HSUPA.MeanChThroughput (kbit/s)'] / 216 / 24# количество сот 216
+daily_dfU900['HSDPA Throughput, kbps_U900'] = daily_dfU900['VS.HSDPA.MeanChThroughput (kbit/s)'] / active_cell_numberU900 / 24 # количество сот 216!!!
+daily_dfU900['HSUPA Throughput, kbps_U900'] = daily_dfU900['VS.HSUPA.MeanChThroughput (kbit/s)'] / active_cell_numberU900 / 24# количество сот 216
 daily_dfU900['Soft Handover Success rate, %_U900'] = (daily_dfU900['VS.SHO.SuccRLAdd (None)'] + daily_dfU900['VS.SHO.SuccRLDel (None)']) / (daily_dfU900['VS.SHO.AttRLAdd (None)'] + daily_dfU900['VS.SHO.AttRLDel (None)']) * 100
 daily_dfU900['Hard Handover Success rate, %_U900'] = daily_dfU900['VS.HHO.SuccInterFreqOut (None)'] / daily_dfU900['VS.HHO.AttInterFreqOut (None)'] * 100
 daily_dfU900['CS W2G Inter-RAT Handover Out SR_U900'] = daily_dfU900['IRATHO.SuccOutCS (None)'] / (daily_dfU900['IRATHO.AttOutCS (None)'] - daily_dfU900['VS.IRATHOCS.Cancel.ReEstab (None)']) * 100
@@ -3261,8 +3265,8 @@ daily_df10612['PS RAB Drop Rate (%)_10612'] = (daily_df10612['VS.RAB.AbnormRel.P
                                    (daily_df10612['VS.RAB.AbnormRel.PS (None)'] + daily_df10612['VS.RAB.NormRel.PS (None)'] + daily_df10612['VS.RAB.AbnormRel.PS.PCH (None)'] + \
                                     daily_df10612['VS.RAB.NormRel.PS.PCH (None)']) * 100
 daily_df10612['PS HS- Drop Rate (%)_10612'] =  daily_df10612['VS.HSDPA.RAB.AbnormRel (None)'] / (daily_df10612['VS.HSDPA.RAB.AbnormRel (None)'] + daily_df10612['VS.HSDPA.RAB.NormRel (None)'] + daily_df10612['VS.HSDPA.H2D.Succ (None)'] + daily_df10612['VS.HSDPA.H2F.Succ (None)'] +daily_df10612['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + daily_df10612['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
-daily_df10612['HSDPA Throughput, kbps_10612'] = daily_df10612['VS.HSDPA.MeanChThroughput (kbit/s)'] / 235 / 24 # количество сот 235!!!
-daily_df10612['HSUPA Throughput, kbps_10612'] = daily_df10612['VS.HSUPA.MeanChThroughput (kbit/s)'] / 235 / 24# количество сот 235
+daily_df10612['HSDPA Throughput, kbps_10612'] = daily_df10612['VS.HSDPA.MeanChThroughput (kbit/s)'] / active_cell_number / 24 # количество сот 235!!!
+daily_df10612['HSUPA Throughput, kbps_10612'] = daily_df10612['VS.HSUPA.MeanChThroughput (kbit/s)'] / active_cell_number / 24# количество сот 235
 daily_df10612['Soft Handover Success rate, %_10612'] = (daily_df10612['VS.SHO.SuccRLAdd (None)'] + daily_df10612['VS.SHO.SuccRLDel (None)']) / (daily_df10612['VS.SHO.AttRLAdd (None)'] + daily_df10612['VS.SHO.AttRLDel (None)']) * 100
 daily_df10612['Hard Handover Success rate, %_10612'] = daily_df10612['VS.HHO.SuccInterFreqOut (None)'] / daily_df10612['VS.HHO.AttInterFreqOut (None)'] * 100
 daily_df10612['CS W2G Inter-RAT Handover Out SR_10612'] = daily_df10612['IRATHO.SuccOutCS (None)'] / (daily_df10612['IRATHO.AttOutCS (None)'] - daily_df10612['VS.IRATHOCS.Cancel.ReEstab (None)']) * 100
@@ -3324,8 +3328,8 @@ daily_df10637['PS RAB Drop Rate (%)_10637'] = (daily_df10637['VS.RAB.AbnormRel.P
                                    (daily_df10637['VS.RAB.AbnormRel.PS (None)'] + daily_df10637['VS.RAB.NormRel.PS (None)'] + daily_df10637['VS.RAB.AbnormRel.PS.PCH (None)'] + \
                                     daily_df10637['VS.RAB.NormRel.PS.PCH (None)']) * 100
 daily_df10637['PS HS- Drop Rate (%)_10637'] =  daily_df10637['VS.HSDPA.RAB.AbnormRel (None)'] / (daily_df10637['VS.HSDPA.RAB.AbnormRel (None)'] + daily_df10637['VS.HSDPA.RAB.NormRel (None)'] + daily_df10637['VS.HSDPA.H2D.Succ (None)'] + daily_df10637['VS.HSDPA.H2F.Succ (None)'] +daily_df10637['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + daily_df10637['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
-daily_df10637['HSDPA Throughput, kbps_10637'] = daily_df10637['VS.HSDPA.MeanChThroughput (kbit/s)'] / 236 / 24 # количество сот 236!!!
-daily_df10637['HSUPA Throughput, kbps_10637'] = daily_df10637['VS.HSUPA.MeanChThroughput (kbit/s)'] / 236 / 24# количество сот 236
+daily_df10637['HSDPA Throughput, kbps_10637'] = daily_df10637['VS.HSDPA.MeanChThroughput (kbit/s)'] / active_cell_number / 24 # количество сот 236!!!
+daily_df10637['HSUPA Throughput, kbps_10637'] = daily_df10637['VS.HSUPA.MeanChThroughput (kbit/s)'] / active_cell_number / 24# количество сот 236
 daily_df10637['Soft Handover Success rate, %_10637'] = (daily_df10637['VS.SHO.SuccRLAdd (None)'] + daily_df10637['VS.SHO.SuccRLDel (None)']) / (daily_df10637['VS.SHO.AttRLAdd (None)'] + daily_df10637['VS.SHO.AttRLDel (None)']) * 100
 daily_df10637['Hard Handover Success rate, %_10637'] = daily_df10637['VS.HHO.SuccInterFreqOut (None)'] / daily_df10637['VS.HHO.AttInterFreqOut (None)'] * 100
 daily_df10637['CS W2G Inter-RAT Handover Out SR_10637'] = daily_df10637['IRATHO.SuccOutCS (None)'] / (daily_df10637['IRATHO.AttOutCS (None)'] - daily_df10637['VS.IRATHOCS.Cancel.ReEstab (None)']) * 100
@@ -3387,8 +3391,8 @@ daily_df2937['PS RAB Drop Rate (%)_2937'] = (daily_df2937['VS.RAB.AbnormRel.PS (
                                    (daily_df2937['VS.RAB.AbnormRel.PS (None)'] + daily_df2937['VS.RAB.NormRel.PS (None)'] + daily_df2937['VS.RAB.AbnormRel.PS.PCH (None)'] + \
                                     daily_df2937['VS.RAB.NormRel.PS.PCH (None)']) * 100
 daily_df2937['PS HS- Drop Rate (%)_2937'] =  daily_df2937['VS.HSDPA.RAB.AbnormRel (None)'] / (daily_df2937['VS.HSDPA.RAB.AbnormRel (None)'] + daily_df2937['VS.HSDPA.RAB.NormRel (None)'] + daily_df2937['VS.HSDPA.H2D.Succ (None)'] + daily_df2937['VS.HSDPA.H2F.Succ (None)'] +daily_df2937['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + daily_df2937['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
-daily_df2937['HSDPA Throughput, kbps_2937'] = daily_df2937['VS.HSDPA.MeanChThroughput (kbit/s)'] / 204 / 24 # количество сот 204!!!
-daily_df2937['HSUPA Throughput, kbps_2937'] = daily_df2937['VS.HSUPA.MeanChThroughput (kbit/s)'] / 204 / 24# количество сот 204
+daily_df2937['HSDPA Throughput, kbps_2937'] = daily_df2937['VS.HSDPA.MeanChThroughput (kbit/s)'] / active_cell_number / 24 # количество сот 204!!!
+daily_df2937['HSUPA Throughput, kbps_2937'] = daily_df2937['VS.HSUPA.MeanChThroughput (kbit/s)'] / active_cell_number / 24# количество сот 204
 daily_df2937['Soft Handover Success rate, %_2937'] = (daily_df2937['VS.SHO.SuccRLAdd (None)'] + daily_df2937['VS.SHO.SuccRLDel (None)']) / (daily_df2937['VS.SHO.AttRLAdd (None)'] + daily_df2937['VS.SHO.AttRLDel (None)']) * 100
 daily_df2937['Hard Handover Success rate, %_2937'] = daily_df2937['VS.HHO.SuccInterFreqOut (None)'] / daily_df2937['VS.HHO.AttInterFreqOut (None)'] * 100
 daily_df2937['CS W2G Inter-RAT Handover Out SR_2937'] = daily_df2937['IRATHO.SuccOutCS (None)'] / (daily_df2937['IRATHO.AttOutCS (None)'] - daily_df2937['VS.IRATHOCS.Cancel.ReEstab (None)']) * 100
@@ -3492,8 +3496,8 @@ hourly_df['PS RAB Drop Rate (%)'] = (hourly_df['VS.RAB.AbnormRel.PS (None)'] - h
 
 
 hourly_df['PS HS- Drop Rate (%)'] =  hourly_df['VS.HSDPA.RAB.AbnormRel (None)'] / (hourly_df['VS.HSDPA.RAB.AbnormRel (None)'] + hourly_df['VS.HSDPA.RAB.NormRel (None)'] + hourly_df['VS.HSDPA.H2D.Succ (None)'] + hourly_df['VS.HSDPA.H2F.Succ (None)'] +hourly_df['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + hourly_df['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
-hourly_df['HSDPA Throughput, kbps'] = hourly_df['VS.HSDPA.MeanChThroughput (kbit/s)'] / 538 / 24 # количество сот 538
-hourly_df['HSUPA Throughput, kbps'] = hourly_df['VS.HSUPA.MeanChThroughput (kbit/s)'] / 538 / 24# количество сот 538
+hourly_df['HSDPA Throughput, kbps'] = hourly_df['VS.HSDPA.MeanChThroughput (kbit/s)'] / active_cell_number / 24 # количество сот 538
+hourly_df['HSUPA Throughput, kbps'] = hourly_df['VS.HSUPA.MeanChThroughput (kbit/s)'] / active_cell_number / 24# количество сот 538
 hourly_df['Soft Handover Success rate, %'] = (hourly_df['VS.SHO.SuccRLAdd (None)'] + hourly_df['VS.SHO.SuccRLDel (None)']) / (hourly_df['VS.SHO.AttRLAdd (None)'] + hourly_df['VS.SHO.AttRLDel (None)']) * 100
 hourly_df['Hard Handover Success rate, %'] = hourly_df['VS.HHO.SuccInterFreqOut (None)'] / hourly_df['VS.HHO.AttInterFreqOut (None)'] * 100
 hourly_df['CS W2G Inter-RAT Handover Out SR'] = hourly_df['IRATHO.SuccOutCS (None)'] / (hourly_df['IRATHO.AttOutCS (None)'] - hourly_df['VS.IRATHOCS.Cancel.ReEstab (None)']) * 100
@@ -3562,8 +3566,8 @@ hourly_dfU2100['PS RAB Drop Rate (%)_U2100'] = (hourly_dfU2100['VS.RAB.AbnormRel
 
 
 hourly_dfU2100['PS HS- Drop Rate (%)_U2100'] =  hourly_dfU2100['VS.HSDPA.RAB.AbnormRel (None)'] / (hourly_dfU2100['VS.HSDPA.RAB.AbnormRel (None)'] + hourly_dfU2100['VS.HSDPA.RAB.NormRel (None)'] + hourly_dfU2100['VS.HSDPA.H2D.Succ (None)'] + hourly_dfU2100['VS.HSDPA.H2F.Succ (None)'] +hourly_dfU2100['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + hourly_dfU2100['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
-hourly_dfU2100['HSDPA Throughput, kbps_U2100'] = hourly_dfU2100['VS.HSDPA.MeanChThroughput (kbit/s)'] / 471 / 24 # количество сот 471!!!
-hourly_dfU2100['HSUPA Throughput, kbps_U2100'] = hourly_dfU2100['VS.HSUPA.MeanChThroughput (kbit/s)'] / 471 / 24# количество сот 471!!!
+hourly_dfU2100['HSDPA Throughput, kbps_U2100'] = hourly_dfU2100['VS.HSDPA.MeanChThroughput (kbit/s)'] / active_cell_numberU2100 / 24 # количество сот 471!!!
+hourly_dfU2100['HSUPA Throughput, kbps_U2100'] = hourly_dfU2100['VS.HSUPA.MeanChThroughput (kbit/s)'] / active_cell_numberU2100 / 24# количество сот 471!!!
 hourly_dfU2100['Soft Handover Success rate, %_U2100'] = (hourly_dfU2100['VS.SHO.SuccRLAdd (None)'] + hourly_dfU2100['VS.SHO.SuccRLDel (None)']) / (hourly_dfU2100['VS.SHO.AttRLAdd (None)'] + hourly_dfU2100['VS.SHO.AttRLDel (None)']) * 100
 hourly_dfU2100['Hard Handover Success rate, %_U2100'] = hourly_dfU2100['VS.HHO.SuccInterFreqOut (None)'] / hourly_dfU2100['VS.HHO.AttInterFreqOut (None)'] * 100
 hourly_dfU2100['CS W2G Inter-RAT Handover Out SR_U2100'] = hourly_dfU2100['IRATHO.SuccOutCS (None)'] / (hourly_dfU2100['IRATHO.AttOutCS (None)'] - hourly_dfU2100['VS.IRATHOCS.Cancel.ReEstab (None)']) * 100
@@ -3632,8 +3636,8 @@ hourly_dfU900['PS RAB Drop Rate (%)_U900'] = (hourly_dfU900['VS.RAB.AbnormRel.PS
 
 
 hourly_dfU900['PS HS- Drop Rate (%)_U900'] =  hourly_dfU900['VS.HSDPA.RAB.AbnormRel (None)'] / (hourly_dfU900['VS.HSDPA.RAB.AbnormRel (None)'] + hourly_dfU900['VS.HSDPA.RAB.NormRel (None)'] + hourly_dfU900['VS.HSDPA.H2D.Succ (None)'] + hourly_dfU900['VS.HSDPA.H2F.Succ (None)'] +hourly_dfU900['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + hourly_dfU900['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
-hourly_dfU900['HSDPA Throughput, kbps_U900'] = hourly_dfU900['VS.HSDPA.MeanChThroughput (kbit/s)'] / 216 / 24 # количество сот 216!!!
-hourly_dfU900['HSUPA Throughput, kbps_U900'] = hourly_dfU900['VS.HSUPA.MeanChThroughput (kbit/s)'] / 216 / 24# количество сот 216
+hourly_dfU900['HSDPA Throughput, kbps_U900'] = hourly_dfU900['VS.HSDPA.MeanChThroughput (kbit/s)'] / active_cell_numberU900 / 24 # количество сот 216!!!
+hourly_dfU900['HSUPA Throughput, kbps_U900'] = hourly_dfU900['VS.HSUPA.MeanChThroughput (kbit/s)'] / active_cell_numberU900 / 24# количество сот 216
 hourly_dfU900['Soft Handover Success rate, %_U900'] = (hourly_dfU900['VS.SHO.SuccRLAdd (None)'] + hourly_dfU900['VS.SHO.SuccRLDel (None)']) / (hourly_dfU900['VS.SHO.AttRLAdd (None)'] + hourly_dfU900['VS.SHO.AttRLDel (None)']) * 100
 hourly_dfU900['Hard Handover Success rate, %_U900'] = hourly_dfU900['VS.HHO.SuccInterFreqOut (None)'] / hourly_dfU900['VS.HHO.AttInterFreqOut (None)'] * 100
 hourly_dfU900['CS W2G Inter-RAT Handover Out SR_U900'] = hourly_dfU900['IRATHO.SuccOutCS (None)'] / (hourly_dfU900['IRATHO.AttOutCS (None)'] - hourly_dfU900['VS.IRATHOCS.Cancel.ReEstab (None)']) * 100
@@ -3695,8 +3699,8 @@ hourly_df10612['PS RAB Drop Rate (%)_10612'] = (hourly_df10612['VS.RAB.AbnormRel
                                    (hourly_df10612['VS.RAB.AbnormRel.PS (None)'] + hourly_df10612['VS.RAB.NormRel.PS (None)'] + hourly_df10612['VS.RAB.AbnormRel.PS.PCH (None)'] + \
                                     hourly_df10612['VS.RAB.NormRel.PS.PCH (None)']) * 100
 hourly_df10612['PS HS- Drop Rate (%)_10612'] =  hourly_df10612['VS.HSDPA.RAB.AbnormRel (None)'] / (hourly_df10612['VS.HSDPA.RAB.AbnormRel (None)'] + hourly_df10612['VS.HSDPA.RAB.NormRel (None)'] + hourly_df10612['VS.HSDPA.H2D.Succ (None)'] + hourly_df10612['VS.HSDPA.H2F.Succ (None)'] +hourly_df10612['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + hourly_df10612['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
-hourly_df10612['HSDPA Throughput, kbps_10612'] = hourly_df10612['VS.HSDPA.MeanChThroughput (kbit/s)'] / 235 / 24 # количество сот 235!!!
-hourly_df10612['HSUPA Throughput, kbps_10612'] = hourly_df10612['VS.HSUPA.MeanChThroughput (kbit/s)'] / 235 / 24# количество сот 235
+hourly_df10612['HSDPA Throughput, kbps_10612'] = hourly_df10612['VS.HSDPA.MeanChThroughput (kbit/s)'] / active_cell_number / 24 # количество сот 235!!!
+hourly_df10612['HSUPA Throughput, kbps_10612'] = hourly_df10612['VS.HSUPA.MeanChThroughput (kbit/s)'] / active_cell_number / 24# количество сот 235
 hourly_df10612['Soft Handover Success rate, %_10612'] = (hourly_df10612['VS.SHO.SuccRLAdd (None)'] + hourly_df10612['VS.SHO.SuccRLDel (None)']) / (hourly_df10612['VS.SHO.AttRLAdd (None)'] + hourly_df10612['VS.SHO.AttRLDel (None)']) * 100
 hourly_df10612['Hard Handover Success rate, %_10612'] = hourly_df10612['VS.HHO.SuccInterFreqOut (None)'] / hourly_df10612['VS.HHO.AttInterFreqOut (None)'] * 100
 hourly_df10612['CS W2G Inter-RAT Handover Out SR_10612'] = hourly_df10612['IRATHO.SuccOutCS (None)'] / (hourly_df10612['IRATHO.AttOutCS (None)'] - hourly_df10612['VS.IRATHOCS.Cancel.ReEstab (None)']) * 100
@@ -3758,8 +3762,8 @@ hourly_df10637['PS RAB Drop Rate (%)_10637'] = (hourly_df10637['VS.RAB.AbnormRel
                                    (hourly_df10637['VS.RAB.AbnormRel.PS (None)'] + hourly_df10637['VS.RAB.NormRel.PS (None)'] + hourly_df10637['VS.RAB.AbnormRel.PS.PCH (None)'] + \
                                     hourly_df10637['VS.RAB.NormRel.PS.PCH (None)']) * 100
 hourly_df10637['PS HS- Drop Rate (%)_10637'] =  hourly_df10637['VS.HSDPA.RAB.AbnormRel (None)'] / (hourly_df10637['VS.HSDPA.RAB.AbnormRel (None)'] + hourly_df10637['VS.HSDPA.RAB.NormRel (None)'] + hourly_df10637['VS.HSDPA.H2D.Succ (None)'] + hourly_df10637['VS.HSDPA.H2F.Succ (None)'] +hourly_df10637['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + hourly_df10637['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
-hourly_df10637['HSDPA Throughput, kbps_10637'] = hourly_df10637['VS.HSDPA.MeanChThroughput (kbit/s)'] / 236 / 24 # количество сот 236!!!
-hourly_df10637['HSUPA Throughput, kbps_10637'] = hourly_df10637['VS.HSUPA.MeanChThroughput (kbit/s)'] / 236 / 24# количество сот 236
+hourly_df10637['HSDPA Throughput, kbps_10637'] = hourly_df10637['VS.HSDPA.MeanChThroughput (kbit/s)'] / active_cell_number / 24 # количество сот 236!!!
+hourly_df10637['HSUPA Throughput, kbps_10637'] = hourly_df10637['VS.HSUPA.MeanChThroughput (kbit/s)'] / active_cell_number / 24# количество сот 236
 hourly_df10637['Soft Handover Success rate, %_10637'] = (hourly_df10637['VS.SHO.SuccRLAdd (None)'] + hourly_df10637['VS.SHO.SuccRLDel (None)']) / (hourly_df10637['VS.SHO.AttRLAdd (None)'] + hourly_df10637['VS.SHO.AttRLDel (None)']) * 100
 hourly_df10637['Hard Handover Success rate, %_10637'] = hourly_df10637['VS.HHO.SuccInterFreqOut (None)'] / hourly_df10637['VS.HHO.AttInterFreqOut (None)'] * 100
 hourly_df10637['CS W2G Inter-RAT Handover Out SR_10637'] = hourly_df10637['IRATHO.SuccOutCS (None)'] / (hourly_df10637['IRATHO.AttOutCS (None)'] - hourly_df10637['VS.IRATHOCS.Cancel.ReEstab (None)']) * 100
@@ -3821,8 +3825,8 @@ hourly_df2937['PS RAB Drop Rate (%)_2937'] = (hourly_df2937['VS.RAB.AbnormRel.PS
                                    (hourly_df2937['VS.RAB.AbnormRel.PS (None)'] + hourly_df2937['VS.RAB.NormRel.PS (None)'] + hourly_df2937['VS.RAB.AbnormRel.PS.PCH (None)'] + \
                                     hourly_df2937['VS.RAB.NormRel.PS.PCH (None)']) * 100
 hourly_df2937['PS HS- Drop Rate (%)_2937'] =  hourly_df2937['VS.HSDPA.RAB.AbnormRel (None)'] / (hourly_df2937['VS.HSDPA.RAB.AbnormRel (None)'] + hourly_df2937['VS.HSDPA.RAB.NormRel (None)'] + hourly_df2937['VS.HSDPA.H2D.Succ (None)'] + hourly_df2937['VS.HSDPA.H2F.Succ (None)'] +hourly_df2937['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + hourly_df2937['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
-hourly_df2937['HSDPA Throughput, kbps_2937'] = hourly_df2937['VS.HSDPA.MeanChThroughput (kbit/s)'] / 204 / 24 # количество сот 204!!!
-hourly_df2937['HSUPA Throughput, kbps_2937'] = hourly_df2937['VS.HSUPA.MeanChThroughput (kbit/s)'] / 204 / 24# количество сот 204
+hourly_df2937['HSDPA Throughput, kbps_2937'] = hourly_df2937['VS.HSDPA.MeanChThroughput (kbit/s)'] / active_cell_number / 24 # количество сот 204!!!
+hourly_df2937['HSUPA Throughput, kbps_2937'] = hourly_df2937['VS.HSUPA.MeanChThroughput (kbit/s)'] / active_cell_number / 24# количество сот 204
 hourly_df2937['Soft Handover Success rate, %_2937'] = (hourly_df2937['VS.SHO.SuccRLAdd (None)'] + hourly_df2937['VS.SHO.SuccRLDel (None)']) / (hourly_df2937['VS.SHO.AttRLAdd (None)'] + hourly_df2937['VS.SHO.AttRLDel (None)']) * 100
 hourly_df2937['Hard Handover Success rate, %_2937'] = hourly_df2937['VS.HHO.SuccInterFreqOut (None)'] / hourly_df2937['VS.HHO.AttInterFreqOut (None)'] * 100
 hourly_df2937['CS W2G Inter-RAT Handover Out SR_2937'] = hourly_df2937['IRATHO.SuccOutCS (None)'] / (hourly_df2937['IRATHO.AttOutCS (None)'] - hourly_df2937['VS.IRATHOCS.Cancel.ReEstab (None)']) * 100
