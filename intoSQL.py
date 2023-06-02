@@ -2,7 +2,7 @@ import pandas as pd
 import sqlite3
 import winsound
 
-date = '2023-05-19' # дата в имени файлов  --- ввести вручную!!!!
+date = '2023-05-24' # дата в имени файлов  --- ввести вручную!!!!
 
 # Создаем соединение с базой данных SQLite
 conn = sqlite3.connect('C:/SQLite/firstDB/stsDB.db')
@@ -18,7 +18,7 @@ dfU1 = pd.read_excel(fileU1, header=7, na_values='NIL')
 dfU2 = pd.read_excel(fileU2, header=7, na_values='NIL')
 dfU3 = pd.read_excel(fileU3, header=7, na_values='NIL')
 dfL = pd.read_excel(fileL, header=7, na_values='NIL')
-
+print('эксели считаны')
 
 
 # Записываем данные в базу данных SQLite с помощью библиотеки SQLite3
@@ -27,7 +27,7 @@ dfU1.to_sql('UMTS_1v2', conn, if_exists='append', index=False)
 dfU2.to_sql('UMTS_2_v2', conn, if_exists='append', index=False)
 dfU3.to_sql('NodeBsts', conn, if_exists='append', index=False)
 dfL.to_sql('LTEsts', conn, if_exists='append', index=False)
-
+print('в БД записано')
 # Закрываем соединение с базой данных SQLite
 conn.close()
 

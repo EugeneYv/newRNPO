@@ -1699,8 +1699,8 @@ cluster_UH_UMTS = [
 conn = sqlite3.connect('C:/SQLite/firstDB/stsDB.db')
 # создаем курсор для выполнения запросов
 cursor = conn.cursor()
-start_date = '2023-02-10'
-end_date = '2023-02-26' # надо брать на день позже
+start_date = '2023-05-15'
+end_date = '2023-05-21' # надо брать на день позже
 
 ## GSM
 query1 = f'''SELECT "Start Time", "GCELL", "K3014:Traffic Volume on TCH (Erl)" FROM GSMsts WHERE `Start Time` >= '{start_date}' AND `Start Time` <= '{end_date}' '''

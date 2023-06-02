@@ -10,7 +10,7 @@ conn = sqlite3.connect('C:/SQLite/firstDB/stsDB.db')
 # создаем курсор для выполнения запросов
 cursor = conn.cursor()
 start_date = '2023-05-08'
-end_date = '2023-05-19' # надо брать на день позже
+end_date = '2023-05-25' # надо брать на день позже
 
 # используйте операторы сравнения для выборки строк в заданном диапазоне
 query = f"SELECT * FROM LTEsts WHERE `Start Time` >= '{start_date}' AND `Start Time` <= '{end_date}'"

@@ -10,7 +10,7 @@ import openpyxl.styles
 conn = sqlite3.connect('C:/SQLite/firstDB/stsDB.db')
 # создаем курсор для выполнения запросов
 cursor = conn.cursor()
-start_date = '2023-05-08' # ввести вручную начальную дату !!!!
+start_date = '2023-05-18' # ввести вручную начальную дату !!!!
 end_date = '2023-05-25' # ввести вручную конечную дату !!!!надо брать на день позже
 
 # используйте операторы сравнения для выборки строк в заданном диапазоне
@@ -40,7 +40,7 @@ conn.close()
 
 directory = 'C:/wHesron/sts/3G/'
 csv_name1 = (f'3G{end_date}')
-output_comment = 'cluster_UH_noUH0845_top'  # что добавится в конце к названию файла
+output_comment = 'test'  # что добавится в конце к названию файла
 
 sts1_df['date'] = sts1_df['Start Time'].str.split(' ').str[0]
 sts1_df['hour'] = sts1_df['Start Time'].str.split(' ').str[1]
@@ -8256,12 +8256,12 @@ cluster_UH_noUH0845_top = [
 'Label=UH0846_U4, CellID=8464, LogicRNCID=501',
 'Label=UH0839_U99, CellID=48399, LogicRNCID=501',
 ]
-sts_df = sts_df[sts_df['BSC6910UCell'].isin(cluster_UH_noUH0845_top)]
+sts_df = sts_df[sts_df['BSC6910UCell'].isin(cluster_UH)]
 print('sts_df отфильтрована')
 stsN_df = stsN_df[stsN_df['NE Name'].isin(cluster_UH_N)]
 
-active_cell_number = sts_df['BSC6910UCell'].nunique()
-print('active_cell_number= ',  active_cell_number)
+unique_cell_number = sts_df['BSC6910UCell'].nunique()
+print('unique_cell_number= ',  unique_cell_number)
 
 # ===обработка weekly  для всей сети без разбивки на кластера===
 weekly_df = sts_df.groupby(['week'])[list_1]. sum().reset_index()
@@ -8295,8 +8295,8 @@ weekly_df['PS RAB Drop Rate (%)'] = (weekly_df['VS.RAB.AbnormRel.PS (None)'] - w
                                    (weekly_df['VS.RAB.AbnormRel.PS (None)'] + weekly_df['VS.RAB.NormRel.PS (None)'] - weekly_df['VS.RAB.AbnormRel.PS.PCH (None)'] - \
                                     weekly_df['VS.RAB.NormRel.PS.PCH (None)'] + weekly_df['VS.DCCC.D2P.Succ (None)'] + weekly_df['VS.DCCC.Succ.F2P (None)']+weekly_df['VS.DCCC.Succ.F2U (None)'] + weekly_df['VS.DCCC.Succ.D2U (None)']) * 100
 weekly_df['PS HS- Drop Rate (%)'] =  weekly_df['VS.HSDPA.RAB.AbnormRel (None)'] / (weekly_df['VS.HSDPA.RAB.AbnormRel (None)'] + weekly_df['VS.HSDPA.RAB.NormRel (None)'] + weekly_df['VS.HSDPA.H2D.Succ (None)'] + weekly_df['VS.HSDPA.H2F.Succ (None)'] +weekly_df['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + weekly_df['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
-weekly_df['HSDPA Throughput, kbps'] = weekly_df['VS.HSDPA.MeanChThroughput (kbit/s)'] / active_cell_number / 24 / 7 # количество сот
-weekly_df['HSUPA Throughput, kbps'] = weekly_df['VS.HSUPA.MeanChThroughput (kbit/s)'] / active_cell_number / 24 / 7 # количество сот
+weekly_df['HSDPA Throughput, kbps'] = weekly_df['VS.HSDPA.MeanChThroughput (kbit/s)'] / unique_cell_number / 24 / 7 # количество сот
+weekly_df['HSUPA Throughput, kbps'] = weekly_df['VS.HSUPA.MeanChThroughput (kbit/s)'] / unique_cell_number / 24 / 7 # количество сот
 weekly_df['Soft Handover Success rate, %'] = (weekly_df['VS.SHO.SuccRLAdd (None)'] + weekly_df['VS.SHO.SuccRLDel (None)']) / (weekly_df['VS.SHO.AttRLAdd (None)'] + weekly_df['VS.SHO.AttRLDel (None)']) * 100
 weekly_df['Hard Handover Success rate, %'] = weekly_df['VS.HHO.SuccInterFreqOut (None)'] / weekly_df['VS.HHO.AttInterFreqOut (None)'] * 100
 weekly_df['CS W2G Inter-RAT Handover Out SR'] = weekly_df['IRATHO.SuccOutCS (None)'] / (weekly_df['IRATHO.AttOutCS (None)'] - weekly_df['VS.IRATHOCS.Cancel.ReEstab (None)']) * 100
@@ -8329,7 +8329,7 @@ weekly_df['RAB Assignment Success Rate (PS), %'] = (weekly_df['VS.RAB.SuccEstabP
                                                    weekly_df['VS.RAB.AttEstabPS.Conv (None)']) * 100
 weekly_df['CCSR3G, %'] = weekly_df['RRC Assignment SucessRate (CS BH), %'] * (100 - weekly_df['RRC Drop Rate (CS BH), %']) * weekly_df['RAB Assignment Success Rate (CS), %'] * (100 - weekly_df['CS RAB Drop Rate (%)'])/ 1000000
 weekly_df['DCSR3G, %'] = weekly_df['RRC Assignment SucessRate (PS BH), %'] * (100 - weekly_df['RRC Drop Rate (PS BH), %']) * weekly_df['RAB Assignment Success Rate (PS), %'] * (100 - weekly_df['PS RAB Drop Rate (%)'])/ 1000000
-weekly_df['UcellUnavail'] = weekly_df['VS.Cell.UnavailTime (s)'] + weekly_df['VS.Cell.UnavailTime.Sys (s)'] / 8600 / 24 / 7
+weekly_df['Ucell_Avail'] = 100 - (weekly_df['VS.Cell.UnavailTime (s)'] + weekly_df['VS.Cell.UnavailTime.Sys (s)']) * 100 / 604800 / unique_cell_number
 weekly_df = weekly_df.drop(list_1, axis=1)
 weekly_df_trans = weekly_df.transpose()
 
@@ -8407,6 +8407,7 @@ daily_df['RAB Assignment Success Rate (PS), %'] = (daily_df['VS.RAB.SuccEstabPS.
                                                    daily_df['VS.RAB.AttEstabPS.Conv (None)']) * 100
 daily_df['CCSR3G, %'] = daily_df['RRC Assignment SucessRate (CS BH), %'] * (100 - daily_df['RRC Drop Rate (CS BH), %']) * daily_df['RAB Assignment Success Rate (CS), %'] * (100 - daily_df['CS RAB Drop Rate (%)'])/ 1000000
 daily_df['DCSR3G, %'] = daily_df['RRC Assignment SucessRate (PS BH), %'] * (100 - daily_df['RRC Drop Rate (PS BH), %']) * daily_df['RAB Assignment Success Rate (PS), %'] * (100 - daily_df['PS RAB Drop Rate (%)'])/ 1000000
+daily_df['Ucell_Avail'] = 100 - (daily_df['VS.Cell.UnavailTime (s)'] + daily_df['VS.Cell.UnavailTime.Sys (s)']) * 100 / 86400 / unique_cell_number
 daily_df = daily_df.drop(list_1, axis=1)
 
 # фильтрация по U2100
@@ -8478,6 +8479,7 @@ daily_dfU2100['RAB Assignment Success Rate (PS), %_U2100'] = (daily_dfU2100['VS.
                                                    daily_dfU2100['VS.RAB.AttEstabPS.Conv (None)']) * 100
 daily_dfU2100['CCSR3G, %_U2100'] = daily_dfU2100['RRC Assignment SucessRate (CS BH), %_U2100'] * (100 - daily_dfU2100['RRC Drop Rate (CS BH), %_U2100']) * daily_dfU2100['RAB Assignment Success Rate (CS), %_U2100'] * (100 - daily_dfU2100['CS RAB Drop Rate (%)_U2100'])/ 1000000
 daily_dfU2100['DCSR3G, %_U2100'] = daily_dfU2100['RRC Assignment SucessRate (PS BH), %_U2100'] * (100 - daily_dfU2100['RRC Drop Rate (PS BH), %_U2100']) * daily_dfU2100['RAB Assignment Success Rate (PS), %_U2100'] * (100 - daily_dfU2100['PS RAB Drop Rate (%)_U2100'])/ 1000000
+daily_dfU2100['Ucell_Avail_U2100'] = 100 - (daily_dfU2100['VS.Cell.UnavailTime (s)'] + daily_dfU2100['VS.Cell.UnavailTime.Sys (s)']) * 100 / 86400 / unique_cell_number
 daily_dfU2100 = daily_dfU2100.drop(list_1, axis=1)
 
 # фильтрация по U900
@@ -8547,202 +8549,203 @@ daily_dfU900['RAB Assignment Success Rate (PS), %_U900'] = (daily_dfU900['VS.RAB
                                                    daily_dfU900['VS.RAB.AttEstabPS.Conv (None)']) * 100
 daily_dfU900['CCSR3G, %_U900'] = daily_dfU900['RRC Assignment SucessRate (CS BH), %_U900'] * (100 - daily_dfU900['RRC Drop Rate (CS BH), %_U900']) * daily_dfU900['RAB Assignment Success Rate (CS), %_U900'] * (100 - daily_dfU900['CS RAB Drop Rate (%)_U900'])/ 1000000
 daily_dfU900['DCSR3G, %_U900'] = daily_dfU900['RRC Assignment SucessRate (PS BH), %_U900'] * (100 - daily_dfU900['RRC Drop Rate (PS BH), %_U900']) * daily_dfU900['RAB Assignment Success Rate (PS), %_U900'] * (100 - daily_dfU900['PS RAB Drop Rate (%)_U900'])/ 1000000
+daily_dfU900['Ucell_Avail_900'] = 100 - (daily_dfU900['VS.Cell.UnavailTime (s)'] + daily_dfU900['VS.Cell.UnavailTime.Sys (s)']) * 100 / 86400 / unique_cell_number
 daily_dfU900 = daily_dfU900.drop(list_1, axis=1)
 # фильтрация по 10612
-daily_df10612 = sts_df[sts_df['BSC6910UCell'].isin(list_F1_10612)]
-daily_df10612 = daily_df10612.groupby(['date'])[list_1]. sum().reset_index()
-daily_df10612['CS traffic 3G, Erl_10612'] = daily_df10612['CS Voice Traffic Volume (Erl)']
-daily_df10612['PS traffic 3G UL+DL, GB_10612'] = (daily_df10612['VS.HSUPA.MeanChThroughput.TotalBytes (byte)'] + daily_df10612['VS.PS.Bkg.DL.8.Traffic (bit)'] + daily_df10612['VS.PS.Bkg.DL.16.Traffic (bit)'] + \
-                                      daily_df10612['VS.PS.Bkg.DL.32.Traffic (bit)'] + daily_df10612['VS.PS.Bkg.DL.64.Traffic (bit)'] + daily_df10612['VS.PS.Bkg.DL.128.Traffic (bit)'] + \
-                                      daily_df10612['VS.PS.Bkg.DL.144.Traffic (bit)'] + daily_df10612['VS.PS.Bkg.DL.256.Traffic (bit)'] + daily_df10612['VS.PS.Bkg.DL.384.Traffic (bit)'] + \
-                                      daily_df10612['VS.PS.Bkg.UL.8.Traffic (bit)'] + daily_df10612['VS.PS.Bkg.UL.16.Traffic (bit)'] + daily_df10612['VS.PS.Bkg.UL.32.Traffic (bit)'] + \
-                                      daily_df10612['VS.PS.Bkg.UL.64.Traffic (bit)'] + daily_df10612['VS.PS.Bkg.UL.128.Traffic (bit)'] + daily_df10612['VS.PS.Bkg.UL.144.Traffic (bit)'] + \
-                                      daily_df10612['VS.PS.Bkg.UL.256.Traffic (bit)'] + daily_df10612['VS.PS.Bkg.UL.384.Traffic (bit)'] + daily_df10612['VS.PS.Int.DL.8.Traffic (bit)'] + \
-                                      daily_df10612['VS.PS.Int.DL.16.Traffic (bit)'] + daily_df10612['VS.PS.Int.DL.32.Traffic (bit)'] + daily_df10612['VS.PS.Int.DL.64.Traffic (bit)'] + \
-                                      daily_df10612['VS.PS.Int.DL.128.Traffic (bit)'] + daily_df10612['VS.PS.Int.DL.144.Traffic (bit)'] + daily_df10612['VS.PS.Int.DL.256.Traffic (bit)'] + \
-                                      daily_df10612['VS.PS.Int.DL.384.Traffic (bit)'] + daily_df10612['VS.PS.Int.UL.8.Traffic (bit)'] + daily_df10612['VS.PS.Int.UL.16.Traffic (bit)'] + \
-                                      daily_df10612['VS.PS.Int.UL.32.Traffic (bit)'] + daily_df10612['VS.PS.Int.UL.64.Traffic (bit)'] + daily_df10612['VS.PS.Int.UL.128.Traffic (bit)'] + \
-                                      daily_df10612['VS.PS.Int.UL.144.Traffic (bit)'] + daily_df10612['VS.PS.Int.UL.256.Traffic (bit)'] + daily_df10612['VS.PS.Int.UL.384.Traffic (bit)'] + \
-                                      daily_df10612['VS.PS.Str.DL.32.Traffic (bit)'] + daily_df10612['VS.PS.Str.DL.64.Traffic (bit)'] + daily_df10612['VS.PS.Str.DL.128.Traffic (bit)'] + \
-                                      daily_df10612['VS.PS.Str.DL.144.Traffic (bit)'] + daily_df10612['VS.PS.Str.UL.16.Traffic (bit)'] + daily_df10612['VS.PS.Str.UL.32.Traffic (bit)'] + \
-                                      daily_df10612['VS.PS.Str.UL.64.Traffic (bit)'] + daily_df10612['VS.HSDPA.MeanChThroughput.TotalBytes (byte)']) / 1024/1024/1024
-daily_df10612['CS RAB Drop Rate (%)_10612'] = daily_df10612['VS.RAB.AbnormRel.CS (None)'] / (daily_df10612['VS.RAB.AbnormRel.CS (None)'] + daily_df10612['VS.RAB.NormRel.CS (None)']) * 100
-daily_df10612['PS Blocking Rate (%)_10612'] = (daily_df10612['VS.RAB.FailEstabPS.DLIUBBand.Cong (None)'] + daily_df10612['VS.RAB.FailEstabPS.ULIUBBand.Cong (None)'] + daily_df10612['VS.RAB.FailEstabPS.ULCE.Cong (None)'] + \
-                                    daily_df10612['VS.RAB.FailEstabPS.DLCE.Cong (None)'] + daily_df10612['VS.RAB.FailEstabPS.Code.Cong (None)'] + daily_df10612['VS.RAB.FailEstabPS.ULPower.Cong (None)'] + \
-                                    daily_df10612['VS.RAB.FailEstabPS.DLPower.Cong (None)'] + daily_df10612['VS.RAB.FailEstabPS.HSDPAUser.Cong (None)'] + daily_df10612['VS.RAB.FailEstabPS.HSUPAUser.Cong (None)']) / \
-                                    (daily_df10612['VS.RAB.AttEstabPS.Str (None)'] + daily_df10612['VS.RAB.AttEstabPS.Int (None)'] + daily_df10612['VS.RAB.AttEstabPS.Bkg (None)']) *100
-daily_df10612['PS RAB Drop Rate (%)_10612'] = (daily_df10612['VS.RAB.AbnormRel.PS (None)'] + daily_df10612['VS.RAB.AbnormRel.PS.PCH (None)'] + daily_df10612['VS.RAB.AbnormRel.PS.D2P (None)'] + \
-                                    daily_df10612['VS.RAB.AbnormRel.PS.F2P (None)']) / \
-                                   (daily_df10612['VS.RAB.AbnormRel.PS (None)'] + daily_df10612['VS.RAB.NormRel.PS (None)'] + daily_df10612['VS.RAB.AbnormRel.PS.PCH (None)'] + \
-                                    daily_df10612['VS.RAB.NormRel.PS.PCH (None)']) * 100
-daily_df10612['PS HS- Drop Rate (%)_10612'] =  daily_df10612['VS.HSDPA.RAB.AbnormRel (None)'] / (daily_df10612['VS.HSDPA.RAB.AbnormRel (None)'] + daily_df10612['VS.HSDPA.RAB.NormRel (None)'] + daily_df10612['VS.HSDPA.H2D.Succ (None)'] + daily_df10612['VS.HSDPA.H2F.Succ (None)'] +daily_df10612['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + daily_df10612['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
-daily_df10612['HSDPA Throughput, kbps_10612'] = daily_df10612['VS.HSDPA.MeanChThroughput (kbit/s)'] / 235 / 24 # количество сот 235!!!
-daily_df10612['HSUPA Throughput, kbps_10612'] = daily_df10612['VS.HSUPA.MeanChThroughput (kbit/s)'] / 235 / 24# количество сот 235
-daily_df10612['Soft Handover Success rate, %_10612'] = (daily_df10612['VS.SHO.SuccRLAdd (None)'] + daily_df10612['VS.SHO.SuccRLDel (None)']) / (daily_df10612['VS.SHO.AttRLAdd (None)'] + daily_df10612['VS.SHO.AttRLDel (None)']) * 100
-daily_df10612['Hard Handover Success rate, %_10612'] = daily_df10612['VS.HHO.SuccInterFreqOut (None)'] / daily_df10612['VS.HHO.AttInterFreqOut (None)'] * 100
-daily_df10612['CS W2G Inter-RAT Handover Out SR_10612'] = daily_df10612['IRATHO.SuccOutCS (None)'] / (daily_df10612['IRATHO.AttOutCS (None)'] - daily_df10612['VS.IRATHOCS.Cancel.ReEstab (None)']) * 100
-daily_df10612['RRC Assignment SucessRate (CS BH), %_10612'] = daily_df10612['RRC.SuccConnEstab.sum (None)'] / daily_df10612['VS.RRC.AttConnEstab.Sum (None)'] * 100
-daily_df10612['RRC Assignment SucessRate (PS BH), %_10612'] = daily_df10612['RRC.SuccConnEstab.sum (None)'] / daily_df10612['VS.RRC.AttConnEstab.Sum (None)'] * 100
-daily_df10612['RRC Drop Rate (CS BH), %_10612'] = (daily_df10612['RRC.AttConnRelCCCH.Cong (None)'] + daily_df10612['RRC.AttConnRelCCCH.Preempt (None)'] + daily_df10612['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
-                                             daily_df10612['RRC.AttConnRelCCCH.Unspec (None)'] + daily_df10612['RRC.AttConnRelDCCH.Cong (None)'] + daily_df10612['RRC.AttConnRelDCCH.Preempt (None)'] + \
-                                             daily_df10612['RRC.AttConnRelDCCH.ReEstRej (None)'] + daily_df10612['RRC.AttConnRelDCCH.Unspec (None)'] + daily_df10612['VS.RRC.ConnRel.CellUpd (None)']) \
-                                        / (daily_df10612['RRC.AttConnRelDCCH.Cong (None)'] + daily_df10612['RRC.AttConnRelDCCH.Preempt (None)'] + daily_df10612['RRC.AttConnRelDCCH.ReEstRej (None)'] + \
-                                           daily_df10612['RRC.AttConnRelDCCH.DSCR (None)'] + daily_df10612['RRC.AttConnRelDCCH.UsrInact (None)'] + daily_df10612['RRC.AttConnRelDCCH.Unspec (None)'] + \
-                                           daily_df10612['RRC.AttConnRelCCCH.Cong (None)'] + daily_df10612['RRC.AttConnRelCCCH.Preempt (None)'] + daily_df10612['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
-                                           daily_df10612['RRC.AttConnRelCCCH.DSCR (None)'] + daily_df10612['RRC.AttConnRelDCCH.Norm (None)'] + daily_df10612['RRC.AttConnRelCCCH.Norm (None)'] + \
-                                           daily_df10612['RRC.AttConnRelCCCH.UsrInact (None)'] + daily_df10612['RRC.AttConnRelCCCH.Unspec (None)'] + daily_df10612['VS.RRC.ConnRel.CellUpd (None)'] + \
-                                           daily_df10612['VS.DCCC.Succ.F2P (None)'] + daily_df10612['IRATHO.SuccOutCS (None)'] + daily_df10612['IRATHO.SuccOutPSUTRAN (None)'] + daily_df10612['VS.DCCC.Succ.F2U (None)'] + \
-                                           daily_df10612['VS.DCCC.Succ.D2U (None)']) * 100
-daily_df10612['RRC Drop Rate (PS BH), %_10612'] = (daily_df10612['RRC.AttConnRelCCCH.Cong (None)'] + daily_df10612['RRC.AttConnRelCCCH.Preempt (None)'] + daily_df10612['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
-                                             daily_df10612['RRC.AttConnRelCCCH.Unspec (None)'] + daily_df10612['RRC.AttConnRelDCCH.Cong (None)'] + daily_df10612['RRC.AttConnRelDCCH.Preempt (None)'] + \
-                                             daily_df10612['RRC.AttConnRelDCCH.ReEstRej (None)'] + daily_df10612['RRC.AttConnRelDCCH.Unspec (None)'] + daily_df10612['VS.RRC.ConnRel.CellUpd (None)']) \
-                                        / (daily_df10612['RRC.AttConnRelDCCH.Cong (None)'] + daily_df10612['RRC.AttConnRelDCCH.Preempt (None)'] + daily_df10612['RRC.AttConnRelDCCH.ReEstRej (None)'] + \
-                                           daily_df10612['RRC.AttConnRelDCCH.DSCR (None)'] + daily_df10612['RRC.AttConnRelDCCH.UsrInact (None)'] + daily_df10612['RRC.AttConnRelDCCH.Unspec (None)'] + \
-                                           daily_df10612['RRC.AttConnRelCCCH.Cong (None)'] + daily_df10612['RRC.AttConnRelCCCH.Preempt (None)'] + daily_df10612['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
-                                           daily_df10612['RRC.AttConnRelCCCH.DSCR (None)'] + daily_df10612['RRC.AttConnRelDCCH.Norm (None)'] + daily_df10612['RRC.AttConnRelCCCH.Norm (None)'] + \
-                                           daily_df10612['RRC.AttConnRelCCCH.UsrInact (None)'] + daily_df10612['RRC.AttConnRelCCCH.Unspec (None)'] + daily_df10612['VS.RRC.ConnRel.CellUpd (None)'] + \
-                                           daily_df10612['VS.DCCC.Succ.F2P (None)'] + daily_df10612['IRATHO.SuccOutCS (None)'] + daily_df10612['IRATHO.SuccOutPSUTRAN (None)'] + daily_df10612['VS.DCCC.Succ.F2U (None)'] + \
-                                           daily_df10612['VS.DCCC.Succ.D2U (None)']) * 100
-daily_df10612['RAB Assignment Success Rate (CS), %_10612'] = daily_df10612['VS.RAB.SuccEstabCS.AMR (None)'] / daily_df10612['VS.RAB.AttEstab.AMR (None)'] * 100
-daily_df10612['RAB Assignment Success Rate (PS), %_10612'] = (daily_df10612['VS.RAB.SuccEstabPS.Conv (None)'] + daily_df10612['VS.RAB.SuccEstabPS.Bkg (None)'] + daily_df10612['VS.RAB.SuccEstabPS.Int (None)'] + \
-                                                   daily_df10612['VS.RAB.SuccEstabPS.Str (None)']) / \
-                                                  (daily_df10612['VS.RAB.AttEstabPS.Bkg (None)'] + daily_df10612['VS.RAB.AttEstabPS.Int (None)'] + daily_df10612['VS.RAB.AttEstabPS.Str (None)'] + \
-                                                   daily_df10612['VS.RAB.AttEstabPS.Conv (None)']) * 100
-daily_df10612['CCSR3G, %_10612'] = daily_df10612['RRC Assignment SucessRate (CS BH), %_10612'] * (100 - daily_df10612['RRC Drop Rate (CS BH), %_10612']) * daily_df10612['RAB Assignment Success Rate (CS), %_10612'] * (100 - daily_df10612['CS RAB Drop Rate (%)_10612'])/ 1000000
-daily_df10612['DCSR3G, %_10612'] = daily_df10612['RRC Assignment SucessRate (PS BH), %_10612'] * (100 - daily_df10612['RRC Drop Rate (PS BH), %_10612']) * daily_df10612['RAB Assignment Success Rate (PS), %_10612'] * (100 - daily_df10612['PS RAB Drop Rate (%)_10612'])/ 1000000
-daily_df10612 = daily_df10612.drop(list_1, axis=1)
-# фильтрация по 10637
-daily_df10637 = sts_df[sts_df['BSC6910UCell'].isin(list_F2_10637)]
-daily_df10637 = daily_df10637.groupby(['date'])[list_1]. sum().reset_index()
-daily_df10637['CS traffic 3G, Erl_10637'] = daily_df10637['CS Voice Traffic Volume (Erl)']
-daily_df10637['PS traffic 3G UL+DL, GB_10637'] = (daily_df10637['VS.HSUPA.MeanChThroughput.TotalBytes (byte)'] + daily_df10637['VS.PS.Bkg.DL.8.Traffic (bit)'] + daily_df10637['VS.PS.Bkg.DL.16.Traffic (bit)'] + \
-                                      daily_df10637['VS.PS.Bkg.DL.32.Traffic (bit)'] + daily_df10637['VS.PS.Bkg.DL.64.Traffic (bit)'] + daily_df10637['VS.PS.Bkg.DL.128.Traffic (bit)'] + \
-                                      daily_df10637['VS.PS.Bkg.DL.144.Traffic (bit)'] + daily_df10637['VS.PS.Bkg.DL.256.Traffic (bit)'] + daily_df10637['VS.PS.Bkg.DL.384.Traffic (bit)'] + \
-                                      daily_df10637['VS.PS.Bkg.UL.8.Traffic (bit)'] + daily_df10637['VS.PS.Bkg.UL.16.Traffic (bit)'] + daily_df10637['VS.PS.Bkg.UL.32.Traffic (bit)'] + \
-                                      daily_df10637['VS.PS.Bkg.UL.64.Traffic (bit)'] + daily_df10637['VS.PS.Bkg.UL.128.Traffic (bit)'] + daily_df10637['VS.PS.Bkg.UL.144.Traffic (bit)'] + \
-                                      daily_df10637['VS.PS.Bkg.UL.256.Traffic (bit)'] + daily_df10637['VS.PS.Bkg.UL.384.Traffic (bit)'] + daily_df10637['VS.PS.Int.DL.8.Traffic (bit)'] + \
-                                      daily_df10637['VS.PS.Int.DL.16.Traffic (bit)'] + daily_df10637['VS.PS.Int.DL.32.Traffic (bit)'] + daily_df10637['VS.PS.Int.DL.64.Traffic (bit)'] + \
-                                      daily_df10637['VS.PS.Int.DL.128.Traffic (bit)'] + daily_df10637['VS.PS.Int.DL.144.Traffic (bit)'] + daily_df10637['VS.PS.Int.DL.256.Traffic (bit)'] + \
-                                      daily_df10637['VS.PS.Int.DL.384.Traffic (bit)'] + daily_df10637['VS.PS.Int.UL.8.Traffic (bit)'] + daily_df10637['VS.PS.Int.UL.16.Traffic (bit)'] + \
-                                      daily_df10637['VS.PS.Int.UL.32.Traffic (bit)'] + daily_df10637['VS.PS.Int.UL.64.Traffic (bit)'] + daily_df10637['VS.PS.Int.UL.128.Traffic (bit)'] + \
-                                      daily_df10637['VS.PS.Int.UL.144.Traffic (bit)'] + daily_df10637['VS.PS.Int.UL.256.Traffic (bit)'] + daily_df10637['VS.PS.Int.UL.384.Traffic (bit)'] + \
-                                      daily_df10637['VS.PS.Str.DL.32.Traffic (bit)'] + daily_df10637['VS.PS.Str.DL.64.Traffic (bit)'] + daily_df10637['VS.PS.Str.DL.128.Traffic (bit)'] + \
-                                      daily_df10637['VS.PS.Str.DL.144.Traffic (bit)'] + daily_df10637['VS.PS.Str.UL.16.Traffic (bit)'] + daily_df10637['VS.PS.Str.UL.32.Traffic (bit)'] + \
-                                      daily_df10637['VS.PS.Str.UL.64.Traffic (bit)'] + daily_df10637['VS.HSDPA.MeanChThroughput.TotalBytes (byte)']) / 1024/1024/1024
-daily_df10637['CS RAB Drop Rate (%)_10637'] = daily_df10637['VS.RAB.AbnormRel.CS (None)'] / (daily_df10637['VS.RAB.AbnormRel.CS (None)'] + daily_df10637['VS.RAB.NormRel.CS (None)']) * 100
-daily_df10637['PS Blocking Rate (%)_10637'] = (daily_df10637['VS.RAB.FailEstabPS.DLIUBBand.Cong (None)'] + daily_df10637['VS.RAB.FailEstabPS.ULIUBBand.Cong (None)'] + daily_df10637['VS.RAB.FailEstabPS.ULCE.Cong (None)'] + \
-                                    daily_df10637['VS.RAB.FailEstabPS.DLCE.Cong (None)'] + daily_df10637['VS.RAB.FailEstabPS.Code.Cong (None)'] + daily_df10637['VS.RAB.FailEstabPS.ULPower.Cong (None)'] + \
-                                    daily_df10637['VS.RAB.FailEstabPS.DLPower.Cong (None)'] + daily_df10637['VS.RAB.FailEstabPS.HSDPAUser.Cong (None)'] + daily_df10637['VS.RAB.FailEstabPS.HSUPAUser.Cong (None)']) / \
-                                    (daily_df10637['VS.RAB.AttEstabPS.Str (None)'] + daily_df10637['VS.RAB.AttEstabPS.Int (None)'] + daily_df10637['VS.RAB.AttEstabPS.Bkg (None)']) *100
-daily_df10637['PS RAB Drop Rate (%)_10637'] = (daily_df10637['VS.RAB.AbnormRel.PS (None)'] + daily_df10637['VS.RAB.AbnormRel.PS.PCH (None)'] + daily_df10637['VS.RAB.AbnormRel.PS.D2P (None)'] + \
-                                    daily_df10637['VS.RAB.AbnormRel.PS.F2P (None)']) / \
-                                   (daily_df10637['VS.RAB.AbnormRel.PS (None)'] + daily_df10637['VS.RAB.NormRel.PS (None)'] + daily_df10637['VS.RAB.AbnormRel.PS.PCH (None)'] + \
-                                    daily_df10637['VS.RAB.NormRel.PS.PCH (None)']) * 100
-daily_df10637['PS HS- Drop Rate (%)_10637'] =  daily_df10637['VS.HSDPA.RAB.AbnormRel (None)'] / (daily_df10637['VS.HSDPA.RAB.AbnormRel (None)'] + daily_df10637['VS.HSDPA.RAB.NormRel (None)'] + daily_df10637['VS.HSDPA.H2D.Succ (None)'] + daily_df10637['VS.HSDPA.H2F.Succ (None)'] +daily_df10637['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + daily_df10637['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
-daily_df10637['HSDPA Throughput, kbps_10637'] = daily_df10637['VS.HSDPA.MeanChThroughput (kbit/s)'] / 236 / 24 # количество сот 236!!!
-daily_df10637['HSUPA Throughput, kbps_10637'] = daily_df10637['VS.HSUPA.MeanChThroughput (kbit/s)'] / 236 / 24# количество сот 236
-daily_df10637['Soft Handover Success rate, %_10637'] = (daily_df10637['VS.SHO.SuccRLAdd (None)'] + daily_df10637['VS.SHO.SuccRLDel (None)']) / (daily_df10637['VS.SHO.AttRLAdd (None)'] + daily_df10637['VS.SHO.AttRLDel (None)']) * 100
-daily_df10637['Hard Handover Success rate, %_10637'] = daily_df10637['VS.HHO.SuccInterFreqOut (None)'] / daily_df10637['VS.HHO.AttInterFreqOut (None)'] * 100
-daily_df10637['CS W2G Inter-RAT Handover Out SR_10637'] = daily_df10637['IRATHO.SuccOutCS (None)'] / (daily_df10637['IRATHO.AttOutCS (None)'] - daily_df10637['VS.IRATHOCS.Cancel.ReEstab (None)']) * 100
-daily_df10637['RRC Assignment SucessRate (CS BH), %_10637'] = daily_df10637['RRC.SuccConnEstab.sum (None)'] / daily_df10637['VS.RRC.AttConnEstab.Sum (None)'] * 100
-daily_df10637['RRC Assignment SucessRate (PS BH), %_10637'] = daily_df10637['RRC.SuccConnEstab.sum (None)'] / daily_df10637['VS.RRC.AttConnEstab.Sum (None)'] * 100
-daily_df10637['RRC Drop Rate (CS BH), %_10637'] = (daily_df10637['RRC.AttConnRelCCCH.Cong (None)'] + daily_df10637['RRC.AttConnRelCCCH.Preempt (None)'] + daily_df10637['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
-                                             daily_df10637['RRC.AttConnRelCCCH.Unspec (None)'] + daily_df10637['RRC.AttConnRelDCCH.Cong (None)'] + daily_df10637['RRC.AttConnRelDCCH.Preempt (None)'] + \
-                                             daily_df10637['RRC.AttConnRelDCCH.ReEstRej (None)'] + daily_df10637['RRC.AttConnRelDCCH.Unspec (None)'] + daily_df10637['VS.RRC.ConnRel.CellUpd (None)']) \
-                                        / (daily_df10637['RRC.AttConnRelDCCH.Cong (None)'] + daily_df10637['RRC.AttConnRelDCCH.Preempt (None)'] + daily_df10637['RRC.AttConnRelDCCH.ReEstRej (None)'] + \
-                                           daily_df10637['RRC.AttConnRelDCCH.DSCR (None)'] + daily_df10637['RRC.AttConnRelDCCH.UsrInact (None)'] + daily_df10637['RRC.AttConnRelDCCH.Unspec (None)'] + \
-                                           daily_df10637['RRC.AttConnRelCCCH.Cong (None)'] + daily_df10637['RRC.AttConnRelCCCH.Preempt (None)'] + daily_df10637['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
-                                           daily_df10637['RRC.AttConnRelCCCH.DSCR (None)'] + daily_df10637['RRC.AttConnRelDCCH.Norm (None)'] + daily_df10637['RRC.AttConnRelCCCH.Norm (None)'] + \
-                                           daily_df10637['RRC.AttConnRelCCCH.UsrInact (None)'] + daily_df10637['RRC.AttConnRelCCCH.Unspec (None)'] + daily_df10637['VS.RRC.ConnRel.CellUpd (None)'] + \
-                                           daily_df10637['VS.DCCC.Succ.F2P (None)'] + daily_df10637['IRATHO.SuccOutCS (None)'] + daily_df10637['IRATHO.SuccOutPSUTRAN (None)'] + daily_df10637['VS.DCCC.Succ.F2U (None)'] + \
-                                           daily_df10637['VS.DCCC.Succ.D2U (None)']) * 100
-daily_df10637['RRC Drop Rate (PS BH), %_10637'] = (daily_df10637['RRC.AttConnRelCCCH.Cong (None)'] + daily_df10637['RRC.AttConnRelCCCH.Preempt (None)'] + daily_df10637['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
-                                             daily_df10637['RRC.AttConnRelCCCH.Unspec (None)'] + daily_df10637['RRC.AttConnRelDCCH.Cong (None)'] + daily_df10637['RRC.AttConnRelDCCH.Preempt (None)'] + \
-                                             daily_df10637['RRC.AttConnRelDCCH.ReEstRej (None)'] + daily_df10637['RRC.AttConnRelDCCH.Unspec (None)'] + daily_df10637['VS.RRC.ConnRel.CellUpd (None)']) \
-                                        / (daily_df10637['RRC.AttConnRelDCCH.Cong (None)'] + daily_df10637['RRC.AttConnRelDCCH.Preempt (None)'] + daily_df10637['RRC.AttConnRelDCCH.ReEstRej (None)'] + \
-                                           daily_df10637['RRC.AttConnRelDCCH.DSCR (None)'] + daily_df10637['RRC.AttConnRelDCCH.UsrInact (None)'] + daily_df10637['RRC.AttConnRelDCCH.Unspec (None)'] + \
-                                           daily_df10637['RRC.AttConnRelCCCH.Cong (None)'] + daily_df10637['RRC.AttConnRelCCCH.Preempt (None)'] + daily_df10637['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
-                                           daily_df10637['RRC.AttConnRelCCCH.DSCR (None)'] + daily_df10637['RRC.AttConnRelDCCH.Norm (None)'] + daily_df10637['RRC.AttConnRelCCCH.Norm (None)'] + \
-                                           daily_df10637['RRC.AttConnRelCCCH.UsrInact (None)'] + daily_df10637['RRC.AttConnRelCCCH.Unspec (None)'] + daily_df10637['VS.RRC.ConnRel.CellUpd (None)'] + \
-                                           daily_df10637['VS.DCCC.Succ.F2P (None)'] + daily_df10637['IRATHO.SuccOutCS (None)'] + daily_df10637['IRATHO.SuccOutPSUTRAN (None)'] + daily_df10637['VS.DCCC.Succ.F2U (None)'] + \
-                                           daily_df10637['VS.DCCC.Succ.D2U (None)']) * 100
-daily_df10637['RAB Assignment Success Rate (CS), %_10637'] = daily_df10637['VS.RAB.SuccEstabCS.AMR (None)'] / daily_df10637['VS.RAB.AttEstab.AMR (None)'] * 100
-daily_df10637['RAB Assignment Success Rate (PS), %_10637'] = (daily_df10637['VS.RAB.SuccEstabPS.Conv (None)'] + daily_df10637['VS.RAB.SuccEstabPS.Bkg (None)'] + daily_df10637['VS.RAB.SuccEstabPS.Int (None)'] + \
-                                                   daily_df10637['VS.RAB.SuccEstabPS.Str (None)']) / \
-                                                  (daily_df10637['VS.RAB.AttEstabPS.Bkg (None)'] + daily_df10637['VS.RAB.AttEstabPS.Int (None)'] + daily_df10637['VS.RAB.AttEstabPS.Str (None)'] + \
-                                                   daily_df10637['VS.RAB.AttEstabPS.Conv (None)']) * 100
-daily_df10637['CCSR3G, %_10637'] = daily_df10637['RRC Assignment SucessRate (CS BH), %_10637'] * (100 - daily_df10637['RRC Drop Rate (CS BH), %_10637']) * daily_df10637['RAB Assignment Success Rate (CS), %_10637'] * (100 - daily_df10637['CS RAB Drop Rate (%)_10637'])/ 1000000
-daily_df10637['DCSR3G, %_10637'] = daily_df10637['RRC Assignment SucessRate (PS BH), %_10637'] * (100 - daily_df10637['RRC Drop Rate (PS BH), %_10637']) * daily_df10637['RAB Assignment Success Rate (PS), %_10637'] * (100 - daily_df10637['PS RAB Drop Rate (%)_10637'])/ 1000000
-daily_df10637 = daily_df10637.drop(list_1, axis=1)
-# фильтрация по 2937
-daily_df2937 = sts_df[sts_df['BSC6910UCell'].isin(list_F3_2937)]
-daily_df2937 = daily_df2937.groupby(['date'])[list_1]. sum().reset_index()
-daily_df2937['CS traffic 3G, Erl_2937'] = daily_df2937['CS Voice Traffic Volume (Erl)']
-daily_df2937['PS traffic 3G UL+DL, GB_2937'] = (daily_df2937['VS.HSUPA.MeanChThroughput.TotalBytes (byte)'] + daily_df2937['VS.PS.Bkg.DL.8.Traffic (bit)'] + daily_df2937['VS.PS.Bkg.DL.16.Traffic (bit)'] + \
-                                      daily_df2937['VS.PS.Bkg.DL.32.Traffic (bit)'] + daily_df2937['VS.PS.Bkg.DL.64.Traffic (bit)'] + daily_df2937['VS.PS.Bkg.DL.128.Traffic (bit)'] + \
-                                      daily_df2937['VS.PS.Bkg.DL.144.Traffic (bit)'] + daily_df2937['VS.PS.Bkg.DL.256.Traffic (bit)'] + daily_df2937['VS.PS.Bkg.DL.384.Traffic (bit)'] + \
-                                      daily_df2937['VS.PS.Bkg.UL.8.Traffic (bit)'] + daily_df2937['VS.PS.Bkg.UL.16.Traffic (bit)'] + daily_df2937['VS.PS.Bkg.UL.32.Traffic (bit)'] + \
-                                      daily_df2937['VS.PS.Bkg.UL.64.Traffic (bit)'] + daily_df2937['VS.PS.Bkg.UL.128.Traffic (bit)'] + daily_df2937['VS.PS.Bkg.UL.144.Traffic (bit)'] + \
-                                      daily_df2937['VS.PS.Bkg.UL.256.Traffic (bit)'] + daily_df2937['VS.PS.Bkg.UL.384.Traffic (bit)'] + daily_df2937['VS.PS.Int.DL.8.Traffic (bit)'] + \
-                                      daily_df2937['VS.PS.Int.DL.16.Traffic (bit)'] + daily_df2937['VS.PS.Int.DL.32.Traffic (bit)'] + daily_df2937['VS.PS.Int.DL.64.Traffic (bit)'] + \
-                                      daily_df2937['VS.PS.Int.DL.128.Traffic (bit)'] + daily_df2937['VS.PS.Int.DL.144.Traffic (bit)'] + daily_df2937['VS.PS.Int.DL.256.Traffic (bit)'] + \
-                                      daily_df2937['VS.PS.Int.DL.384.Traffic (bit)'] + daily_df2937['VS.PS.Int.UL.8.Traffic (bit)'] + daily_df2937['VS.PS.Int.UL.16.Traffic (bit)'] + \
-                                      daily_df2937['VS.PS.Int.UL.32.Traffic (bit)'] + daily_df2937['VS.PS.Int.UL.64.Traffic (bit)'] + daily_df2937['VS.PS.Int.UL.128.Traffic (bit)'] + \
-                                      daily_df2937['VS.PS.Int.UL.144.Traffic (bit)'] + daily_df2937['VS.PS.Int.UL.256.Traffic (bit)'] + daily_df2937['VS.PS.Int.UL.384.Traffic (bit)'] + \
-                                      daily_df2937['VS.PS.Str.DL.32.Traffic (bit)'] + daily_df2937['VS.PS.Str.DL.64.Traffic (bit)'] + daily_df2937['VS.PS.Str.DL.128.Traffic (bit)'] + \
-                                      daily_df2937['VS.PS.Str.DL.144.Traffic (bit)'] + daily_df2937['VS.PS.Str.UL.16.Traffic (bit)'] + daily_df2937['VS.PS.Str.UL.32.Traffic (bit)'] + \
-                                      daily_df2937['VS.PS.Str.UL.64.Traffic (bit)'] + daily_df2937['VS.HSDPA.MeanChThroughput.TotalBytes (byte)']) / 1024/1024/1024
-daily_df2937['CS RAB Drop Rate (%)_2937'] = daily_df2937['VS.RAB.AbnormRel.CS (None)'] / (daily_df2937['VS.RAB.AbnormRel.CS (None)'] + daily_df2937['VS.RAB.NormRel.CS (None)']) * 100
-daily_df2937['PS Blocking Rate (%)_2937'] = (daily_df2937['VS.RAB.FailEstabPS.DLIUBBand.Cong (None)'] + daily_df2937['VS.RAB.FailEstabPS.ULIUBBand.Cong (None)'] + daily_df2937['VS.RAB.FailEstabPS.ULCE.Cong (None)'] + \
-                                    daily_df2937['VS.RAB.FailEstabPS.DLCE.Cong (None)'] + daily_df2937['VS.RAB.FailEstabPS.Code.Cong (None)'] + daily_df2937['VS.RAB.FailEstabPS.ULPower.Cong (None)'] + \
-                                    daily_df2937['VS.RAB.FailEstabPS.DLPower.Cong (None)'] + daily_df2937['VS.RAB.FailEstabPS.HSDPAUser.Cong (None)'] + daily_df2937['VS.RAB.FailEstabPS.HSUPAUser.Cong (None)']) / \
-                                    (daily_df2937['VS.RAB.AttEstabPS.Str (None)'] + daily_df2937['VS.RAB.AttEstabPS.Int (None)'] + daily_df2937['VS.RAB.AttEstabPS.Bkg (None)']) *100
-daily_df2937['PS RAB Drop Rate (%)_2937'] = (daily_df2937['VS.RAB.AbnormRel.PS (None)'] + daily_df2937['VS.RAB.AbnormRel.PS.PCH (None)'] + daily_df2937['VS.RAB.AbnormRel.PS.D2P (None)'] + \
-                                    daily_df2937['VS.RAB.AbnormRel.PS.F2P (None)']) / \
-                                   (daily_df2937['VS.RAB.AbnormRel.PS (None)'] + daily_df2937['VS.RAB.NormRel.PS (None)'] + daily_df2937['VS.RAB.AbnormRel.PS.PCH (None)'] + \
-                                    daily_df2937['VS.RAB.NormRel.PS.PCH (None)']) * 100
-daily_df2937['PS HS- Drop Rate (%)_2937'] =  daily_df2937['VS.HSDPA.RAB.AbnormRel (None)'] / (daily_df2937['VS.HSDPA.RAB.AbnormRel (None)'] + daily_df2937['VS.HSDPA.RAB.NormRel (None)'] + daily_df2937['VS.HSDPA.H2D.Succ (None)'] + daily_df2937['VS.HSDPA.H2F.Succ (None)'] +daily_df2937['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + daily_df2937['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
-daily_df2937['HSDPA Throughput, kbps_2937'] = daily_df2937['VS.HSDPA.MeanChThroughput (kbit/s)'] / 204 / 24 # количество сот 204!!!
-daily_df2937['HSUPA Throughput, kbps_2937'] = daily_df2937['VS.HSUPA.MeanChThroughput (kbit/s)'] / 204 / 24# количество сот 204
-daily_df2937['Soft Handover Success rate, %_2937'] = (daily_df2937['VS.SHO.SuccRLAdd (None)'] + daily_df2937['VS.SHO.SuccRLDel (None)']) / (daily_df2937['VS.SHO.AttRLAdd (None)'] + daily_df2937['VS.SHO.AttRLDel (None)']) * 100
-daily_df2937['Hard Handover Success rate, %_2937'] = daily_df2937['VS.HHO.SuccInterFreqOut (None)'] / daily_df2937['VS.HHO.AttInterFreqOut (None)'] * 100
-daily_df2937['CS W2G Inter-RAT Handover Out SR_2937'] = daily_df2937['IRATHO.SuccOutCS (None)'] / (daily_df2937['IRATHO.AttOutCS (None)'] - daily_df2937['VS.IRATHOCS.Cancel.ReEstab (None)']) * 100
-daily_df2937['RRC Assignment SucessRate (CS BH), %_2937'] = daily_df2937['RRC.SuccConnEstab.sum (None)'] / daily_df2937['VS.RRC.AttConnEstab.Sum (None)'] * 100
-daily_df2937['RRC Assignment SucessRate (PS BH), %_2937'] = daily_df2937['RRC.SuccConnEstab.sum (None)'] / daily_df2937['VS.RRC.AttConnEstab.Sum (None)'] * 100
-daily_df2937['RRC Drop Rate (CS BH), %_2937'] = (daily_df2937['RRC.AttConnRelCCCH.Cong (None)'] + daily_df2937['RRC.AttConnRelCCCH.Preempt (None)'] + daily_df2937['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
-                                             daily_df2937['RRC.AttConnRelCCCH.Unspec (None)'] + daily_df2937['RRC.AttConnRelDCCH.Cong (None)'] + daily_df2937['RRC.AttConnRelDCCH.Preempt (None)'] + \
-                                             daily_df2937['RRC.AttConnRelDCCH.ReEstRej (None)'] + daily_df2937['RRC.AttConnRelDCCH.Unspec (None)'] + daily_df2937['VS.RRC.ConnRel.CellUpd (None)']) \
-                                        / (daily_df2937['RRC.AttConnRelDCCH.Cong (None)'] + daily_df2937['RRC.AttConnRelDCCH.Preempt (None)'] + daily_df2937['RRC.AttConnRelDCCH.ReEstRej (None)'] + \
-                                           daily_df2937['RRC.AttConnRelDCCH.DSCR (None)'] + daily_df2937['RRC.AttConnRelDCCH.UsrInact (None)'] + daily_df2937['RRC.AttConnRelDCCH.Unspec (None)'] + \
-                                           daily_df2937['RRC.AttConnRelCCCH.Cong (None)'] + daily_df2937['RRC.AttConnRelCCCH.Preempt (None)'] + daily_df2937['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
-                                           daily_df2937['RRC.AttConnRelCCCH.DSCR (None)'] + daily_df2937['RRC.AttConnRelDCCH.Norm (None)'] + daily_df2937['RRC.AttConnRelCCCH.Norm (None)'] + \
-                                           daily_df2937['RRC.AttConnRelCCCH.UsrInact (None)'] + daily_df2937['RRC.AttConnRelCCCH.Unspec (None)'] + daily_df2937['VS.RRC.ConnRel.CellUpd (None)'] + \
-                                           daily_df2937['VS.DCCC.Succ.F2P (None)'] + daily_df2937['IRATHO.SuccOutCS (None)'] + daily_df2937['IRATHO.SuccOutPSUTRAN (None)'] + daily_df2937['VS.DCCC.Succ.F2U (None)'] + \
-                                           daily_df2937['VS.DCCC.Succ.D2U (None)']) * 100
-daily_df2937['RRC Drop Rate (PS BH), %_2937'] = (daily_df2937['RRC.AttConnRelCCCH.Cong (None)'] + daily_df2937['RRC.AttConnRelCCCH.Preempt (None)'] + daily_df2937['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
-                                             daily_df2937['RRC.AttConnRelCCCH.Unspec (None)'] + daily_df2937['RRC.AttConnRelDCCH.Cong (None)'] + daily_df2937['RRC.AttConnRelDCCH.Preempt (None)'] + \
-                                             daily_df2937['RRC.AttConnRelDCCH.ReEstRej (None)'] + daily_df2937['RRC.AttConnRelDCCH.Unspec (None)'] + daily_df2937['VS.RRC.ConnRel.CellUpd (None)']) \
-                                        / (daily_df2937['RRC.AttConnRelDCCH.Cong (None)'] + daily_df2937['RRC.AttConnRelDCCH.Preempt (None)'] + daily_df2937['RRC.AttConnRelDCCH.ReEstRej (None)'] + \
-                                           daily_df2937['RRC.AttConnRelDCCH.DSCR (None)'] + daily_df2937['RRC.AttConnRelDCCH.UsrInact (None)'] + daily_df2937['RRC.AttConnRelDCCH.Unspec (None)'] + \
-                                           daily_df2937['RRC.AttConnRelCCCH.Cong (None)'] + daily_df2937['RRC.AttConnRelCCCH.Preempt (None)'] + daily_df2937['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
-                                           daily_df2937['RRC.AttConnRelCCCH.DSCR (None)'] + daily_df2937['RRC.AttConnRelDCCH.Norm (None)'] + daily_df2937['RRC.AttConnRelCCCH.Norm (None)'] + \
-                                           daily_df2937['RRC.AttConnRelCCCH.UsrInact (None)'] + daily_df2937['RRC.AttConnRelCCCH.Unspec (None)'] + daily_df2937['VS.RRC.ConnRel.CellUpd (None)'] + \
-                                           daily_df2937['VS.DCCC.Succ.F2P (None)'] + daily_df2937['IRATHO.SuccOutCS (None)'] + daily_df2937['IRATHO.SuccOutPSUTRAN (None)'] + daily_df2937['VS.DCCC.Succ.F2U (None)'] + \
-                                           daily_df2937['VS.DCCC.Succ.D2U (None)']) * 100
-daily_df2937['RAB Assignment Success Rate (CS), %_2937'] = daily_df2937['VS.RAB.SuccEstabCS.AMR (None)'] / daily_df2937['VS.RAB.AttEstab.AMR (None)'] * 100
-daily_df2937['RAB Assignment Success Rate (PS), %_2937'] = (daily_df2937['VS.RAB.SuccEstabPS.Conv (None)'] + daily_df2937['VS.RAB.SuccEstabPS.Bkg (None)'] + daily_df2937['VS.RAB.SuccEstabPS.Int (None)'] + \
-                                                   daily_df2937['VS.RAB.SuccEstabPS.Str (None)']) / \
-                                                  (daily_df2937['VS.RAB.AttEstabPS.Bkg (None)'] + daily_df2937['VS.RAB.AttEstabPS.Int (None)'] + daily_df2937['VS.RAB.AttEstabPS.Str (None)'] + \
-                                                   daily_df2937['VS.RAB.AttEstabPS.Conv (None)']) * 100
-daily_df2937['CCSR3G, %_2937'] = daily_df2937['RRC Assignment SucessRate (CS BH), %_2937'] * (100 - daily_df2937['RRC Drop Rate (CS BH), %_2937']) * daily_df2937['RAB Assignment Success Rate (CS), %_2937'] * (100 - daily_df2937['CS RAB Drop Rate (%)_2937'])/ 1000000
-daily_df2937['DCSR3G, %_2937'] = daily_df2937['RRC Assignment SucessRate (PS BH), %_2937'] * (100 - daily_df2937['RRC Drop Rate (PS BH), %_2937']) * daily_df2937['RAB Assignment Success Rate (PS), %_2937'] * (100 - daily_df2937['PS RAB Drop Rate (%)_2937'])/ 1000000
-daily_df2937 = daily_df2937.drop(list_1, axis=1)
+# daily_df10612 = sts_df[sts_df['BSC6910UCell'].isin(list_F1_10612)]
+# daily_df10612 = daily_df10612.groupby(['date'])[list_1]. sum().reset_index()
+# daily_df10612['CS traffic 3G, Erl_10612'] = daily_df10612['CS Voice Traffic Volume (Erl)']
+# daily_df10612['PS traffic 3G UL+DL, GB_10612'] = (daily_df10612['VS.HSUPA.MeanChThroughput.TotalBytes (byte)'] + daily_df10612['VS.PS.Bkg.DL.8.Traffic (bit)'] + daily_df10612['VS.PS.Bkg.DL.16.Traffic (bit)'] + \
+#                                       daily_df10612['VS.PS.Bkg.DL.32.Traffic (bit)'] + daily_df10612['VS.PS.Bkg.DL.64.Traffic (bit)'] + daily_df10612['VS.PS.Bkg.DL.128.Traffic (bit)'] + \
+#                                       daily_df10612['VS.PS.Bkg.DL.144.Traffic (bit)'] + daily_df10612['VS.PS.Bkg.DL.256.Traffic (bit)'] + daily_df10612['VS.PS.Bkg.DL.384.Traffic (bit)'] + \
+#                                       daily_df10612['VS.PS.Bkg.UL.8.Traffic (bit)'] + daily_df10612['VS.PS.Bkg.UL.16.Traffic (bit)'] + daily_df10612['VS.PS.Bkg.UL.32.Traffic (bit)'] + \
+#                                       daily_df10612['VS.PS.Bkg.UL.64.Traffic (bit)'] + daily_df10612['VS.PS.Bkg.UL.128.Traffic (bit)'] + daily_df10612['VS.PS.Bkg.UL.144.Traffic (bit)'] + \
+#                                       daily_df10612['VS.PS.Bkg.UL.256.Traffic (bit)'] + daily_df10612['VS.PS.Bkg.UL.384.Traffic (bit)'] + daily_df10612['VS.PS.Int.DL.8.Traffic (bit)'] + \
+#                                       daily_df10612['VS.PS.Int.DL.16.Traffic (bit)'] + daily_df10612['VS.PS.Int.DL.32.Traffic (bit)'] + daily_df10612['VS.PS.Int.DL.64.Traffic (bit)'] + \
+#                                       daily_df10612['VS.PS.Int.DL.128.Traffic (bit)'] + daily_df10612['VS.PS.Int.DL.144.Traffic (bit)'] + daily_df10612['VS.PS.Int.DL.256.Traffic (bit)'] + \
+#                                       daily_df10612['VS.PS.Int.DL.384.Traffic (bit)'] + daily_df10612['VS.PS.Int.UL.8.Traffic (bit)'] + daily_df10612['VS.PS.Int.UL.16.Traffic (bit)'] + \
+#                                       daily_df10612['VS.PS.Int.UL.32.Traffic (bit)'] + daily_df10612['VS.PS.Int.UL.64.Traffic (bit)'] + daily_df10612['VS.PS.Int.UL.128.Traffic (bit)'] + \
+#                                       daily_df10612['VS.PS.Int.UL.144.Traffic (bit)'] + daily_df10612['VS.PS.Int.UL.256.Traffic (bit)'] + daily_df10612['VS.PS.Int.UL.384.Traffic (bit)'] + \
+#                                       daily_df10612['VS.PS.Str.DL.32.Traffic (bit)'] + daily_df10612['VS.PS.Str.DL.64.Traffic (bit)'] + daily_df10612['VS.PS.Str.DL.128.Traffic (bit)'] + \
+#                                       daily_df10612['VS.PS.Str.DL.144.Traffic (bit)'] + daily_df10612['VS.PS.Str.UL.16.Traffic (bit)'] + daily_df10612['VS.PS.Str.UL.32.Traffic (bit)'] + \
+#                                       daily_df10612['VS.PS.Str.UL.64.Traffic (bit)'] + daily_df10612['VS.HSDPA.MeanChThroughput.TotalBytes (byte)']) / 1024/1024/1024
+# daily_df10612['CS RAB Drop Rate (%)_10612'] = daily_df10612['VS.RAB.AbnormRel.CS (None)'] / (daily_df10612['VS.RAB.AbnormRel.CS (None)'] + daily_df10612['VS.RAB.NormRel.CS (None)']) * 100
+# daily_df10612['PS Blocking Rate (%)_10612'] = (daily_df10612['VS.RAB.FailEstabPS.DLIUBBand.Cong (None)'] + daily_df10612['VS.RAB.FailEstabPS.ULIUBBand.Cong (None)'] + daily_df10612['VS.RAB.FailEstabPS.ULCE.Cong (None)'] + \
+#                                     daily_df10612['VS.RAB.FailEstabPS.DLCE.Cong (None)'] + daily_df10612['VS.RAB.FailEstabPS.Code.Cong (None)'] + daily_df10612['VS.RAB.FailEstabPS.ULPower.Cong (None)'] + \
+#                                     daily_df10612['VS.RAB.FailEstabPS.DLPower.Cong (None)'] + daily_df10612['VS.RAB.FailEstabPS.HSDPAUser.Cong (None)'] + daily_df10612['VS.RAB.FailEstabPS.HSUPAUser.Cong (None)']) / \
+#                                     (daily_df10612['VS.RAB.AttEstabPS.Str (None)'] + daily_df10612['VS.RAB.AttEstabPS.Int (None)'] + daily_df10612['VS.RAB.AttEstabPS.Bkg (None)']) *100
+# daily_df10612['PS RAB Drop Rate (%)_10612'] = (daily_df10612['VS.RAB.AbnormRel.PS (None)'] + daily_df10612['VS.RAB.AbnormRel.PS.PCH (None)'] + daily_df10612['VS.RAB.AbnormRel.PS.D2P (None)'] + \
+#                                     daily_df10612['VS.RAB.AbnormRel.PS.F2P (None)']) / \
+#                                    (daily_df10612['VS.RAB.AbnormRel.PS (None)'] + daily_df10612['VS.RAB.NormRel.PS (None)'] + daily_df10612['VS.RAB.AbnormRel.PS.PCH (None)'] + \
+#                                     daily_df10612['VS.RAB.NormRel.PS.PCH (None)']) * 100
+# daily_df10612['PS HS- Drop Rate (%)_10612'] =  daily_df10612['VS.HSDPA.RAB.AbnormRel (None)'] / (daily_df10612['VS.HSDPA.RAB.AbnormRel (None)'] + daily_df10612['VS.HSDPA.RAB.NormRel (None)'] + daily_df10612['VS.HSDPA.H2D.Succ (None)'] + daily_df10612['VS.HSDPA.H2F.Succ (None)'] +daily_df10612['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + daily_df10612['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
+# daily_df10612['HSDPA Throughput, kbps_10612'] = daily_df10612['VS.HSDPA.MeanChThroughput (kbit/s)'] / 235 / 24 # количество сот 235!!!
+# daily_df10612['HSUPA Throughput, kbps_10612'] = daily_df10612['VS.HSUPA.MeanChThroughput (kbit/s)'] / 235 / 24# количество сот 235
+# daily_df10612['Soft Handover Success rate, %_10612'] = (daily_df10612['VS.SHO.SuccRLAdd (None)'] + daily_df10612['VS.SHO.SuccRLDel (None)']) / (daily_df10612['VS.SHO.AttRLAdd (None)'] + daily_df10612['VS.SHO.AttRLDel (None)']) * 100
+# daily_df10612['Hard Handover Success rate, %_10612'] = daily_df10612['VS.HHO.SuccInterFreqOut (None)'] / daily_df10612['VS.HHO.AttInterFreqOut (None)'] * 100
+# daily_df10612['CS W2G Inter-RAT Handover Out SR_10612'] = daily_df10612['IRATHO.SuccOutCS (None)'] / (daily_df10612['IRATHO.AttOutCS (None)'] - daily_df10612['VS.IRATHOCS.Cancel.ReEstab (None)']) * 100
+# daily_df10612['RRC Assignment SucessRate (CS BH), %_10612'] = daily_df10612['RRC.SuccConnEstab.sum (None)'] / daily_df10612['VS.RRC.AttConnEstab.Sum (None)'] * 100
+# daily_df10612['RRC Assignment SucessRate (PS BH), %_10612'] = daily_df10612['RRC.SuccConnEstab.sum (None)'] / daily_df10612['VS.RRC.AttConnEstab.Sum (None)'] * 100
+# daily_df10612['RRC Drop Rate (CS BH), %_10612'] = (daily_df10612['RRC.AttConnRelCCCH.Cong (None)'] + daily_df10612['RRC.AttConnRelCCCH.Preempt (None)'] + daily_df10612['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
+#                                              daily_df10612['RRC.AttConnRelCCCH.Unspec (None)'] + daily_df10612['RRC.AttConnRelDCCH.Cong (None)'] + daily_df10612['RRC.AttConnRelDCCH.Preempt (None)'] + \
+#                                              daily_df10612['RRC.AttConnRelDCCH.ReEstRej (None)'] + daily_df10612['RRC.AttConnRelDCCH.Unspec (None)'] + daily_df10612['VS.RRC.ConnRel.CellUpd (None)']) \
+#                                         / (daily_df10612['RRC.AttConnRelDCCH.Cong (None)'] + daily_df10612['RRC.AttConnRelDCCH.Preempt (None)'] + daily_df10612['RRC.AttConnRelDCCH.ReEstRej (None)'] + \
+#                                            daily_df10612['RRC.AttConnRelDCCH.DSCR (None)'] + daily_df10612['RRC.AttConnRelDCCH.UsrInact (None)'] + daily_df10612['RRC.AttConnRelDCCH.Unspec (None)'] + \
+#                                            daily_df10612['RRC.AttConnRelCCCH.Cong (None)'] + daily_df10612['RRC.AttConnRelCCCH.Preempt (None)'] + daily_df10612['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
+#                                            daily_df10612['RRC.AttConnRelCCCH.DSCR (None)'] + daily_df10612['RRC.AttConnRelDCCH.Norm (None)'] + daily_df10612['RRC.AttConnRelCCCH.Norm (None)'] + \
+#                                            daily_df10612['RRC.AttConnRelCCCH.UsrInact (None)'] + daily_df10612['RRC.AttConnRelCCCH.Unspec (None)'] + daily_df10612['VS.RRC.ConnRel.CellUpd (None)'] + \
+#                                            daily_df10612['VS.DCCC.Succ.F2P (None)'] + daily_df10612['IRATHO.SuccOutCS (None)'] + daily_df10612['IRATHO.SuccOutPSUTRAN (None)'] + daily_df10612['VS.DCCC.Succ.F2U (None)'] + \
+#                                            daily_df10612['VS.DCCC.Succ.D2U (None)']) * 100
+# daily_df10612['RRC Drop Rate (PS BH), %_10612'] = (daily_df10612['RRC.AttConnRelCCCH.Cong (None)'] + daily_df10612['RRC.AttConnRelCCCH.Preempt (None)'] + daily_df10612['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
+#                                              daily_df10612['RRC.AttConnRelCCCH.Unspec (None)'] + daily_df10612['RRC.AttConnRelDCCH.Cong (None)'] + daily_df10612['RRC.AttConnRelDCCH.Preempt (None)'] + \
+#                                              daily_df10612['RRC.AttConnRelDCCH.ReEstRej (None)'] + daily_df10612['RRC.AttConnRelDCCH.Unspec (None)'] + daily_df10612['VS.RRC.ConnRel.CellUpd (None)']) \
+#                                         / (daily_df10612['RRC.AttConnRelDCCH.Cong (None)'] + daily_df10612['RRC.AttConnRelDCCH.Preempt (None)'] + daily_df10612['RRC.AttConnRelDCCH.ReEstRej (None)'] + \
+#                                            daily_df10612['RRC.AttConnRelDCCH.DSCR (None)'] + daily_df10612['RRC.AttConnRelDCCH.UsrInact (None)'] + daily_df10612['RRC.AttConnRelDCCH.Unspec (None)'] + \
+#                                            daily_df10612['RRC.AttConnRelCCCH.Cong (None)'] + daily_df10612['RRC.AttConnRelCCCH.Preempt (None)'] + daily_df10612['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
+#                                            daily_df10612['RRC.AttConnRelCCCH.DSCR (None)'] + daily_df10612['RRC.AttConnRelDCCH.Norm (None)'] + daily_df10612['RRC.AttConnRelCCCH.Norm (None)'] + \
+#                                            daily_df10612['RRC.AttConnRelCCCH.UsrInact (None)'] + daily_df10612['RRC.AttConnRelCCCH.Unspec (None)'] + daily_df10612['VS.RRC.ConnRel.CellUpd (None)'] + \
+#                                            daily_df10612['VS.DCCC.Succ.F2P (None)'] + daily_df10612['IRATHO.SuccOutCS (None)'] + daily_df10612['IRATHO.SuccOutPSUTRAN (None)'] + daily_df10612['VS.DCCC.Succ.F2U (None)'] + \
+#                                            daily_df10612['VS.DCCC.Succ.D2U (None)']) * 100
+# daily_df10612['RAB Assignment Success Rate (CS), %_10612'] = daily_df10612['VS.RAB.SuccEstabCS.AMR (None)'] / daily_df10612['VS.RAB.AttEstab.AMR (None)'] * 100
+# daily_df10612['RAB Assignment Success Rate (PS), %_10612'] = (daily_df10612['VS.RAB.SuccEstabPS.Conv (None)'] + daily_df10612['VS.RAB.SuccEstabPS.Bkg (None)'] + daily_df10612['VS.RAB.SuccEstabPS.Int (None)'] + \
+#                                                    daily_df10612['VS.RAB.SuccEstabPS.Str (None)']) / \
+#                                                   (daily_df10612['VS.RAB.AttEstabPS.Bkg (None)'] + daily_df10612['VS.RAB.AttEstabPS.Int (None)'] + daily_df10612['VS.RAB.AttEstabPS.Str (None)'] + \
+#                                                    daily_df10612['VS.RAB.AttEstabPS.Conv (None)']) * 100
+# daily_df10612['CCSR3G, %_10612'] = daily_df10612['RRC Assignment SucessRate (CS BH), %_10612'] * (100 - daily_df10612['RRC Drop Rate (CS BH), %_10612']) * daily_df10612['RAB Assignment Success Rate (CS), %_10612'] * (100 - daily_df10612['CS RAB Drop Rate (%)_10612'])/ 1000000
+# daily_df10612['DCSR3G, %_10612'] = daily_df10612['RRC Assignment SucessRate (PS BH), %_10612'] * (100 - daily_df10612['RRC Drop Rate (PS BH), %_10612']) * daily_df10612['RAB Assignment Success Rate (PS), %_10612'] * (100 - daily_df10612['PS RAB Drop Rate (%)_10612'])/ 1000000
+# daily_df10612 = daily_df10612.drop(list_1, axis=1)
+# # фильтрация по 10637
+# daily_df10637 = sts_df[sts_df['BSC6910UCell'].isin(list_F2_10637)]
+# daily_df10637 = daily_df10637.groupby(['date'])[list_1]. sum().reset_index()
+# daily_df10637['CS traffic 3G, Erl_10637'] = daily_df10637['CS Voice Traffic Volume (Erl)']
+# daily_df10637['PS traffic 3G UL+DL, GB_10637'] = (daily_df10637['VS.HSUPA.MeanChThroughput.TotalBytes (byte)'] + daily_df10637['VS.PS.Bkg.DL.8.Traffic (bit)'] + daily_df10637['VS.PS.Bkg.DL.16.Traffic (bit)'] + \
+#                                       daily_df10637['VS.PS.Bkg.DL.32.Traffic (bit)'] + daily_df10637['VS.PS.Bkg.DL.64.Traffic (bit)'] + daily_df10637['VS.PS.Bkg.DL.128.Traffic (bit)'] + \
+#                                       daily_df10637['VS.PS.Bkg.DL.144.Traffic (bit)'] + daily_df10637['VS.PS.Bkg.DL.256.Traffic (bit)'] + daily_df10637['VS.PS.Bkg.DL.384.Traffic (bit)'] + \
+#                                       daily_df10637['VS.PS.Bkg.UL.8.Traffic (bit)'] + daily_df10637['VS.PS.Bkg.UL.16.Traffic (bit)'] + daily_df10637['VS.PS.Bkg.UL.32.Traffic (bit)'] + \
+#                                       daily_df10637['VS.PS.Bkg.UL.64.Traffic (bit)'] + daily_df10637['VS.PS.Bkg.UL.128.Traffic (bit)'] + daily_df10637['VS.PS.Bkg.UL.144.Traffic (bit)'] + \
+#                                       daily_df10637['VS.PS.Bkg.UL.256.Traffic (bit)'] + daily_df10637['VS.PS.Bkg.UL.384.Traffic (bit)'] + daily_df10637['VS.PS.Int.DL.8.Traffic (bit)'] + \
+#                                       daily_df10637['VS.PS.Int.DL.16.Traffic (bit)'] + daily_df10637['VS.PS.Int.DL.32.Traffic (bit)'] + daily_df10637['VS.PS.Int.DL.64.Traffic (bit)'] + \
+#                                       daily_df10637['VS.PS.Int.DL.128.Traffic (bit)'] + daily_df10637['VS.PS.Int.DL.144.Traffic (bit)'] + daily_df10637['VS.PS.Int.DL.256.Traffic (bit)'] + \
+#                                       daily_df10637['VS.PS.Int.DL.384.Traffic (bit)'] + daily_df10637['VS.PS.Int.UL.8.Traffic (bit)'] + daily_df10637['VS.PS.Int.UL.16.Traffic (bit)'] + \
+#                                       daily_df10637['VS.PS.Int.UL.32.Traffic (bit)'] + daily_df10637['VS.PS.Int.UL.64.Traffic (bit)'] + daily_df10637['VS.PS.Int.UL.128.Traffic (bit)'] + \
+#                                       daily_df10637['VS.PS.Int.UL.144.Traffic (bit)'] + daily_df10637['VS.PS.Int.UL.256.Traffic (bit)'] + daily_df10637['VS.PS.Int.UL.384.Traffic (bit)'] + \
+#                                       daily_df10637['VS.PS.Str.DL.32.Traffic (bit)'] + daily_df10637['VS.PS.Str.DL.64.Traffic (bit)'] + daily_df10637['VS.PS.Str.DL.128.Traffic (bit)'] + \
+#                                       daily_df10637['VS.PS.Str.DL.144.Traffic (bit)'] + daily_df10637['VS.PS.Str.UL.16.Traffic (bit)'] + daily_df10637['VS.PS.Str.UL.32.Traffic (bit)'] + \
+#                                       daily_df10637['VS.PS.Str.UL.64.Traffic (bit)'] + daily_df10637['VS.HSDPA.MeanChThroughput.TotalBytes (byte)']) / 1024/1024/1024
+# daily_df10637['CS RAB Drop Rate (%)_10637'] = daily_df10637['VS.RAB.AbnormRel.CS (None)'] / (daily_df10637['VS.RAB.AbnormRel.CS (None)'] + daily_df10637['VS.RAB.NormRel.CS (None)']) * 100
+# daily_df10637['PS Blocking Rate (%)_10637'] = (daily_df10637['VS.RAB.FailEstabPS.DLIUBBand.Cong (None)'] + daily_df10637['VS.RAB.FailEstabPS.ULIUBBand.Cong (None)'] + daily_df10637['VS.RAB.FailEstabPS.ULCE.Cong (None)'] + \
+#                                     daily_df10637['VS.RAB.FailEstabPS.DLCE.Cong (None)'] + daily_df10637['VS.RAB.FailEstabPS.Code.Cong (None)'] + daily_df10637['VS.RAB.FailEstabPS.ULPower.Cong (None)'] + \
+#                                     daily_df10637['VS.RAB.FailEstabPS.DLPower.Cong (None)'] + daily_df10637['VS.RAB.FailEstabPS.HSDPAUser.Cong (None)'] + daily_df10637['VS.RAB.FailEstabPS.HSUPAUser.Cong (None)']) / \
+#                                     (daily_df10637['VS.RAB.AttEstabPS.Str (None)'] + daily_df10637['VS.RAB.AttEstabPS.Int (None)'] + daily_df10637['VS.RAB.AttEstabPS.Bkg (None)']) *100
+# daily_df10637['PS RAB Drop Rate (%)_10637'] = (daily_df10637['VS.RAB.AbnormRel.PS (None)'] + daily_df10637['VS.RAB.AbnormRel.PS.PCH (None)'] + daily_df10637['VS.RAB.AbnormRel.PS.D2P (None)'] + \
+#                                     daily_df10637['VS.RAB.AbnormRel.PS.F2P (None)']) / \
+#                                    (daily_df10637['VS.RAB.AbnormRel.PS (None)'] + daily_df10637['VS.RAB.NormRel.PS (None)'] + daily_df10637['VS.RAB.AbnormRel.PS.PCH (None)'] + \
+#                                     daily_df10637['VS.RAB.NormRel.PS.PCH (None)']) * 100
+# daily_df10637['PS HS- Drop Rate (%)_10637'] =  daily_df10637['VS.HSDPA.RAB.AbnormRel (None)'] / (daily_df10637['VS.HSDPA.RAB.AbnormRel (None)'] + daily_df10637['VS.HSDPA.RAB.NormRel (None)'] + daily_df10637['VS.HSDPA.H2D.Succ (None)'] + daily_df10637['VS.HSDPA.H2F.Succ (None)'] +daily_df10637['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + daily_df10637['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
+# daily_df10637['HSDPA Throughput, kbps_10637'] = daily_df10637['VS.HSDPA.MeanChThroughput (kbit/s)'] / 236 / 24 # количество сот 236!!!
+# daily_df10637['HSUPA Throughput, kbps_10637'] = daily_df10637['VS.HSUPA.MeanChThroughput (kbit/s)'] / 236 / 24# количество сот 236
+# daily_df10637['Soft Handover Success rate, %_10637'] = (daily_df10637['VS.SHO.SuccRLAdd (None)'] + daily_df10637['VS.SHO.SuccRLDel (None)']) / (daily_df10637['VS.SHO.AttRLAdd (None)'] + daily_df10637['VS.SHO.AttRLDel (None)']) * 100
+# daily_df10637['Hard Handover Success rate, %_10637'] = daily_df10637['VS.HHO.SuccInterFreqOut (None)'] / daily_df10637['VS.HHO.AttInterFreqOut (None)'] * 100
+# daily_df10637['CS W2G Inter-RAT Handover Out SR_10637'] = daily_df10637['IRATHO.SuccOutCS (None)'] / (daily_df10637['IRATHO.AttOutCS (None)'] - daily_df10637['VS.IRATHOCS.Cancel.ReEstab (None)']) * 100
+# daily_df10637['RRC Assignment SucessRate (CS BH), %_10637'] = daily_df10637['RRC.SuccConnEstab.sum (None)'] / daily_df10637['VS.RRC.AttConnEstab.Sum (None)'] * 100
+# daily_df10637['RRC Assignment SucessRate (PS BH), %_10637'] = daily_df10637['RRC.SuccConnEstab.sum (None)'] / daily_df10637['VS.RRC.AttConnEstab.Sum (None)'] * 100
+# daily_df10637['RRC Drop Rate (CS BH), %_10637'] = (daily_df10637['RRC.AttConnRelCCCH.Cong (None)'] + daily_df10637['RRC.AttConnRelCCCH.Preempt (None)'] + daily_df10637['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
+#                                              daily_df10637['RRC.AttConnRelCCCH.Unspec (None)'] + daily_df10637['RRC.AttConnRelDCCH.Cong (None)'] + daily_df10637['RRC.AttConnRelDCCH.Preempt (None)'] + \
+#                                              daily_df10637['RRC.AttConnRelDCCH.ReEstRej (None)'] + daily_df10637['RRC.AttConnRelDCCH.Unspec (None)'] + daily_df10637['VS.RRC.ConnRel.CellUpd (None)']) \
+#                                         / (daily_df10637['RRC.AttConnRelDCCH.Cong (None)'] + daily_df10637['RRC.AttConnRelDCCH.Preempt (None)'] + daily_df10637['RRC.AttConnRelDCCH.ReEstRej (None)'] + \
+#                                            daily_df10637['RRC.AttConnRelDCCH.DSCR (None)'] + daily_df10637['RRC.AttConnRelDCCH.UsrInact (None)'] + daily_df10637['RRC.AttConnRelDCCH.Unspec (None)'] + \
+#                                            daily_df10637['RRC.AttConnRelCCCH.Cong (None)'] + daily_df10637['RRC.AttConnRelCCCH.Preempt (None)'] + daily_df10637['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
+#                                            daily_df10637['RRC.AttConnRelCCCH.DSCR (None)'] + daily_df10637['RRC.AttConnRelDCCH.Norm (None)'] + daily_df10637['RRC.AttConnRelCCCH.Norm (None)'] + \
+#                                            daily_df10637['RRC.AttConnRelCCCH.UsrInact (None)'] + daily_df10637['RRC.AttConnRelCCCH.Unspec (None)'] + daily_df10637['VS.RRC.ConnRel.CellUpd (None)'] + \
+#                                            daily_df10637['VS.DCCC.Succ.F2P (None)'] + daily_df10637['IRATHO.SuccOutCS (None)'] + daily_df10637['IRATHO.SuccOutPSUTRAN (None)'] + daily_df10637['VS.DCCC.Succ.F2U (None)'] + \
+#                                            daily_df10637['VS.DCCC.Succ.D2U (None)']) * 100
+# daily_df10637['RRC Drop Rate (PS BH), %_10637'] = (daily_df10637['RRC.AttConnRelCCCH.Cong (None)'] + daily_df10637['RRC.AttConnRelCCCH.Preempt (None)'] + daily_df10637['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
+#                                              daily_df10637['RRC.AttConnRelCCCH.Unspec (None)'] + daily_df10637['RRC.AttConnRelDCCH.Cong (None)'] + daily_df10637['RRC.AttConnRelDCCH.Preempt (None)'] + \
+#                                              daily_df10637['RRC.AttConnRelDCCH.ReEstRej (None)'] + daily_df10637['RRC.AttConnRelDCCH.Unspec (None)'] + daily_df10637['VS.RRC.ConnRel.CellUpd (None)']) \
+#                                         / (daily_df10637['RRC.AttConnRelDCCH.Cong (None)'] + daily_df10637['RRC.AttConnRelDCCH.Preempt (None)'] + daily_df10637['RRC.AttConnRelDCCH.ReEstRej (None)'] + \
+#                                            daily_df10637['RRC.AttConnRelDCCH.DSCR (None)'] + daily_df10637['RRC.AttConnRelDCCH.UsrInact (None)'] + daily_df10637['RRC.AttConnRelDCCH.Unspec (None)'] + \
+#                                            daily_df10637['RRC.AttConnRelCCCH.Cong (None)'] + daily_df10637['RRC.AttConnRelCCCH.Preempt (None)'] + daily_df10637['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
+#                                            daily_df10637['RRC.AttConnRelCCCH.DSCR (None)'] + daily_df10637['RRC.AttConnRelDCCH.Norm (None)'] + daily_df10637['RRC.AttConnRelCCCH.Norm (None)'] + \
+#                                            daily_df10637['RRC.AttConnRelCCCH.UsrInact (None)'] + daily_df10637['RRC.AttConnRelCCCH.Unspec (None)'] + daily_df10637['VS.RRC.ConnRel.CellUpd (None)'] + \
+#                                            daily_df10637['VS.DCCC.Succ.F2P (None)'] + daily_df10637['IRATHO.SuccOutCS (None)'] + daily_df10637['IRATHO.SuccOutPSUTRAN (None)'] + daily_df10637['VS.DCCC.Succ.F2U (None)'] + \
+#                                            daily_df10637['VS.DCCC.Succ.D2U (None)']) * 100
+# daily_df10637['RAB Assignment Success Rate (CS), %_10637'] = daily_df10637['VS.RAB.SuccEstabCS.AMR (None)'] / daily_df10637['VS.RAB.AttEstab.AMR (None)'] * 100
+# daily_df10637['RAB Assignment Success Rate (PS), %_10637'] = (daily_df10637['VS.RAB.SuccEstabPS.Conv (None)'] + daily_df10637['VS.RAB.SuccEstabPS.Bkg (None)'] + daily_df10637['VS.RAB.SuccEstabPS.Int (None)'] + \
+#                                                    daily_df10637['VS.RAB.SuccEstabPS.Str (None)']) / \
+#                                                   (daily_df10637['VS.RAB.AttEstabPS.Bkg (None)'] + daily_df10637['VS.RAB.AttEstabPS.Int (None)'] + daily_df10637['VS.RAB.AttEstabPS.Str (None)'] + \
+#                                                    daily_df10637['VS.RAB.AttEstabPS.Conv (None)']) * 100
+# daily_df10637['CCSR3G, %_10637'] = daily_df10637['RRC Assignment SucessRate (CS BH), %_10637'] * (100 - daily_df10637['RRC Drop Rate (CS BH), %_10637']) * daily_df10637['RAB Assignment Success Rate (CS), %_10637'] * (100 - daily_df10637['CS RAB Drop Rate (%)_10637'])/ 1000000
+# daily_df10637['DCSR3G, %_10637'] = daily_df10637['RRC Assignment SucessRate (PS BH), %_10637'] * (100 - daily_df10637['RRC Drop Rate (PS BH), %_10637']) * daily_df10637['RAB Assignment Success Rate (PS), %_10637'] * (100 - daily_df10637['PS RAB Drop Rate (%)_10637'])/ 1000000
+# daily_df10637 = daily_df10637.drop(list_1, axis=1)
+# # фильтрация по 2937
+# daily_df2937 = sts_df[sts_df['BSC6910UCell'].isin(list_F3_2937)]
+# daily_df2937 = daily_df2937.groupby(['date'])[list_1]. sum().reset_index()
+# daily_df2937['CS traffic 3G, Erl_2937'] = daily_df2937['CS Voice Traffic Volume (Erl)']
+# daily_df2937['PS traffic 3G UL+DL, GB_2937'] = (daily_df2937['VS.HSUPA.MeanChThroughput.TotalBytes (byte)'] + daily_df2937['VS.PS.Bkg.DL.8.Traffic (bit)'] + daily_df2937['VS.PS.Bkg.DL.16.Traffic (bit)'] + \
+#                                       daily_df2937['VS.PS.Bkg.DL.32.Traffic (bit)'] + daily_df2937['VS.PS.Bkg.DL.64.Traffic (bit)'] + daily_df2937['VS.PS.Bkg.DL.128.Traffic (bit)'] + \
+#                                       daily_df2937['VS.PS.Bkg.DL.144.Traffic (bit)'] + daily_df2937['VS.PS.Bkg.DL.256.Traffic (bit)'] + daily_df2937['VS.PS.Bkg.DL.384.Traffic (bit)'] + \
+#                                       daily_df2937['VS.PS.Bkg.UL.8.Traffic (bit)'] + daily_df2937['VS.PS.Bkg.UL.16.Traffic (bit)'] + daily_df2937['VS.PS.Bkg.UL.32.Traffic (bit)'] + \
+#                                       daily_df2937['VS.PS.Bkg.UL.64.Traffic (bit)'] + daily_df2937['VS.PS.Bkg.UL.128.Traffic (bit)'] + daily_df2937['VS.PS.Bkg.UL.144.Traffic (bit)'] + \
+#                                       daily_df2937['VS.PS.Bkg.UL.256.Traffic (bit)'] + daily_df2937['VS.PS.Bkg.UL.384.Traffic (bit)'] + daily_df2937['VS.PS.Int.DL.8.Traffic (bit)'] + \
+#                                       daily_df2937['VS.PS.Int.DL.16.Traffic (bit)'] + daily_df2937['VS.PS.Int.DL.32.Traffic (bit)'] + daily_df2937['VS.PS.Int.DL.64.Traffic (bit)'] + \
+#                                       daily_df2937['VS.PS.Int.DL.128.Traffic (bit)'] + daily_df2937['VS.PS.Int.DL.144.Traffic (bit)'] + daily_df2937['VS.PS.Int.DL.256.Traffic (bit)'] + \
+#                                       daily_df2937['VS.PS.Int.DL.384.Traffic (bit)'] + daily_df2937['VS.PS.Int.UL.8.Traffic (bit)'] + daily_df2937['VS.PS.Int.UL.16.Traffic (bit)'] + \
+#                                       daily_df2937['VS.PS.Int.UL.32.Traffic (bit)'] + daily_df2937['VS.PS.Int.UL.64.Traffic (bit)'] + daily_df2937['VS.PS.Int.UL.128.Traffic (bit)'] + \
+#                                       daily_df2937['VS.PS.Int.UL.144.Traffic (bit)'] + daily_df2937['VS.PS.Int.UL.256.Traffic (bit)'] + daily_df2937['VS.PS.Int.UL.384.Traffic (bit)'] + \
+#                                       daily_df2937['VS.PS.Str.DL.32.Traffic (bit)'] + daily_df2937['VS.PS.Str.DL.64.Traffic (bit)'] + daily_df2937['VS.PS.Str.DL.128.Traffic (bit)'] + \
+#                                       daily_df2937['VS.PS.Str.DL.144.Traffic (bit)'] + daily_df2937['VS.PS.Str.UL.16.Traffic (bit)'] + daily_df2937['VS.PS.Str.UL.32.Traffic (bit)'] + \
+#                                       daily_df2937['VS.PS.Str.UL.64.Traffic (bit)'] + daily_df2937['VS.HSDPA.MeanChThroughput.TotalBytes (byte)']) / 1024/1024/1024
+# daily_df2937['CS RAB Drop Rate (%)_2937'] = daily_df2937['VS.RAB.AbnormRel.CS (None)'] / (daily_df2937['VS.RAB.AbnormRel.CS (None)'] + daily_df2937['VS.RAB.NormRel.CS (None)']) * 100
+# daily_df2937['PS Blocking Rate (%)_2937'] = (daily_df2937['VS.RAB.FailEstabPS.DLIUBBand.Cong (None)'] + daily_df2937['VS.RAB.FailEstabPS.ULIUBBand.Cong (None)'] + daily_df2937['VS.RAB.FailEstabPS.ULCE.Cong (None)'] + \
+#                                     daily_df2937['VS.RAB.FailEstabPS.DLCE.Cong (None)'] + daily_df2937['VS.RAB.FailEstabPS.Code.Cong (None)'] + daily_df2937['VS.RAB.FailEstabPS.ULPower.Cong (None)'] + \
+#                                     daily_df2937['VS.RAB.FailEstabPS.DLPower.Cong (None)'] + daily_df2937['VS.RAB.FailEstabPS.HSDPAUser.Cong (None)'] + daily_df2937['VS.RAB.FailEstabPS.HSUPAUser.Cong (None)']) / \
+#                                     (daily_df2937['VS.RAB.AttEstabPS.Str (None)'] + daily_df2937['VS.RAB.AttEstabPS.Int (None)'] + daily_df2937['VS.RAB.AttEstabPS.Bkg (None)']) *100
+# daily_df2937['PS RAB Drop Rate (%)_2937'] = (daily_df2937['VS.RAB.AbnormRel.PS (None)'] + daily_df2937['VS.RAB.AbnormRel.PS.PCH (None)'] + daily_df2937['VS.RAB.AbnormRel.PS.D2P (None)'] + \
+#                                     daily_df2937['VS.RAB.AbnormRel.PS.F2P (None)']) / \
+#                                    (daily_df2937['VS.RAB.AbnormRel.PS (None)'] + daily_df2937['VS.RAB.NormRel.PS (None)'] + daily_df2937['VS.RAB.AbnormRel.PS.PCH (None)'] + \
+#                                     daily_df2937['VS.RAB.NormRel.PS.PCH (None)']) * 100
+# daily_df2937['PS HS- Drop Rate (%)_2937'] =  daily_df2937['VS.HSDPA.RAB.AbnormRel (None)'] / (daily_df2937['VS.HSDPA.RAB.AbnormRel (None)'] + daily_df2937['VS.HSDPA.RAB.NormRel (None)'] + daily_df2937['VS.HSDPA.H2D.Succ (None)'] + daily_df2937['VS.HSDPA.H2F.Succ (None)'] +daily_df2937['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + daily_df2937['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
+# daily_df2937['HSDPA Throughput, kbps_2937'] = daily_df2937['VS.HSDPA.MeanChThroughput (kbit/s)'] / 204 / 24 # количество сот 204!!!
+# daily_df2937['HSUPA Throughput, kbps_2937'] = daily_df2937['VS.HSUPA.MeanChThroughput (kbit/s)'] / 204 / 24# количество сот 204
+# daily_df2937['Soft Handover Success rate, %_2937'] = (daily_df2937['VS.SHO.SuccRLAdd (None)'] + daily_df2937['VS.SHO.SuccRLDel (None)']) / (daily_df2937['VS.SHO.AttRLAdd (None)'] + daily_df2937['VS.SHO.AttRLDel (None)']) * 100
+# daily_df2937['Hard Handover Success rate, %_2937'] = daily_df2937['VS.HHO.SuccInterFreqOut (None)'] / daily_df2937['VS.HHO.AttInterFreqOut (None)'] * 100
+# daily_df2937['CS W2G Inter-RAT Handover Out SR_2937'] = daily_df2937['IRATHO.SuccOutCS (None)'] / (daily_df2937['IRATHO.AttOutCS (None)'] - daily_df2937['VS.IRATHOCS.Cancel.ReEstab (None)']) * 100
+# daily_df2937['RRC Assignment SucessRate (CS BH), %_2937'] = daily_df2937['RRC.SuccConnEstab.sum (None)'] / daily_df2937['VS.RRC.AttConnEstab.Sum (None)'] * 100
+# daily_df2937['RRC Assignment SucessRate (PS BH), %_2937'] = daily_df2937['RRC.SuccConnEstab.sum (None)'] / daily_df2937['VS.RRC.AttConnEstab.Sum (None)'] * 100
+# daily_df2937['RRC Drop Rate (CS BH), %_2937'] = (daily_df2937['RRC.AttConnRelCCCH.Cong (None)'] + daily_df2937['RRC.AttConnRelCCCH.Preempt (None)'] + daily_df2937['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
+#                                              daily_df2937['RRC.AttConnRelCCCH.Unspec (None)'] + daily_df2937['RRC.AttConnRelDCCH.Cong (None)'] + daily_df2937['RRC.AttConnRelDCCH.Preempt (None)'] + \
+#                                              daily_df2937['RRC.AttConnRelDCCH.ReEstRej (None)'] + daily_df2937['RRC.AttConnRelDCCH.Unspec (None)'] + daily_df2937['VS.RRC.ConnRel.CellUpd (None)']) \
+#                                         / (daily_df2937['RRC.AttConnRelDCCH.Cong (None)'] + daily_df2937['RRC.AttConnRelDCCH.Preempt (None)'] + daily_df2937['RRC.AttConnRelDCCH.ReEstRej (None)'] + \
+#                                            daily_df2937['RRC.AttConnRelDCCH.DSCR (None)'] + daily_df2937['RRC.AttConnRelDCCH.UsrInact (None)'] + daily_df2937['RRC.AttConnRelDCCH.Unspec (None)'] + \
+#                                            daily_df2937['RRC.AttConnRelCCCH.Cong (None)'] + daily_df2937['RRC.AttConnRelCCCH.Preempt (None)'] + daily_df2937['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
+#                                            daily_df2937['RRC.AttConnRelCCCH.DSCR (None)'] + daily_df2937['RRC.AttConnRelDCCH.Norm (None)'] + daily_df2937['RRC.AttConnRelCCCH.Norm (None)'] + \
+#                                            daily_df2937['RRC.AttConnRelCCCH.UsrInact (None)'] + daily_df2937['RRC.AttConnRelCCCH.Unspec (None)'] + daily_df2937['VS.RRC.ConnRel.CellUpd (None)'] + \
+#                                            daily_df2937['VS.DCCC.Succ.F2P (None)'] + daily_df2937['IRATHO.SuccOutCS (None)'] + daily_df2937['IRATHO.SuccOutPSUTRAN (None)'] + daily_df2937['VS.DCCC.Succ.F2U (None)'] + \
+#                                            daily_df2937['VS.DCCC.Succ.D2U (None)']) * 100
+# daily_df2937['RRC Drop Rate (PS BH), %_2937'] = (daily_df2937['RRC.AttConnRelCCCH.Cong (None)'] + daily_df2937['RRC.AttConnRelCCCH.Preempt (None)'] + daily_df2937['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
+#                                              daily_df2937['RRC.AttConnRelCCCH.Unspec (None)'] + daily_df2937['RRC.AttConnRelDCCH.Cong (None)'] + daily_df2937['RRC.AttConnRelDCCH.Preempt (None)'] + \
+#                                              daily_df2937['RRC.AttConnRelDCCH.ReEstRej (None)'] + daily_df2937['RRC.AttConnRelDCCH.Unspec (None)'] + daily_df2937['VS.RRC.ConnRel.CellUpd (None)']) \
+#                                         / (daily_df2937['RRC.AttConnRelDCCH.Cong (None)'] + daily_df2937['RRC.AttConnRelDCCH.Preempt (None)'] + daily_df2937['RRC.AttConnRelDCCH.ReEstRej (None)'] + \
+#                                            daily_df2937['RRC.AttConnRelDCCH.DSCR (None)'] + daily_df2937['RRC.AttConnRelDCCH.UsrInact (None)'] + daily_df2937['RRC.AttConnRelDCCH.Unspec (None)'] + \
+#                                            daily_df2937['RRC.AttConnRelCCCH.Cong (None)'] + daily_df2937['RRC.AttConnRelCCCH.Preempt (None)'] + daily_df2937['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
+#                                            daily_df2937['RRC.AttConnRelCCCH.DSCR (None)'] + daily_df2937['RRC.AttConnRelDCCH.Norm (None)'] + daily_df2937['RRC.AttConnRelCCCH.Norm (None)'] + \
+#                                            daily_df2937['RRC.AttConnRelCCCH.UsrInact (None)'] + daily_df2937['RRC.AttConnRelCCCH.Unspec (None)'] + daily_df2937['VS.RRC.ConnRel.CellUpd (None)'] + \
+#                                            daily_df2937['VS.DCCC.Succ.F2P (None)'] + daily_df2937['IRATHO.SuccOutCS (None)'] + daily_df2937['IRATHO.SuccOutPSUTRAN (None)'] + daily_df2937['VS.DCCC.Succ.F2U (None)'] + \
+#                                            daily_df2937['VS.DCCC.Succ.D2U (None)']) * 100
+# daily_df2937['RAB Assignment Success Rate (CS), %_2937'] = daily_df2937['VS.RAB.SuccEstabCS.AMR (None)'] / daily_df2937['VS.RAB.AttEstab.AMR (None)'] * 100
+# daily_df2937['RAB Assignment Success Rate (PS), %_2937'] = (daily_df2937['VS.RAB.SuccEstabPS.Conv (None)'] + daily_df2937['VS.RAB.SuccEstabPS.Bkg (None)'] + daily_df2937['VS.RAB.SuccEstabPS.Int (None)'] + \
+#                                                    daily_df2937['VS.RAB.SuccEstabPS.Str (None)']) / \
+#                                                   (daily_df2937['VS.RAB.AttEstabPS.Bkg (None)'] + daily_df2937['VS.RAB.AttEstabPS.Int (None)'] + daily_df2937['VS.RAB.AttEstabPS.Str (None)'] + \
+#                                                    daily_df2937['VS.RAB.AttEstabPS.Conv (None)']) * 100
+# daily_df2937['CCSR3G, %_2937'] = daily_df2937['RRC Assignment SucessRate (CS BH), %_2937'] * (100 - daily_df2937['RRC Drop Rate (CS BH), %_2937']) * daily_df2937['RAB Assignment Success Rate (CS), %_2937'] * (100 - daily_df2937['CS RAB Drop Rate (%)_2937'])/ 1000000
+# daily_df2937['DCSR3G, %_2937'] = daily_df2937['RRC Assignment SucessRate (PS BH), %_2937'] * (100 - daily_df2937['RRC Drop Rate (PS BH), %_2937']) * daily_df2937['RAB Assignment Success Rate (PS), %_2937'] * (100 - daily_df2937['PS RAB Drop Rate (%)_2937'])/ 1000000
+# daily_df2937 = daily_df2937.drop(list_1, axis=1)
 
 daily_dfall = pd.merge(daily_df, daily_dfU2100, how="left")
 daily_dfall = pd.merge(daily_dfall, daily_dfU900, how="left")
-daily_dfall = pd.merge(daily_dfall, daily_df10612, how="left")
-daily_dfall = pd.merge(daily_dfall, daily_df10637, how="left")
-daily_dfall = pd.merge(daily_dfall, daily_df2937, how="left")
+# daily_dfall = pd.merge(daily_dfall, daily_df10612, how="left")
+# daily_dfall = pd.merge(daily_dfall, daily_df10637, how="left")
+# daily_dfall = pd.merge(daily_dfall, daily_df2937, how="left")
 daily_dfall_trans = daily_dfall.transpose()
 
 
@@ -8842,6 +8845,7 @@ hourly_df['RAB Assignment Success Rate (PS), %'] = (hourly_df['VS.RAB.SuccEstabP
                                                    hourly_df['VS.RAB.AttEstabPS.Conv (None)']) * 100
 hourly_df['CCSR3G, %'] = hourly_df['RRC Assignment SucessRate (CS BH), %'] * (100 - hourly_df['RRC Drop Rate (CS BH), %']) * hourly_df['RAB Assignment Success Rate (CS), %'] * (100 - hourly_df['CS RAB Drop Rate (%)'])/ 1000000
 hourly_df['DCSR3G, %'] = hourly_df['RRC Assignment SucessRate (PS BH), %'] * (100 - hourly_df['RRC Drop Rate (PS BH), %']) * hourly_df['RAB Assignment Success Rate (PS), %'] * (100 - hourly_df['PS RAB Drop Rate (%)'])/ 1000000
+hourly_df['Ucell_Avail'] = 100 - (hourly_df['VS.Cell.UnavailTime (s)'] + hourly_df['VS.Cell.UnavailTime.Sys (s)']) * 100 / 3600 / unique_cell_number
 hourly_df = hourly_df.drop(list_1, axis=1)
 
 # фильтрация по U2100
@@ -8912,6 +8916,7 @@ hourly_dfU2100['RAB Assignment Success Rate (PS), %_U2100'] = (hourly_dfU2100['V
                                                    hourly_dfU2100['VS.RAB.AttEstabPS.Conv (None)']) * 100
 hourly_dfU2100['CCSR3G, %_U2100'] = hourly_dfU2100['RRC Assignment SucessRate (CS BH), %_U2100'] * (100 - hourly_dfU2100['RRC Drop Rate (CS BH), %_U2100']) * hourly_dfU2100['RAB Assignment Success Rate (CS), %_U2100'] * (100 - hourly_dfU2100['CS RAB Drop Rate (%)_U2100'])/ 1000000
 hourly_dfU2100['DCSR3G, %_U2100'] = hourly_dfU2100['RRC Assignment SucessRate (PS BH), %_U2100'] * (100 - hourly_dfU2100['RRC Drop Rate (PS BH), %_U2100']) * hourly_dfU2100['RAB Assignment Success Rate (PS), %_U2100'] * (100 - hourly_dfU2100['PS RAB Drop Rate (%)_U2100'])/ 1000000
+hourly_dfU2100['Ucell_Avail_2100'] = 100 - (hourly_dfU2100['VS.Cell.UnavailTime (s)'] + hourly_dfU2100['VS.Cell.UnavailTime.Sys (s)']) * 100 / 3600 / unique_cell_number
 hourly_dfU2100 = hourly_dfU2100.drop(list_1, axis=1)
 
 # фильтрация по U900
@@ -8982,202 +8987,203 @@ hourly_dfU900['RAB Assignment Success Rate (PS), %_U900'] = (hourly_dfU900['VS.R
                                                    hourly_dfU900['VS.RAB.AttEstabPS.Conv (None)']) * 100
 hourly_dfU900['CCSR3G, %_U900'] = hourly_dfU900['RRC Assignment SucessRate (CS BH), %_U900'] * (100 - hourly_dfU900['RRC Drop Rate (CS BH), %_U900']) * hourly_dfU900['RAB Assignment Success Rate (CS), %_U900'] * (100 - hourly_dfU900['CS RAB Drop Rate (%)_U900'])/ 1000000
 hourly_dfU900['DCSR3G, %_U900'] = hourly_dfU900['RRC Assignment SucessRate (PS BH), %_U900'] * (100 - hourly_dfU900['RRC Drop Rate (PS BH), %_U900']) * hourly_dfU900['RAB Assignment Success Rate (PS), %_U900'] * (100 - hourly_dfU900['PS RAB Drop Rate (%)_U900'])/ 1000000
+hourly_dfU900['Ucell_Avail_900'] = 100 - (hourly_dfU900['VS.Cell.UnavailTime (s)'] + hourly_dfU900['VS.Cell.UnavailTime.Sys (s)']) * 100 / 3600 / unique_cell_number
 hourly_dfU900 = hourly_dfU900.drop(list_1, axis=1)
 # фильтрация по 10612
-hourly_df10612 = sts_df[sts_df['BSC6910UCell'].isin(list_F1_10612)]
-hourly_df10612 = hourly_df10612.groupby(['date', 'hour'])[list_1]. sum().reset_index()
-hourly_df10612['CS traffic 3G, Erl_10612'] = hourly_df10612['CS Voice Traffic Volume (Erl)']
-hourly_df10612['PS traffic 3G UL+DL, GB_10612'] = (hourly_df10612['VS.HSUPA.MeanChThroughput.TotalBytes (byte)'] + hourly_df10612['VS.PS.Bkg.DL.8.Traffic (bit)'] + hourly_df10612['VS.PS.Bkg.DL.16.Traffic (bit)'] + \
-                                      hourly_df10612['VS.PS.Bkg.DL.32.Traffic (bit)'] + hourly_df10612['VS.PS.Bkg.DL.64.Traffic (bit)'] + hourly_df10612['VS.PS.Bkg.DL.128.Traffic (bit)'] + \
-                                      hourly_df10612['VS.PS.Bkg.DL.144.Traffic (bit)'] + hourly_df10612['VS.PS.Bkg.DL.256.Traffic (bit)'] + hourly_df10612['VS.PS.Bkg.DL.384.Traffic (bit)'] + \
-                                      hourly_df10612['VS.PS.Bkg.UL.8.Traffic (bit)'] + hourly_df10612['VS.PS.Bkg.UL.16.Traffic (bit)'] + hourly_df10612['VS.PS.Bkg.UL.32.Traffic (bit)'] + \
-                                      hourly_df10612['VS.PS.Bkg.UL.64.Traffic (bit)'] + hourly_df10612['VS.PS.Bkg.UL.128.Traffic (bit)'] + hourly_df10612['VS.PS.Bkg.UL.144.Traffic (bit)'] + \
-                                      hourly_df10612['VS.PS.Bkg.UL.256.Traffic (bit)'] + hourly_df10612['VS.PS.Bkg.UL.384.Traffic (bit)'] + hourly_df10612['VS.PS.Int.DL.8.Traffic (bit)'] + \
-                                      hourly_df10612['VS.PS.Int.DL.16.Traffic (bit)'] + hourly_df10612['VS.PS.Int.DL.32.Traffic (bit)'] + hourly_df10612['VS.PS.Int.DL.64.Traffic (bit)'] + \
-                                      hourly_df10612['VS.PS.Int.DL.128.Traffic (bit)'] + hourly_df10612['VS.PS.Int.DL.144.Traffic (bit)'] + hourly_df10612['VS.PS.Int.DL.256.Traffic (bit)'] + \
-                                      hourly_df10612['VS.PS.Int.DL.384.Traffic (bit)'] + hourly_df10612['VS.PS.Int.UL.8.Traffic (bit)'] + hourly_df10612['VS.PS.Int.UL.16.Traffic (bit)'] + \
-                                      hourly_df10612['VS.PS.Int.UL.32.Traffic (bit)'] + hourly_df10612['VS.PS.Int.UL.64.Traffic (bit)'] + hourly_df10612['VS.PS.Int.UL.128.Traffic (bit)'] + \
-                                      hourly_df10612['VS.PS.Int.UL.144.Traffic (bit)'] + hourly_df10612['VS.PS.Int.UL.256.Traffic (bit)'] + hourly_df10612['VS.PS.Int.UL.384.Traffic (bit)'] + \
-                                      hourly_df10612['VS.PS.Str.DL.32.Traffic (bit)'] + hourly_df10612['VS.PS.Str.DL.64.Traffic (bit)'] + hourly_df10612['VS.PS.Str.DL.128.Traffic (bit)'] + \
-                                      hourly_df10612['VS.PS.Str.DL.144.Traffic (bit)'] + hourly_df10612['VS.PS.Str.UL.16.Traffic (bit)'] + hourly_df10612['VS.PS.Str.UL.32.Traffic (bit)'] + \
-                                      hourly_df10612['VS.PS.Str.UL.64.Traffic (bit)'] + hourly_df10612['VS.HSDPA.MeanChThroughput.TotalBytes (byte)']) / 1024/1024/1024
-hourly_df10612['CS RAB Drop Rate (%)_10612'] = hourly_df10612['VS.RAB.AbnormRel.CS (None)'] / (hourly_df10612['VS.RAB.AbnormRel.CS (None)'] + hourly_df10612['VS.RAB.NormRel.CS (None)']) * 100
-hourly_df10612['PS Blocking Rate (%)_10612'] = (hourly_df10612['VS.RAB.FailEstabPS.DLIUBBand.Cong (None)'] + hourly_df10612['VS.RAB.FailEstabPS.ULIUBBand.Cong (None)'] + hourly_df10612['VS.RAB.FailEstabPS.ULCE.Cong (None)'] + \
-                                    hourly_df10612['VS.RAB.FailEstabPS.DLCE.Cong (None)'] + hourly_df10612['VS.RAB.FailEstabPS.Code.Cong (None)'] + hourly_df10612['VS.RAB.FailEstabPS.ULPower.Cong (None)'] + \
-                                    hourly_df10612['VS.RAB.FailEstabPS.DLPower.Cong (None)'] + hourly_df10612['VS.RAB.FailEstabPS.HSDPAUser.Cong (None)'] + hourly_df10612['VS.RAB.FailEstabPS.HSUPAUser.Cong (None)']) / \
-                                    (hourly_df10612['VS.RAB.AttEstabPS.Str (None)'] + hourly_df10612['VS.RAB.AttEstabPS.Int (None)'] + hourly_df10612['VS.RAB.AttEstabPS.Bkg (None)']) *100
-hourly_df10612['PS RAB Drop Rate (%)_10612'] = (hourly_df10612['VS.RAB.AbnormRel.PS (None)'] + hourly_df10612['VS.RAB.AbnormRel.PS.PCH (None)'] + hourly_df10612['VS.RAB.AbnormRel.PS.D2P (None)'] + \
-                                    hourly_df10612['VS.RAB.AbnormRel.PS.F2P (None)']) / \
-                                   (hourly_df10612['VS.RAB.AbnormRel.PS (None)'] + hourly_df10612['VS.RAB.NormRel.PS (None)'] + hourly_df10612['VS.RAB.AbnormRel.PS.PCH (None)'] + \
-                                    hourly_df10612['VS.RAB.NormRel.PS.PCH (None)']) * 100
-hourly_df10612['PS HS- Drop Rate (%)_10612'] =  hourly_df10612['VS.HSDPA.RAB.AbnormRel (None)'] / (hourly_df10612['VS.HSDPA.RAB.AbnormRel (None)'] + hourly_df10612['VS.HSDPA.RAB.NormRel (None)'] + hourly_df10612['VS.HSDPA.H2D.Succ (None)'] + hourly_df10612['VS.HSDPA.H2F.Succ (None)'] +hourly_df10612['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + hourly_df10612['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
-hourly_df10612['HSDPA Throughput, kbps_10612'] = hourly_df10612['VS.HSDPA.MeanChThroughput (kbit/s)'] / 235 / 24 # количество сот 235!!!
-hourly_df10612['HSUPA Throughput, kbps_10612'] = hourly_df10612['VS.HSUPA.MeanChThroughput (kbit/s)'] / 235 / 24# количество сот 235
-hourly_df10612['Soft Handover Success rate, %_10612'] = (hourly_df10612['VS.SHO.SuccRLAdd (None)'] + hourly_df10612['VS.SHO.SuccRLDel (None)']) / (hourly_df10612['VS.SHO.AttRLAdd (None)'] + hourly_df10612['VS.SHO.AttRLDel (None)']) * 100
-hourly_df10612['Hard Handover Success rate, %_10612'] = hourly_df10612['VS.HHO.SuccInterFreqOut (None)'] / hourly_df10612['VS.HHO.AttInterFreqOut (None)'] * 100
-hourly_df10612['CS W2G Inter-RAT Handover Out SR_10612'] = hourly_df10612['IRATHO.SuccOutCS (None)'] / (hourly_df10612['IRATHO.AttOutCS (None)'] - hourly_df10612['VS.IRATHOCS.Cancel.ReEstab (None)']) * 100
-hourly_df10612['RRC Assignment SucessRate (CS BH), %_10612'] = hourly_df10612['RRC.SuccConnEstab.sum (None)'] / hourly_df10612['VS.RRC.AttConnEstab.Sum (None)'] * 100
-hourly_df10612['RRC Assignment SucessRate (PS BH), %_10612'] = hourly_df10612['RRC.SuccConnEstab.sum (None)'] / hourly_df10612['VS.RRC.AttConnEstab.Sum (None)'] * 100
-hourly_df10612['RRC Drop Rate (CS BH), %_10612'] = (hourly_df10612['RRC.AttConnRelCCCH.Cong (None)'] + hourly_df10612['RRC.AttConnRelCCCH.Preempt (None)'] + hourly_df10612['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
-                                             hourly_df10612['RRC.AttConnRelCCCH.Unspec (None)'] + hourly_df10612['RRC.AttConnRelDCCH.Cong (None)'] + hourly_df10612['RRC.AttConnRelDCCH.Preempt (None)'] + \
-                                             hourly_df10612['RRC.AttConnRelDCCH.ReEstRej (None)'] + hourly_df10612['RRC.AttConnRelDCCH.Unspec (None)'] + hourly_df10612['VS.RRC.ConnRel.CellUpd (None)']) \
-                                        / (hourly_df10612['RRC.AttConnRelDCCH.Cong (None)'] + hourly_df10612['RRC.AttConnRelDCCH.Preempt (None)'] + hourly_df10612['RRC.AttConnRelDCCH.ReEstRej (None)'] + \
-                                           hourly_df10612['RRC.AttConnRelDCCH.DSCR (None)'] + hourly_df10612['RRC.AttConnRelDCCH.UsrInact (None)'] + hourly_df10612['RRC.AttConnRelDCCH.Unspec (None)'] + \
-                                           hourly_df10612['RRC.AttConnRelCCCH.Cong (None)'] + hourly_df10612['RRC.AttConnRelCCCH.Preempt (None)'] + hourly_df10612['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
-                                           hourly_df10612['RRC.AttConnRelCCCH.DSCR (None)'] + hourly_df10612['RRC.AttConnRelDCCH.Norm (None)'] + hourly_df10612['RRC.AttConnRelCCCH.Norm (None)'] + \
-                                           hourly_df10612['RRC.AttConnRelCCCH.UsrInact (None)'] + hourly_df10612['RRC.AttConnRelCCCH.Unspec (None)'] + hourly_df10612['VS.RRC.ConnRel.CellUpd (None)'] + \
-                                           hourly_df10612['VS.DCCC.Succ.F2P (None)'] + hourly_df10612['IRATHO.SuccOutCS (None)'] + hourly_df10612['IRATHO.SuccOutPSUTRAN (None)'] + hourly_df10612['VS.DCCC.Succ.F2U (None)'] + \
-                                           hourly_df10612['VS.DCCC.Succ.D2U (None)']) * 100
-hourly_df10612['RRC Drop Rate (PS BH), %_10612'] = (hourly_df10612['RRC.AttConnRelCCCH.Cong (None)'] + hourly_df10612['RRC.AttConnRelCCCH.Preempt (None)'] + hourly_df10612['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
-                                             hourly_df10612['RRC.AttConnRelCCCH.Unspec (None)'] + hourly_df10612['RRC.AttConnRelDCCH.Cong (None)'] + hourly_df10612['RRC.AttConnRelDCCH.Preempt (None)'] + \
-                                             hourly_df10612['RRC.AttConnRelDCCH.ReEstRej (None)'] + hourly_df10612['RRC.AttConnRelDCCH.Unspec (None)'] + hourly_df10612['VS.RRC.ConnRel.CellUpd (None)']) \
-                                        / (hourly_df10612['RRC.AttConnRelDCCH.Cong (None)'] + hourly_df10612['RRC.AttConnRelDCCH.Preempt (None)'] + hourly_df10612['RRC.AttConnRelDCCH.ReEstRej (None)'] + \
-                                           hourly_df10612['RRC.AttConnRelDCCH.DSCR (None)'] + hourly_df10612['RRC.AttConnRelDCCH.UsrInact (None)'] + hourly_df10612['RRC.AttConnRelDCCH.Unspec (None)'] + \
-                                           hourly_df10612['RRC.AttConnRelCCCH.Cong (None)'] + hourly_df10612['RRC.AttConnRelCCCH.Preempt (None)'] + hourly_df10612['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
-                                           hourly_df10612['RRC.AttConnRelCCCH.DSCR (None)'] + hourly_df10612['RRC.AttConnRelDCCH.Norm (None)'] + hourly_df10612['RRC.AttConnRelCCCH.Norm (None)'] + \
-                                           hourly_df10612['RRC.AttConnRelCCCH.UsrInact (None)'] + hourly_df10612['RRC.AttConnRelCCCH.Unspec (None)'] + hourly_df10612['VS.RRC.ConnRel.CellUpd (None)'] + \
-                                           hourly_df10612['VS.DCCC.Succ.F2P (None)'] + hourly_df10612['IRATHO.SuccOutCS (None)'] + hourly_df10612['IRATHO.SuccOutPSUTRAN (None)'] + hourly_df10612['VS.DCCC.Succ.F2U (None)'] + \
-                                           hourly_df10612['VS.DCCC.Succ.D2U (None)']) * 100
-hourly_df10612['RAB Assignment Success Rate (CS), %_10612'] = hourly_df10612['VS.RAB.SuccEstabCS.AMR (None)'] / hourly_df10612['VS.RAB.AttEstab.AMR (None)'] * 100
-hourly_df10612['RAB Assignment Success Rate (PS), %_10612'] = (hourly_df10612['VS.RAB.SuccEstabPS.Conv (None)'] + hourly_df10612['VS.RAB.SuccEstabPS.Bkg (None)'] + hourly_df10612['VS.RAB.SuccEstabPS.Int (None)'] + \
-                                                   hourly_df10612['VS.RAB.SuccEstabPS.Str (None)']) / \
-                                                  (hourly_df10612['VS.RAB.AttEstabPS.Bkg (None)'] + hourly_df10612['VS.RAB.AttEstabPS.Int (None)'] + hourly_df10612['VS.RAB.AttEstabPS.Str (None)'] + \
-                                                   hourly_df10612['VS.RAB.AttEstabPS.Conv (None)']) * 100
-hourly_df10612['CCSR3G, %_10612'] = hourly_df10612['RRC Assignment SucessRate (CS BH), %_10612'] * (100 - hourly_df10612['RRC Drop Rate (CS BH), %_10612']) * hourly_df10612['RAB Assignment Success Rate (CS), %_10612'] * (100 - hourly_df10612['CS RAB Drop Rate (%)_10612'])/ 1000000
-hourly_df10612['DCSR3G, %_10612'] = hourly_df10612['RRC Assignment SucessRate (PS BH), %_10612'] * (100 - hourly_df10612['RRC Drop Rate (PS BH), %_10612']) * hourly_df10612['RAB Assignment Success Rate (PS), %_10612'] * (100 - hourly_df10612['PS RAB Drop Rate (%)_10612'])/ 1000000
-hourly_df10612 = hourly_df10612.drop(list_1, axis=1)
-# фильтрация по 10637
-hourly_df10637 = sts_df[sts_df['BSC6910UCell'].isin(list_F2_10637)]
-hourly_df10637 = hourly_df10637.groupby(['date', 'hour'])[list_1]. sum().reset_index()
-hourly_df10637['CS traffic 3G, Erl_10637'] = hourly_df10637['CS Voice Traffic Volume (Erl)']
-hourly_df10637['PS traffic 3G UL+DL, GB_10637'] = (hourly_df10637['VS.HSUPA.MeanChThroughput.TotalBytes (byte)'] + hourly_df10637['VS.PS.Bkg.DL.8.Traffic (bit)'] + hourly_df10637['VS.PS.Bkg.DL.16.Traffic (bit)'] + \
-                                      hourly_df10637['VS.PS.Bkg.DL.32.Traffic (bit)'] + hourly_df10637['VS.PS.Bkg.DL.64.Traffic (bit)'] + hourly_df10637['VS.PS.Bkg.DL.128.Traffic (bit)'] + \
-                                      hourly_df10637['VS.PS.Bkg.DL.144.Traffic (bit)'] + hourly_df10637['VS.PS.Bkg.DL.256.Traffic (bit)'] + hourly_df10637['VS.PS.Bkg.DL.384.Traffic (bit)'] + \
-                                      hourly_df10637['VS.PS.Bkg.UL.8.Traffic (bit)'] + hourly_df10637['VS.PS.Bkg.UL.16.Traffic (bit)'] + hourly_df10637['VS.PS.Bkg.UL.32.Traffic (bit)'] + \
-                                      hourly_df10637['VS.PS.Bkg.UL.64.Traffic (bit)'] + hourly_df10637['VS.PS.Bkg.UL.128.Traffic (bit)'] + hourly_df10637['VS.PS.Bkg.UL.144.Traffic (bit)'] + \
-                                      hourly_df10637['VS.PS.Bkg.UL.256.Traffic (bit)'] + hourly_df10637['VS.PS.Bkg.UL.384.Traffic (bit)'] + hourly_df10637['VS.PS.Int.DL.8.Traffic (bit)'] + \
-                                      hourly_df10637['VS.PS.Int.DL.16.Traffic (bit)'] + hourly_df10637['VS.PS.Int.DL.32.Traffic (bit)'] + hourly_df10637['VS.PS.Int.DL.64.Traffic (bit)'] + \
-                                      hourly_df10637['VS.PS.Int.DL.128.Traffic (bit)'] + hourly_df10637['VS.PS.Int.DL.144.Traffic (bit)'] + hourly_df10637['VS.PS.Int.DL.256.Traffic (bit)'] + \
-                                      hourly_df10637['VS.PS.Int.DL.384.Traffic (bit)'] + hourly_df10637['VS.PS.Int.UL.8.Traffic (bit)'] + hourly_df10637['VS.PS.Int.UL.16.Traffic (bit)'] + \
-                                      hourly_df10637['VS.PS.Int.UL.32.Traffic (bit)'] + hourly_df10637['VS.PS.Int.UL.64.Traffic (bit)'] + hourly_df10637['VS.PS.Int.UL.128.Traffic (bit)'] + \
-                                      hourly_df10637['VS.PS.Int.UL.144.Traffic (bit)'] + hourly_df10637['VS.PS.Int.UL.256.Traffic (bit)'] + hourly_df10637['VS.PS.Int.UL.384.Traffic (bit)'] + \
-                                      hourly_df10637['VS.PS.Str.DL.32.Traffic (bit)'] + hourly_df10637['VS.PS.Str.DL.64.Traffic (bit)'] + hourly_df10637['VS.PS.Str.DL.128.Traffic (bit)'] + \
-                                      hourly_df10637['VS.PS.Str.DL.144.Traffic (bit)'] + hourly_df10637['VS.PS.Str.UL.16.Traffic (bit)'] + hourly_df10637['VS.PS.Str.UL.32.Traffic (bit)'] + \
-                                      hourly_df10637['VS.PS.Str.UL.64.Traffic (bit)'] + hourly_df10637['VS.HSDPA.MeanChThroughput.TotalBytes (byte)']) / 1024/1024/1024
-hourly_df10637['CS RAB Drop Rate (%)_10637'] = hourly_df10637['VS.RAB.AbnormRel.CS (None)'] / (hourly_df10637['VS.RAB.AbnormRel.CS (None)'] + hourly_df10637['VS.RAB.NormRel.CS (None)']) * 100
-hourly_df10637['PS Blocking Rate (%)_10637'] = (hourly_df10637['VS.RAB.FailEstabPS.DLIUBBand.Cong (None)'] + hourly_df10637['VS.RAB.FailEstabPS.ULIUBBand.Cong (None)'] + hourly_df10637['VS.RAB.FailEstabPS.ULCE.Cong (None)'] + \
-                                    hourly_df10637['VS.RAB.FailEstabPS.DLCE.Cong (None)'] + hourly_df10637['VS.RAB.FailEstabPS.Code.Cong (None)'] + hourly_df10637['VS.RAB.FailEstabPS.ULPower.Cong (None)'] + \
-                                    hourly_df10637['VS.RAB.FailEstabPS.DLPower.Cong (None)'] + hourly_df10637['VS.RAB.FailEstabPS.HSDPAUser.Cong (None)'] + hourly_df10637['VS.RAB.FailEstabPS.HSUPAUser.Cong (None)']) / \
-                                    (hourly_df10637['VS.RAB.AttEstabPS.Str (None)'] + hourly_df10637['VS.RAB.AttEstabPS.Int (None)'] + hourly_df10637['VS.RAB.AttEstabPS.Bkg (None)']) *100
-hourly_df10637['PS RAB Drop Rate (%)_10637'] = (hourly_df10637['VS.RAB.AbnormRel.PS (None)'] + hourly_df10637['VS.RAB.AbnormRel.PS.PCH (None)'] + hourly_df10637['VS.RAB.AbnormRel.PS.D2P (None)'] + \
-                                    hourly_df10637['VS.RAB.AbnormRel.PS.F2P (None)']) / \
-                                   (hourly_df10637['VS.RAB.AbnormRel.PS (None)'] + hourly_df10637['VS.RAB.NormRel.PS (None)'] + hourly_df10637['VS.RAB.AbnormRel.PS.PCH (None)'] + \
-                                    hourly_df10637['VS.RAB.NormRel.PS.PCH (None)']) * 100
-hourly_df10637['PS HS- Drop Rate (%)_10637'] =  hourly_df10637['VS.HSDPA.RAB.AbnormRel (None)'] / (hourly_df10637['VS.HSDPA.RAB.AbnormRel (None)'] + hourly_df10637['VS.HSDPA.RAB.NormRel (None)'] + hourly_df10637['VS.HSDPA.H2D.Succ (None)'] + hourly_df10637['VS.HSDPA.H2F.Succ (None)'] +hourly_df10637['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + hourly_df10637['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
-hourly_df10637['HSDPA Throughput, kbps_10637'] = hourly_df10637['VS.HSDPA.MeanChThroughput (kbit/s)'] / 236 / 24 # количество сот 236!!!
-hourly_df10637['HSUPA Throughput, kbps_10637'] = hourly_df10637['VS.HSUPA.MeanChThroughput (kbit/s)'] / 236 / 24# количество сот 236
-hourly_df10637['Soft Handover Success rate, %_10637'] = (hourly_df10637['VS.SHO.SuccRLAdd (None)'] + hourly_df10637['VS.SHO.SuccRLDel (None)']) / (hourly_df10637['VS.SHO.AttRLAdd (None)'] + hourly_df10637['VS.SHO.AttRLDel (None)']) * 100
-hourly_df10637['Hard Handover Success rate, %_10637'] = hourly_df10637['VS.HHO.SuccInterFreqOut (None)'] / hourly_df10637['VS.HHO.AttInterFreqOut (None)'] * 100
-hourly_df10637['CS W2G Inter-RAT Handover Out SR_10637'] = hourly_df10637['IRATHO.SuccOutCS (None)'] / (hourly_df10637['IRATHO.AttOutCS (None)'] - hourly_df10637['VS.IRATHOCS.Cancel.ReEstab (None)']) * 100
-hourly_df10637['RRC Assignment SucessRate (CS BH), %_10637'] = hourly_df10637['RRC.SuccConnEstab.sum (None)'] / hourly_df10637['VS.RRC.AttConnEstab.Sum (None)'] * 100
-hourly_df10637['RRC Assignment SucessRate (PS BH), %_10637'] = hourly_df10637['RRC.SuccConnEstab.sum (None)'] / hourly_df10637['VS.RRC.AttConnEstab.Sum (None)'] * 100
-hourly_df10637['RRC Drop Rate (CS BH), %_10637'] = (hourly_df10637['RRC.AttConnRelCCCH.Cong (None)'] + hourly_df10637['RRC.AttConnRelCCCH.Preempt (None)'] + hourly_df10637['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
-                                             hourly_df10637['RRC.AttConnRelCCCH.Unspec (None)'] + hourly_df10637['RRC.AttConnRelDCCH.Cong (None)'] + hourly_df10637['RRC.AttConnRelDCCH.Preempt (None)'] + \
-                                             hourly_df10637['RRC.AttConnRelDCCH.ReEstRej (None)'] + hourly_df10637['RRC.AttConnRelDCCH.Unspec (None)'] + hourly_df10637['VS.RRC.ConnRel.CellUpd (None)']) \
-                                        / (hourly_df10637['RRC.AttConnRelDCCH.Cong (None)'] + hourly_df10637['RRC.AttConnRelDCCH.Preempt (None)'] + hourly_df10637['RRC.AttConnRelDCCH.ReEstRej (None)'] + \
-                                           hourly_df10637['RRC.AttConnRelDCCH.DSCR (None)'] + hourly_df10637['RRC.AttConnRelDCCH.UsrInact (None)'] + hourly_df10637['RRC.AttConnRelDCCH.Unspec (None)'] + \
-                                           hourly_df10637['RRC.AttConnRelCCCH.Cong (None)'] + hourly_df10637['RRC.AttConnRelCCCH.Preempt (None)'] + hourly_df10637['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
-                                           hourly_df10637['RRC.AttConnRelCCCH.DSCR (None)'] + hourly_df10637['RRC.AttConnRelDCCH.Norm (None)'] + hourly_df10637['RRC.AttConnRelCCCH.Norm (None)'] + \
-                                           hourly_df10637['RRC.AttConnRelCCCH.UsrInact (None)'] + hourly_df10637['RRC.AttConnRelCCCH.Unspec (None)'] + hourly_df10637['VS.RRC.ConnRel.CellUpd (None)'] + \
-                                           hourly_df10637['VS.DCCC.Succ.F2P (None)'] + hourly_df10637['IRATHO.SuccOutCS (None)'] + hourly_df10637['IRATHO.SuccOutPSUTRAN (None)'] + hourly_df10637['VS.DCCC.Succ.F2U (None)'] + \
-                                           hourly_df10637['VS.DCCC.Succ.D2U (None)']) * 100
-hourly_df10637['RRC Drop Rate (PS BH), %_10637'] = (hourly_df10637['RRC.AttConnRelCCCH.Cong (None)'] + hourly_df10637['RRC.AttConnRelCCCH.Preempt (None)'] + hourly_df10637['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
-                                             hourly_df10637['RRC.AttConnRelCCCH.Unspec (None)'] + hourly_df10637['RRC.AttConnRelDCCH.Cong (None)'] + hourly_df10637['RRC.AttConnRelDCCH.Preempt (None)'] + \
-                                             hourly_df10637['RRC.AttConnRelDCCH.ReEstRej (None)'] + hourly_df10637['RRC.AttConnRelDCCH.Unspec (None)'] + hourly_df10637['VS.RRC.ConnRel.CellUpd (None)']) \
-                                        / (hourly_df10637['RRC.AttConnRelDCCH.Cong (None)'] + hourly_df10637['RRC.AttConnRelDCCH.Preempt (None)'] + hourly_df10637['RRC.AttConnRelDCCH.ReEstRej (None)'] + \
-                                           hourly_df10637['RRC.AttConnRelDCCH.DSCR (None)'] + hourly_df10637['RRC.AttConnRelDCCH.UsrInact (None)'] + hourly_df10637['RRC.AttConnRelDCCH.Unspec (None)'] + \
-                                           hourly_df10637['RRC.AttConnRelCCCH.Cong (None)'] + hourly_df10637['RRC.AttConnRelCCCH.Preempt (None)'] + hourly_df10637['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
-                                           hourly_df10637['RRC.AttConnRelCCCH.DSCR (None)'] + hourly_df10637['RRC.AttConnRelDCCH.Norm (None)'] + hourly_df10637['RRC.AttConnRelCCCH.Norm (None)'] + \
-                                           hourly_df10637['RRC.AttConnRelCCCH.UsrInact (None)'] + hourly_df10637['RRC.AttConnRelCCCH.Unspec (None)'] + hourly_df10637['VS.RRC.ConnRel.CellUpd (None)'] + \
-                                           hourly_df10637['VS.DCCC.Succ.F2P (None)'] + hourly_df10637['IRATHO.SuccOutCS (None)'] + hourly_df10637['IRATHO.SuccOutPSUTRAN (None)'] + hourly_df10637['VS.DCCC.Succ.F2U (None)'] + \
-                                           hourly_df10637['VS.DCCC.Succ.D2U (None)']) * 100
-hourly_df10637['RAB Assignment Success Rate (CS), %_10637'] = hourly_df10637['VS.RAB.SuccEstabCS.AMR (None)'] / hourly_df10637['VS.RAB.AttEstab.AMR (None)'] * 100
-hourly_df10637['RAB Assignment Success Rate (PS), %_10637'] = (hourly_df10637['VS.RAB.SuccEstabPS.Conv (None)'] + hourly_df10637['VS.RAB.SuccEstabPS.Bkg (None)'] + hourly_df10637['VS.RAB.SuccEstabPS.Int (None)'] + \
-                                                   hourly_df10637['VS.RAB.SuccEstabPS.Str (None)']) / \
-                                                  (hourly_df10637['VS.RAB.AttEstabPS.Bkg (None)'] + hourly_df10637['VS.RAB.AttEstabPS.Int (None)'] + hourly_df10637['VS.RAB.AttEstabPS.Str (None)'] + \
-                                                   hourly_df10637['VS.RAB.AttEstabPS.Conv (None)']) * 100
-hourly_df10637['CCSR3G, %_10637'] = hourly_df10637['RRC Assignment SucessRate (CS BH), %_10637'] * (100 - hourly_df10637['RRC Drop Rate (CS BH), %_10637']) * hourly_df10637['RAB Assignment Success Rate (CS), %_10637'] * (100 - hourly_df10637['CS RAB Drop Rate (%)_10637'])/ 1000000
-hourly_df10637['DCSR3G, %_10637'] = hourly_df10637['RRC Assignment SucessRate (PS BH), %_10637'] * (100 - hourly_df10637['RRC Drop Rate (PS BH), %_10637']) * hourly_df10637['RAB Assignment Success Rate (PS), %_10637'] * (100 - hourly_df10637['PS RAB Drop Rate (%)_10637'])/ 1000000
-hourly_df10637 = hourly_df10637.drop(list_1, axis=1)
-# фильтрация по 2937
-hourly_df2937 = sts_df[sts_df['BSC6910UCell'].isin(list_F3_2937)]
-hourly_df2937 = hourly_df2937.groupby(['date', 'hour'])[list_1]. sum().reset_index()
-hourly_df2937['CS traffic 3G, Erl_2937'] = hourly_df2937['CS Voice Traffic Volume (Erl)']
-hourly_df2937['PS traffic 3G UL+DL, GB_2937'] = (hourly_df2937['VS.HSUPA.MeanChThroughput.TotalBytes (byte)'] + hourly_df2937['VS.PS.Bkg.DL.8.Traffic (bit)'] + hourly_df2937['VS.PS.Bkg.DL.16.Traffic (bit)'] + \
-                                      hourly_df2937['VS.PS.Bkg.DL.32.Traffic (bit)'] + hourly_df2937['VS.PS.Bkg.DL.64.Traffic (bit)'] + hourly_df2937['VS.PS.Bkg.DL.128.Traffic (bit)'] + \
-                                      hourly_df2937['VS.PS.Bkg.DL.144.Traffic (bit)'] + hourly_df2937['VS.PS.Bkg.DL.256.Traffic (bit)'] + hourly_df2937['VS.PS.Bkg.DL.384.Traffic (bit)'] + \
-                                      hourly_df2937['VS.PS.Bkg.UL.8.Traffic (bit)'] + hourly_df2937['VS.PS.Bkg.UL.16.Traffic (bit)'] + hourly_df2937['VS.PS.Bkg.UL.32.Traffic (bit)'] + \
-                                      hourly_df2937['VS.PS.Bkg.UL.64.Traffic (bit)'] + hourly_df2937['VS.PS.Bkg.UL.128.Traffic (bit)'] + hourly_df2937['VS.PS.Bkg.UL.144.Traffic (bit)'] + \
-                                      hourly_df2937['VS.PS.Bkg.UL.256.Traffic (bit)'] + hourly_df2937['VS.PS.Bkg.UL.384.Traffic (bit)'] + hourly_df2937['VS.PS.Int.DL.8.Traffic (bit)'] + \
-                                      hourly_df2937['VS.PS.Int.DL.16.Traffic (bit)'] + hourly_df2937['VS.PS.Int.DL.32.Traffic (bit)'] + hourly_df2937['VS.PS.Int.DL.64.Traffic (bit)'] + \
-                                      hourly_df2937['VS.PS.Int.DL.128.Traffic (bit)'] + hourly_df2937['VS.PS.Int.DL.144.Traffic (bit)'] + hourly_df2937['VS.PS.Int.DL.256.Traffic (bit)'] + \
-                                      hourly_df2937['VS.PS.Int.DL.384.Traffic (bit)'] + hourly_df2937['VS.PS.Int.UL.8.Traffic (bit)'] + hourly_df2937['VS.PS.Int.UL.16.Traffic (bit)'] + \
-                                      hourly_df2937['VS.PS.Int.UL.32.Traffic (bit)'] + hourly_df2937['VS.PS.Int.UL.64.Traffic (bit)'] + hourly_df2937['VS.PS.Int.UL.128.Traffic (bit)'] + \
-                                      hourly_df2937['VS.PS.Int.UL.144.Traffic (bit)'] + hourly_df2937['VS.PS.Int.UL.256.Traffic (bit)'] + hourly_df2937['VS.PS.Int.UL.384.Traffic (bit)'] + \
-                                      hourly_df2937['VS.PS.Str.DL.32.Traffic (bit)'] + hourly_df2937['VS.PS.Str.DL.64.Traffic (bit)'] + hourly_df2937['VS.PS.Str.DL.128.Traffic (bit)'] + \
-                                      hourly_df2937['VS.PS.Str.DL.144.Traffic (bit)'] + hourly_df2937['VS.PS.Str.UL.16.Traffic (bit)'] + hourly_df2937['VS.PS.Str.UL.32.Traffic (bit)'] + \
-                                      hourly_df2937['VS.PS.Str.UL.64.Traffic (bit)'] + hourly_df2937['VS.HSDPA.MeanChThroughput.TotalBytes (byte)']) / 1024/1024/1024
-hourly_df2937['CS RAB Drop Rate (%)_2937'] = hourly_df2937['VS.RAB.AbnormRel.CS (None)'] / (hourly_df2937['VS.RAB.AbnormRel.CS (None)'] + hourly_df2937['VS.RAB.NormRel.CS (None)']) * 100
-hourly_df2937['PS Blocking Rate (%)_2937'] = (hourly_df2937['VS.RAB.FailEstabPS.DLIUBBand.Cong (None)'] + hourly_df2937['VS.RAB.FailEstabPS.ULIUBBand.Cong (None)'] + hourly_df2937['VS.RAB.FailEstabPS.ULCE.Cong (None)'] + \
-                                    hourly_df2937['VS.RAB.FailEstabPS.DLCE.Cong (None)'] + hourly_df2937['VS.RAB.FailEstabPS.Code.Cong (None)'] + hourly_df2937['VS.RAB.FailEstabPS.ULPower.Cong (None)'] + \
-                                    hourly_df2937['VS.RAB.FailEstabPS.DLPower.Cong (None)'] + hourly_df2937['VS.RAB.FailEstabPS.HSDPAUser.Cong (None)'] + hourly_df2937['VS.RAB.FailEstabPS.HSUPAUser.Cong (None)']) / \
-                                    (hourly_df2937['VS.RAB.AttEstabPS.Str (None)'] + hourly_df2937['VS.RAB.AttEstabPS.Int (None)'] + hourly_df2937['VS.RAB.AttEstabPS.Bkg (None)']) *100
-hourly_df2937['PS RAB Drop Rate (%)_2937'] = (hourly_df2937['VS.RAB.AbnormRel.PS (None)'] + hourly_df2937['VS.RAB.AbnormRel.PS.PCH (None)'] + hourly_df2937['VS.RAB.AbnormRel.PS.D2P (None)'] + \
-                                    hourly_df2937['VS.RAB.AbnormRel.PS.F2P (None)']) / \
-                                   (hourly_df2937['VS.RAB.AbnormRel.PS (None)'] + hourly_df2937['VS.RAB.NormRel.PS (None)'] + hourly_df2937['VS.RAB.AbnormRel.PS.PCH (None)'] + \
-                                    hourly_df2937['VS.RAB.NormRel.PS.PCH (None)']) * 100
-hourly_df2937['PS HS- Drop Rate (%)_2937'] =  hourly_df2937['VS.HSDPA.RAB.AbnormRel (None)'] / (hourly_df2937['VS.HSDPA.RAB.AbnormRel (None)'] + hourly_df2937['VS.HSDPA.RAB.NormRel (None)'] + hourly_df2937['VS.HSDPA.H2D.Succ (None)'] + hourly_df2937['VS.HSDPA.H2F.Succ (None)'] +hourly_df2937['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + hourly_df2937['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
-hourly_df2937['HSDPA Throughput, kbps_2937'] = hourly_df2937['VS.HSDPA.MeanChThroughput (kbit/s)'] / 204 / 24 # количество сот 204!!!
-hourly_df2937['HSUPA Throughput, kbps_2937'] = hourly_df2937['VS.HSUPA.MeanChThroughput (kbit/s)'] / 204 / 24# количество сот 204
-hourly_df2937['Soft Handover Success rate, %_2937'] = (hourly_df2937['VS.SHO.SuccRLAdd (None)'] + hourly_df2937['VS.SHO.SuccRLDel (None)']) / (hourly_df2937['VS.SHO.AttRLAdd (None)'] + hourly_df2937['VS.SHO.AttRLDel (None)']) * 100
-hourly_df2937['Hard Handover Success rate, %_2937'] = hourly_df2937['VS.HHO.SuccInterFreqOut (None)'] / hourly_df2937['VS.HHO.AttInterFreqOut (None)'] * 100
-hourly_df2937['CS W2G Inter-RAT Handover Out SR_2937'] = hourly_df2937['IRATHO.SuccOutCS (None)'] / (hourly_df2937['IRATHO.AttOutCS (None)'] - hourly_df2937['VS.IRATHOCS.Cancel.ReEstab (None)']) * 100
-hourly_df2937['RRC Assignment SucessRate (CS BH), %_2937'] = hourly_df2937['RRC.SuccConnEstab.sum (None)'] / hourly_df2937['VS.RRC.AttConnEstab.Sum (None)'] * 100
-hourly_df2937['RRC Assignment SucessRate (PS BH), %_2937'] = hourly_df2937['RRC.SuccConnEstab.sum (None)'] / hourly_df2937['VS.RRC.AttConnEstab.Sum (None)'] * 100
-hourly_df2937['RRC Drop Rate (CS BH), %_2937'] = (hourly_df2937['RRC.AttConnRelCCCH.Cong (None)'] + hourly_df2937['RRC.AttConnRelCCCH.Preempt (None)'] + hourly_df2937['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
-                                             hourly_df2937['RRC.AttConnRelCCCH.Unspec (None)'] + hourly_df2937['RRC.AttConnRelDCCH.Cong (None)'] + hourly_df2937['RRC.AttConnRelDCCH.Preempt (None)'] + \
-                                             hourly_df2937['RRC.AttConnRelDCCH.ReEstRej (None)'] + hourly_df2937['RRC.AttConnRelDCCH.Unspec (None)'] + hourly_df2937['VS.RRC.ConnRel.CellUpd (None)']) \
-                                        / (hourly_df2937['RRC.AttConnRelDCCH.Cong (None)'] + hourly_df2937['RRC.AttConnRelDCCH.Preempt (None)'] + hourly_df2937['RRC.AttConnRelDCCH.ReEstRej (None)'] + \
-                                           hourly_df2937['RRC.AttConnRelDCCH.DSCR (None)'] + hourly_df2937['RRC.AttConnRelDCCH.UsrInact (None)'] + hourly_df2937['RRC.AttConnRelDCCH.Unspec (None)'] + \
-                                           hourly_df2937['RRC.AttConnRelCCCH.Cong (None)'] + hourly_df2937['RRC.AttConnRelCCCH.Preempt (None)'] + hourly_df2937['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
-                                           hourly_df2937['RRC.AttConnRelCCCH.DSCR (None)'] + hourly_df2937['RRC.AttConnRelDCCH.Norm (None)'] + hourly_df2937['RRC.AttConnRelCCCH.Norm (None)'] + \
-                                           hourly_df2937['RRC.AttConnRelCCCH.UsrInact (None)'] + hourly_df2937['RRC.AttConnRelCCCH.Unspec (None)'] + hourly_df2937['VS.RRC.ConnRel.CellUpd (None)'] + \
-                                           hourly_df2937['VS.DCCC.Succ.F2P (None)'] + hourly_df2937['IRATHO.SuccOutCS (None)'] + hourly_df2937['IRATHO.SuccOutPSUTRAN (None)'] + hourly_df2937['VS.DCCC.Succ.F2U (None)'] + \
-                                           hourly_df2937['VS.DCCC.Succ.D2U (None)']) * 100
-hourly_df2937['RRC Drop Rate (PS BH), %_2937'] = (hourly_df2937['RRC.AttConnRelCCCH.Cong (None)'] + hourly_df2937['RRC.AttConnRelCCCH.Preempt (None)'] + hourly_df2937['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
-                                             hourly_df2937['RRC.AttConnRelCCCH.Unspec (None)'] + hourly_df2937['RRC.AttConnRelDCCH.Cong (None)'] + hourly_df2937['RRC.AttConnRelDCCH.Preempt (None)'] + \
-                                             hourly_df2937['RRC.AttConnRelDCCH.ReEstRej (None)'] + hourly_df2937['RRC.AttConnRelDCCH.Unspec (None)'] + hourly_df2937['VS.RRC.ConnRel.CellUpd (None)']) \
-                                        / (hourly_df2937['RRC.AttConnRelDCCH.Cong (None)'] + hourly_df2937['RRC.AttConnRelDCCH.Preempt (None)'] + hourly_df2937['RRC.AttConnRelDCCH.ReEstRej (None)'] + \
-                                           hourly_df2937['RRC.AttConnRelDCCH.DSCR (None)'] + hourly_df2937['RRC.AttConnRelDCCH.UsrInact (None)'] + hourly_df2937['RRC.AttConnRelDCCH.Unspec (None)'] + \
-                                           hourly_df2937['RRC.AttConnRelCCCH.Cong (None)'] + hourly_df2937['RRC.AttConnRelCCCH.Preempt (None)'] + hourly_df2937['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
-                                           hourly_df2937['RRC.AttConnRelCCCH.DSCR (None)'] + hourly_df2937['RRC.AttConnRelDCCH.Norm (None)'] + hourly_df2937['RRC.AttConnRelCCCH.Norm (None)'] + \
-                                           hourly_df2937['RRC.AttConnRelCCCH.UsrInact (None)'] + hourly_df2937['RRC.AttConnRelCCCH.Unspec (None)'] + hourly_df2937['VS.RRC.ConnRel.CellUpd (None)'] + \
-                                           hourly_df2937['VS.DCCC.Succ.F2P (None)'] + hourly_df2937['IRATHO.SuccOutCS (None)'] + hourly_df2937['IRATHO.SuccOutPSUTRAN (None)'] + hourly_df2937['VS.DCCC.Succ.F2U (None)'] + \
-                                           hourly_df2937['VS.DCCC.Succ.D2U (None)']) * 100
-hourly_df2937['RAB Assignment Success Rate (CS), %_2937'] = hourly_df2937['VS.RAB.SuccEstabCS.AMR (None)'] / hourly_df2937['VS.RAB.AttEstab.AMR (None)'] * 100
-hourly_df2937['RAB Assignment Success Rate (PS), %_2937'] = (hourly_df2937['VS.RAB.SuccEstabPS.Conv (None)'] + hourly_df2937['VS.RAB.SuccEstabPS.Bkg (None)'] + hourly_df2937['VS.RAB.SuccEstabPS.Int (None)'] + \
-                                                   hourly_df2937['VS.RAB.SuccEstabPS.Str (None)']) / \
-                                                  (hourly_df2937['VS.RAB.AttEstabPS.Bkg (None)'] + hourly_df2937['VS.RAB.AttEstabPS.Int (None)'] + hourly_df2937['VS.RAB.AttEstabPS.Str (None)'] + \
-                                                   hourly_df2937['VS.RAB.AttEstabPS.Conv (None)']) * 100
-hourly_df2937['CCSR3G, %_2937'] = hourly_df2937['RRC Assignment SucessRate (CS BH), %_2937'] * (100 - hourly_df2937['RRC Drop Rate (CS BH), %_2937']) * hourly_df2937['RAB Assignment Success Rate (CS), %_2937'] * (100 - hourly_df2937['CS RAB Drop Rate (%)_2937'])/ 1000000
-hourly_df2937['DCSR3G, %_2937'] = hourly_df2937['RRC Assignment SucessRate (PS BH), %_2937'] * (100 - hourly_df2937['RRC Drop Rate (PS BH), %_2937']) * hourly_df2937['RAB Assignment Success Rate (PS), %_2937'] * (100 - hourly_df2937['PS RAB Drop Rate (%)_2937'])/ 1000000
-hourly_df2937 = hourly_df2937.drop(list_1, axis=1)
+# hourly_df10612 = sts_df[sts_df['BSC6910UCell'].isin(list_F1_10612)]
+# hourly_df10612 = hourly_df10612.groupby(['date', 'hour'])[list_1]. sum().reset_index()
+# hourly_df10612['CS traffic 3G, Erl_10612'] = hourly_df10612['CS Voice Traffic Volume (Erl)']
+# hourly_df10612['PS traffic 3G UL+DL, GB_10612'] = (hourly_df10612['VS.HSUPA.MeanChThroughput.TotalBytes (byte)'] + hourly_df10612['VS.PS.Bkg.DL.8.Traffic (bit)'] + hourly_df10612['VS.PS.Bkg.DL.16.Traffic (bit)'] + \
+#                                       hourly_df10612['VS.PS.Bkg.DL.32.Traffic (bit)'] + hourly_df10612['VS.PS.Bkg.DL.64.Traffic (bit)'] + hourly_df10612['VS.PS.Bkg.DL.128.Traffic (bit)'] + \
+#                                       hourly_df10612['VS.PS.Bkg.DL.144.Traffic (bit)'] + hourly_df10612['VS.PS.Bkg.DL.256.Traffic (bit)'] + hourly_df10612['VS.PS.Bkg.DL.384.Traffic (bit)'] + \
+#                                       hourly_df10612['VS.PS.Bkg.UL.8.Traffic (bit)'] + hourly_df10612['VS.PS.Bkg.UL.16.Traffic (bit)'] + hourly_df10612['VS.PS.Bkg.UL.32.Traffic (bit)'] + \
+#                                       hourly_df10612['VS.PS.Bkg.UL.64.Traffic (bit)'] + hourly_df10612['VS.PS.Bkg.UL.128.Traffic (bit)'] + hourly_df10612['VS.PS.Bkg.UL.144.Traffic (bit)'] + \
+#                                       hourly_df10612['VS.PS.Bkg.UL.256.Traffic (bit)'] + hourly_df10612['VS.PS.Bkg.UL.384.Traffic (bit)'] + hourly_df10612['VS.PS.Int.DL.8.Traffic (bit)'] + \
+#                                       hourly_df10612['VS.PS.Int.DL.16.Traffic (bit)'] + hourly_df10612['VS.PS.Int.DL.32.Traffic (bit)'] + hourly_df10612['VS.PS.Int.DL.64.Traffic (bit)'] + \
+#                                       hourly_df10612['VS.PS.Int.DL.128.Traffic (bit)'] + hourly_df10612['VS.PS.Int.DL.144.Traffic (bit)'] + hourly_df10612['VS.PS.Int.DL.256.Traffic (bit)'] + \
+#                                       hourly_df10612['VS.PS.Int.DL.384.Traffic (bit)'] + hourly_df10612['VS.PS.Int.UL.8.Traffic (bit)'] + hourly_df10612['VS.PS.Int.UL.16.Traffic (bit)'] + \
+#                                       hourly_df10612['VS.PS.Int.UL.32.Traffic (bit)'] + hourly_df10612['VS.PS.Int.UL.64.Traffic (bit)'] + hourly_df10612['VS.PS.Int.UL.128.Traffic (bit)'] + \
+#                                       hourly_df10612['VS.PS.Int.UL.144.Traffic (bit)'] + hourly_df10612['VS.PS.Int.UL.256.Traffic (bit)'] + hourly_df10612['VS.PS.Int.UL.384.Traffic (bit)'] + \
+#                                       hourly_df10612['VS.PS.Str.DL.32.Traffic (bit)'] + hourly_df10612['VS.PS.Str.DL.64.Traffic (bit)'] + hourly_df10612['VS.PS.Str.DL.128.Traffic (bit)'] + \
+#                                       hourly_df10612['VS.PS.Str.DL.144.Traffic (bit)'] + hourly_df10612['VS.PS.Str.UL.16.Traffic (bit)'] + hourly_df10612['VS.PS.Str.UL.32.Traffic (bit)'] + \
+#                                       hourly_df10612['VS.PS.Str.UL.64.Traffic (bit)'] + hourly_df10612['VS.HSDPA.MeanChThroughput.TotalBytes (byte)']) / 1024/1024/1024
+# hourly_df10612['CS RAB Drop Rate (%)_10612'] = hourly_df10612['VS.RAB.AbnormRel.CS (None)'] / (hourly_df10612['VS.RAB.AbnormRel.CS (None)'] + hourly_df10612['VS.RAB.NormRel.CS (None)']) * 100
+# hourly_df10612['PS Blocking Rate (%)_10612'] = (hourly_df10612['VS.RAB.FailEstabPS.DLIUBBand.Cong (None)'] + hourly_df10612['VS.RAB.FailEstabPS.ULIUBBand.Cong (None)'] + hourly_df10612['VS.RAB.FailEstabPS.ULCE.Cong (None)'] + \
+#                                     hourly_df10612['VS.RAB.FailEstabPS.DLCE.Cong (None)'] + hourly_df10612['VS.RAB.FailEstabPS.Code.Cong (None)'] + hourly_df10612['VS.RAB.FailEstabPS.ULPower.Cong (None)'] + \
+#                                     hourly_df10612['VS.RAB.FailEstabPS.DLPower.Cong (None)'] + hourly_df10612['VS.RAB.FailEstabPS.HSDPAUser.Cong (None)'] + hourly_df10612['VS.RAB.FailEstabPS.HSUPAUser.Cong (None)']) / \
+#                                     (hourly_df10612['VS.RAB.AttEstabPS.Str (None)'] + hourly_df10612['VS.RAB.AttEstabPS.Int (None)'] + hourly_df10612['VS.RAB.AttEstabPS.Bkg (None)']) *100
+# hourly_df10612['PS RAB Drop Rate (%)_10612'] = (hourly_df10612['VS.RAB.AbnormRel.PS (None)'] + hourly_df10612['VS.RAB.AbnormRel.PS.PCH (None)'] + hourly_df10612['VS.RAB.AbnormRel.PS.D2P (None)'] + \
+#                                     hourly_df10612['VS.RAB.AbnormRel.PS.F2P (None)']) / \
+#                                    (hourly_df10612['VS.RAB.AbnormRel.PS (None)'] + hourly_df10612['VS.RAB.NormRel.PS (None)'] + hourly_df10612['VS.RAB.AbnormRel.PS.PCH (None)'] + \
+#                                     hourly_df10612['VS.RAB.NormRel.PS.PCH (None)']) * 100
+# hourly_df10612['PS HS- Drop Rate (%)_10612'] =  hourly_df10612['VS.HSDPA.RAB.AbnormRel (None)'] / (hourly_df10612['VS.HSDPA.RAB.AbnormRel (None)'] + hourly_df10612['VS.HSDPA.RAB.NormRel (None)'] + hourly_df10612['VS.HSDPA.H2D.Succ (None)'] + hourly_df10612['VS.HSDPA.H2F.Succ (None)'] +hourly_df10612['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + hourly_df10612['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
+# hourly_df10612['HSDPA Throughput, kbps_10612'] = hourly_df10612['VS.HSDPA.MeanChThroughput (kbit/s)'] / 235 / 24 # количество сот 235!!!
+# hourly_df10612['HSUPA Throughput, kbps_10612'] = hourly_df10612['VS.HSUPA.MeanChThroughput (kbit/s)'] / 235 / 24# количество сот 235
+# hourly_df10612['Soft Handover Success rate, %_10612'] = (hourly_df10612['VS.SHO.SuccRLAdd (None)'] + hourly_df10612['VS.SHO.SuccRLDel (None)']) / (hourly_df10612['VS.SHO.AttRLAdd (None)'] + hourly_df10612['VS.SHO.AttRLDel (None)']) * 100
+# hourly_df10612['Hard Handover Success rate, %_10612'] = hourly_df10612['VS.HHO.SuccInterFreqOut (None)'] / hourly_df10612['VS.HHO.AttInterFreqOut (None)'] * 100
+# hourly_df10612['CS W2G Inter-RAT Handover Out SR_10612'] = hourly_df10612['IRATHO.SuccOutCS (None)'] / (hourly_df10612['IRATHO.AttOutCS (None)'] - hourly_df10612['VS.IRATHOCS.Cancel.ReEstab (None)']) * 100
+# hourly_df10612['RRC Assignment SucessRate (CS BH), %_10612'] = hourly_df10612['RRC.SuccConnEstab.sum (None)'] / hourly_df10612['VS.RRC.AttConnEstab.Sum (None)'] * 100
+# hourly_df10612['RRC Assignment SucessRate (PS BH), %_10612'] = hourly_df10612['RRC.SuccConnEstab.sum (None)'] / hourly_df10612['VS.RRC.AttConnEstab.Sum (None)'] * 100
+# hourly_df10612['RRC Drop Rate (CS BH), %_10612'] = (hourly_df10612['RRC.AttConnRelCCCH.Cong (None)'] + hourly_df10612['RRC.AttConnRelCCCH.Preempt (None)'] + hourly_df10612['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
+#                                              hourly_df10612['RRC.AttConnRelCCCH.Unspec (None)'] + hourly_df10612['RRC.AttConnRelDCCH.Cong (None)'] + hourly_df10612['RRC.AttConnRelDCCH.Preempt (None)'] + \
+#                                              hourly_df10612['RRC.AttConnRelDCCH.ReEstRej (None)'] + hourly_df10612['RRC.AttConnRelDCCH.Unspec (None)'] + hourly_df10612['VS.RRC.ConnRel.CellUpd (None)']) \
+#                                         / (hourly_df10612['RRC.AttConnRelDCCH.Cong (None)'] + hourly_df10612['RRC.AttConnRelDCCH.Preempt (None)'] + hourly_df10612['RRC.AttConnRelDCCH.ReEstRej (None)'] + \
+#                                            hourly_df10612['RRC.AttConnRelDCCH.DSCR (None)'] + hourly_df10612['RRC.AttConnRelDCCH.UsrInact (None)'] + hourly_df10612['RRC.AttConnRelDCCH.Unspec (None)'] + \
+#                                            hourly_df10612['RRC.AttConnRelCCCH.Cong (None)'] + hourly_df10612['RRC.AttConnRelCCCH.Preempt (None)'] + hourly_df10612['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
+#                                            hourly_df10612['RRC.AttConnRelCCCH.DSCR (None)'] + hourly_df10612['RRC.AttConnRelDCCH.Norm (None)'] + hourly_df10612['RRC.AttConnRelCCCH.Norm (None)'] + \
+#                                            hourly_df10612['RRC.AttConnRelCCCH.UsrInact (None)'] + hourly_df10612['RRC.AttConnRelCCCH.Unspec (None)'] + hourly_df10612['VS.RRC.ConnRel.CellUpd (None)'] + \
+#                                            hourly_df10612['VS.DCCC.Succ.F2P (None)'] + hourly_df10612['IRATHO.SuccOutCS (None)'] + hourly_df10612['IRATHO.SuccOutPSUTRAN (None)'] + hourly_df10612['VS.DCCC.Succ.F2U (None)'] + \
+#                                            hourly_df10612['VS.DCCC.Succ.D2U (None)']) * 100
+# hourly_df10612['RRC Drop Rate (PS BH), %_10612'] = (hourly_df10612['RRC.AttConnRelCCCH.Cong (None)'] + hourly_df10612['RRC.AttConnRelCCCH.Preempt (None)'] + hourly_df10612['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
+#                                              hourly_df10612['RRC.AttConnRelCCCH.Unspec (None)'] + hourly_df10612['RRC.AttConnRelDCCH.Cong (None)'] + hourly_df10612['RRC.AttConnRelDCCH.Preempt (None)'] + \
+#                                              hourly_df10612['RRC.AttConnRelDCCH.ReEstRej (None)'] + hourly_df10612['RRC.AttConnRelDCCH.Unspec (None)'] + hourly_df10612['VS.RRC.ConnRel.CellUpd (None)']) \
+#                                         / (hourly_df10612['RRC.AttConnRelDCCH.Cong (None)'] + hourly_df10612['RRC.AttConnRelDCCH.Preempt (None)'] + hourly_df10612['RRC.AttConnRelDCCH.ReEstRej (None)'] + \
+#                                            hourly_df10612['RRC.AttConnRelDCCH.DSCR (None)'] + hourly_df10612['RRC.AttConnRelDCCH.UsrInact (None)'] + hourly_df10612['RRC.AttConnRelDCCH.Unspec (None)'] + \
+#                                            hourly_df10612['RRC.AttConnRelCCCH.Cong (None)'] + hourly_df10612['RRC.AttConnRelCCCH.Preempt (None)'] + hourly_df10612['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
+#                                            hourly_df10612['RRC.AttConnRelCCCH.DSCR (None)'] + hourly_df10612['RRC.AttConnRelDCCH.Norm (None)'] + hourly_df10612['RRC.AttConnRelCCCH.Norm (None)'] + \
+#                                            hourly_df10612['RRC.AttConnRelCCCH.UsrInact (None)'] + hourly_df10612['RRC.AttConnRelCCCH.Unspec (None)'] + hourly_df10612['VS.RRC.ConnRel.CellUpd (None)'] + \
+#                                            hourly_df10612['VS.DCCC.Succ.F2P (None)'] + hourly_df10612['IRATHO.SuccOutCS (None)'] + hourly_df10612['IRATHO.SuccOutPSUTRAN (None)'] + hourly_df10612['VS.DCCC.Succ.F2U (None)'] + \
+#                                            hourly_df10612['VS.DCCC.Succ.D2U (None)']) * 100
+# hourly_df10612['RAB Assignment Success Rate (CS), %_10612'] = hourly_df10612['VS.RAB.SuccEstabCS.AMR (None)'] / hourly_df10612['VS.RAB.AttEstab.AMR (None)'] * 100
+# hourly_df10612['RAB Assignment Success Rate (PS), %_10612'] = (hourly_df10612['VS.RAB.SuccEstabPS.Conv (None)'] + hourly_df10612['VS.RAB.SuccEstabPS.Bkg (None)'] + hourly_df10612['VS.RAB.SuccEstabPS.Int (None)'] + \
+#                                                    hourly_df10612['VS.RAB.SuccEstabPS.Str (None)']) / \
+#                                                   (hourly_df10612['VS.RAB.AttEstabPS.Bkg (None)'] + hourly_df10612['VS.RAB.AttEstabPS.Int (None)'] + hourly_df10612['VS.RAB.AttEstabPS.Str (None)'] + \
+#                                                    hourly_df10612['VS.RAB.AttEstabPS.Conv (None)']) * 100
+# hourly_df10612['CCSR3G, %_10612'] = hourly_df10612['RRC Assignment SucessRate (CS BH), %_10612'] * (100 - hourly_df10612['RRC Drop Rate (CS BH), %_10612']) * hourly_df10612['RAB Assignment Success Rate (CS), %_10612'] * (100 - hourly_df10612['CS RAB Drop Rate (%)_10612'])/ 1000000
+# hourly_df10612['DCSR3G, %_10612'] = hourly_df10612['RRC Assignment SucessRate (PS BH), %_10612'] * (100 - hourly_df10612['RRC Drop Rate (PS BH), %_10612']) * hourly_df10612['RAB Assignment Success Rate (PS), %_10612'] * (100 - hourly_df10612['PS RAB Drop Rate (%)_10612'])/ 1000000
+# hourly_df10612 = hourly_df10612.drop(list_1, axis=1)
+# # фильтрация по 10637
+# hourly_df10637 = sts_df[sts_df['BSC6910UCell'].isin(list_F2_10637)]
+# hourly_df10637 = hourly_df10637.groupby(['date', 'hour'])[list_1]. sum().reset_index()
+# hourly_df10637['CS traffic 3G, Erl_10637'] = hourly_df10637['CS Voice Traffic Volume (Erl)']
+# hourly_df10637['PS traffic 3G UL+DL, GB_10637'] = (hourly_df10637['VS.HSUPA.MeanChThroughput.TotalBytes (byte)'] + hourly_df10637['VS.PS.Bkg.DL.8.Traffic (bit)'] + hourly_df10637['VS.PS.Bkg.DL.16.Traffic (bit)'] + \
+#                                       hourly_df10637['VS.PS.Bkg.DL.32.Traffic (bit)'] + hourly_df10637['VS.PS.Bkg.DL.64.Traffic (bit)'] + hourly_df10637['VS.PS.Bkg.DL.128.Traffic (bit)'] + \
+#                                       hourly_df10637['VS.PS.Bkg.DL.144.Traffic (bit)'] + hourly_df10637['VS.PS.Bkg.DL.256.Traffic (bit)'] + hourly_df10637['VS.PS.Bkg.DL.384.Traffic (bit)'] + \
+#                                       hourly_df10637['VS.PS.Bkg.UL.8.Traffic (bit)'] + hourly_df10637['VS.PS.Bkg.UL.16.Traffic (bit)'] + hourly_df10637['VS.PS.Bkg.UL.32.Traffic (bit)'] + \
+#                                       hourly_df10637['VS.PS.Bkg.UL.64.Traffic (bit)'] + hourly_df10637['VS.PS.Bkg.UL.128.Traffic (bit)'] + hourly_df10637['VS.PS.Bkg.UL.144.Traffic (bit)'] + \
+#                                       hourly_df10637['VS.PS.Bkg.UL.256.Traffic (bit)'] + hourly_df10637['VS.PS.Bkg.UL.384.Traffic (bit)'] + hourly_df10637['VS.PS.Int.DL.8.Traffic (bit)'] + \
+#                                       hourly_df10637['VS.PS.Int.DL.16.Traffic (bit)'] + hourly_df10637['VS.PS.Int.DL.32.Traffic (bit)'] + hourly_df10637['VS.PS.Int.DL.64.Traffic (bit)'] + \
+#                                       hourly_df10637['VS.PS.Int.DL.128.Traffic (bit)'] + hourly_df10637['VS.PS.Int.DL.144.Traffic (bit)'] + hourly_df10637['VS.PS.Int.DL.256.Traffic (bit)'] + \
+#                                       hourly_df10637['VS.PS.Int.DL.384.Traffic (bit)'] + hourly_df10637['VS.PS.Int.UL.8.Traffic (bit)'] + hourly_df10637['VS.PS.Int.UL.16.Traffic (bit)'] + \
+#                                       hourly_df10637['VS.PS.Int.UL.32.Traffic (bit)'] + hourly_df10637['VS.PS.Int.UL.64.Traffic (bit)'] + hourly_df10637['VS.PS.Int.UL.128.Traffic (bit)'] + \
+#                                       hourly_df10637['VS.PS.Int.UL.144.Traffic (bit)'] + hourly_df10637['VS.PS.Int.UL.256.Traffic (bit)'] + hourly_df10637['VS.PS.Int.UL.384.Traffic (bit)'] + \
+#                                       hourly_df10637['VS.PS.Str.DL.32.Traffic (bit)'] + hourly_df10637['VS.PS.Str.DL.64.Traffic (bit)'] + hourly_df10637['VS.PS.Str.DL.128.Traffic (bit)'] + \
+#                                       hourly_df10637['VS.PS.Str.DL.144.Traffic (bit)'] + hourly_df10637['VS.PS.Str.UL.16.Traffic (bit)'] + hourly_df10637['VS.PS.Str.UL.32.Traffic (bit)'] + \
+#                                       hourly_df10637['VS.PS.Str.UL.64.Traffic (bit)'] + hourly_df10637['VS.HSDPA.MeanChThroughput.TotalBytes (byte)']) / 1024/1024/1024
+# hourly_df10637['CS RAB Drop Rate (%)_10637'] = hourly_df10637['VS.RAB.AbnormRel.CS (None)'] / (hourly_df10637['VS.RAB.AbnormRel.CS (None)'] + hourly_df10637['VS.RAB.NormRel.CS (None)']) * 100
+# hourly_df10637['PS Blocking Rate (%)_10637'] = (hourly_df10637['VS.RAB.FailEstabPS.DLIUBBand.Cong (None)'] + hourly_df10637['VS.RAB.FailEstabPS.ULIUBBand.Cong (None)'] + hourly_df10637['VS.RAB.FailEstabPS.ULCE.Cong (None)'] + \
+#                                     hourly_df10637['VS.RAB.FailEstabPS.DLCE.Cong (None)'] + hourly_df10637['VS.RAB.FailEstabPS.Code.Cong (None)'] + hourly_df10637['VS.RAB.FailEstabPS.ULPower.Cong (None)'] + \
+#                                     hourly_df10637['VS.RAB.FailEstabPS.DLPower.Cong (None)'] + hourly_df10637['VS.RAB.FailEstabPS.HSDPAUser.Cong (None)'] + hourly_df10637['VS.RAB.FailEstabPS.HSUPAUser.Cong (None)']) / \
+#                                     (hourly_df10637['VS.RAB.AttEstabPS.Str (None)'] + hourly_df10637['VS.RAB.AttEstabPS.Int (None)'] + hourly_df10637['VS.RAB.AttEstabPS.Bkg (None)']) *100
+# hourly_df10637['PS RAB Drop Rate (%)_10637'] = (hourly_df10637['VS.RAB.AbnormRel.PS (None)'] + hourly_df10637['VS.RAB.AbnormRel.PS.PCH (None)'] + hourly_df10637['VS.RAB.AbnormRel.PS.D2P (None)'] + \
+#                                     hourly_df10637['VS.RAB.AbnormRel.PS.F2P (None)']) / \
+#                                    (hourly_df10637['VS.RAB.AbnormRel.PS (None)'] + hourly_df10637['VS.RAB.NormRel.PS (None)'] + hourly_df10637['VS.RAB.AbnormRel.PS.PCH (None)'] + \
+#                                     hourly_df10637['VS.RAB.NormRel.PS.PCH (None)']) * 100
+# hourly_df10637['PS HS- Drop Rate (%)_10637'] =  hourly_df10637['VS.HSDPA.RAB.AbnormRel (None)'] / (hourly_df10637['VS.HSDPA.RAB.AbnormRel (None)'] + hourly_df10637['VS.HSDPA.RAB.NormRel (None)'] + hourly_df10637['VS.HSDPA.H2D.Succ (None)'] + hourly_df10637['VS.HSDPA.H2F.Succ (None)'] +hourly_df10637['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + hourly_df10637['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
+# hourly_df10637['HSDPA Throughput, kbps_10637'] = hourly_df10637['VS.HSDPA.MeanChThroughput (kbit/s)'] / 236 / 24 # количество сот 236!!!
+# hourly_df10637['HSUPA Throughput, kbps_10637'] = hourly_df10637['VS.HSUPA.MeanChThroughput (kbit/s)'] / 236 / 24# количество сот 236
+# hourly_df10637['Soft Handover Success rate, %_10637'] = (hourly_df10637['VS.SHO.SuccRLAdd (None)'] + hourly_df10637['VS.SHO.SuccRLDel (None)']) / (hourly_df10637['VS.SHO.AttRLAdd (None)'] + hourly_df10637['VS.SHO.AttRLDel (None)']) * 100
+# hourly_df10637['Hard Handover Success rate, %_10637'] = hourly_df10637['VS.HHO.SuccInterFreqOut (None)'] / hourly_df10637['VS.HHO.AttInterFreqOut (None)'] * 100
+# hourly_df10637['CS W2G Inter-RAT Handover Out SR_10637'] = hourly_df10637['IRATHO.SuccOutCS (None)'] / (hourly_df10637['IRATHO.AttOutCS (None)'] - hourly_df10637['VS.IRATHOCS.Cancel.ReEstab (None)']) * 100
+# hourly_df10637['RRC Assignment SucessRate (CS BH), %_10637'] = hourly_df10637['RRC.SuccConnEstab.sum (None)'] / hourly_df10637['VS.RRC.AttConnEstab.Sum (None)'] * 100
+# hourly_df10637['RRC Assignment SucessRate (PS BH), %_10637'] = hourly_df10637['RRC.SuccConnEstab.sum (None)'] / hourly_df10637['VS.RRC.AttConnEstab.Sum (None)'] * 100
+# hourly_df10637['RRC Drop Rate (CS BH), %_10637'] = (hourly_df10637['RRC.AttConnRelCCCH.Cong (None)'] + hourly_df10637['RRC.AttConnRelCCCH.Preempt (None)'] + hourly_df10637['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
+#                                              hourly_df10637['RRC.AttConnRelCCCH.Unspec (None)'] + hourly_df10637['RRC.AttConnRelDCCH.Cong (None)'] + hourly_df10637['RRC.AttConnRelDCCH.Preempt (None)'] + \
+#                                              hourly_df10637['RRC.AttConnRelDCCH.ReEstRej (None)'] + hourly_df10637['RRC.AttConnRelDCCH.Unspec (None)'] + hourly_df10637['VS.RRC.ConnRel.CellUpd (None)']) \
+#                                         / (hourly_df10637['RRC.AttConnRelDCCH.Cong (None)'] + hourly_df10637['RRC.AttConnRelDCCH.Preempt (None)'] + hourly_df10637['RRC.AttConnRelDCCH.ReEstRej (None)'] + \
+#                                            hourly_df10637['RRC.AttConnRelDCCH.DSCR (None)'] + hourly_df10637['RRC.AttConnRelDCCH.UsrInact (None)'] + hourly_df10637['RRC.AttConnRelDCCH.Unspec (None)'] + \
+#                                            hourly_df10637['RRC.AttConnRelCCCH.Cong (None)'] + hourly_df10637['RRC.AttConnRelCCCH.Preempt (None)'] + hourly_df10637['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
+#                                            hourly_df10637['RRC.AttConnRelCCCH.DSCR (None)'] + hourly_df10637['RRC.AttConnRelDCCH.Norm (None)'] + hourly_df10637['RRC.AttConnRelCCCH.Norm (None)'] + \
+#                                            hourly_df10637['RRC.AttConnRelCCCH.UsrInact (None)'] + hourly_df10637['RRC.AttConnRelCCCH.Unspec (None)'] + hourly_df10637['VS.RRC.ConnRel.CellUpd (None)'] + \
+#                                            hourly_df10637['VS.DCCC.Succ.F2P (None)'] + hourly_df10637['IRATHO.SuccOutCS (None)'] + hourly_df10637['IRATHO.SuccOutPSUTRAN (None)'] + hourly_df10637['VS.DCCC.Succ.F2U (None)'] + \
+#                                            hourly_df10637['VS.DCCC.Succ.D2U (None)']) * 100
+# hourly_df10637['RRC Drop Rate (PS BH), %_10637'] = (hourly_df10637['RRC.AttConnRelCCCH.Cong (None)'] + hourly_df10637['RRC.AttConnRelCCCH.Preempt (None)'] + hourly_df10637['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
+#                                              hourly_df10637['RRC.AttConnRelCCCH.Unspec (None)'] + hourly_df10637['RRC.AttConnRelDCCH.Cong (None)'] + hourly_df10637['RRC.AttConnRelDCCH.Preempt (None)'] + \
+#                                              hourly_df10637['RRC.AttConnRelDCCH.ReEstRej (None)'] + hourly_df10637['RRC.AttConnRelDCCH.Unspec (None)'] + hourly_df10637['VS.RRC.ConnRel.CellUpd (None)']) \
+#                                         / (hourly_df10637['RRC.AttConnRelDCCH.Cong (None)'] + hourly_df10637['RRC.AttConnRelDCCH.Preempt (None)'] + hourly_df10637['RRC.AttConnRelDCCH.ReEstRej (None)'] + \
+#                                            hourly_df10637['RRC.AttConnRelDCCH.DSCR (None)'] + hourly_df10637['RRC.AttConnRelDCCH.UsrInact (None)'] + hourly_df10637['RRC.AttConnRelDCCH.Unspec (None)'] + \
+#                                            hourly_df10637['RRC.AttConnRelCCCH.Cong (None)'] + hourly_df10637['RRC.AttConnRelCCCH.Preempt (None)'] + hourly_df10637['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
+#                                            hourly_df10637['RRC.AttConnRelCCCH.DSCR (None)'] + hourly_df10637['RRC.AttConnRelDCCH.Norm (None)'] + hourly_df10637['RRC.AttConnRelCCCH.Norm (None)'] + \
+#                                            hourly_df10637['RRC.AttConnRelCCCH.UsrInact (None)'] + hourly_df10637['RRC.AttConnRelCCCH.Unspec (None)'] + hourly_df10637['VS.RRC.ConnRel.CellUpd (None)'] + \
+#                                            hourly_df10637['VS.DCCC.Succ.F2P (None)'] + hourly_df10637['IRATHO.SuccOutCS (None)'] + hourly_df10637['IRATHO.SuccOutPSUTRAN (None)'] + hourly_df10637['VS.DCCC.Succ.F2U (None)'] + \
+#                                            hourly_df10637['VS.DCCC.Succ.D2U (None)']) * 100
+# hourly_df10637['RAB Assignment Success Rate (CS), %_10637'] = hourly_df10637['VS.RAB.SuccEstabCS.AMR (None)'] / hourly_df10637['VS.RAB.AttEstab.AMR (None)'] * 100
+# hourly_df10637['RAB Assignment Success Rate (PS), %_10637'] = (hourly_df10637['VS.RAB.SuccEstabPS.Conv (None)'] + hourly_df10637['VS.RAB.SuccEstabPS.Bkg (None)'] + hourly_df10637['VS.RAB.SuccEstabPS.Int (None)'] + \
+#                                                    hourly_df10637['VS.RAB.SuccEstabPS.Str (None)']) / \
+#                                                   (hourly_df10637['VS.RAB.AttEstabPS.Bkg (None)'] + hourly_df10637['VS.RAB.AttEstabPS.Int (None)'] + hourly_df10637['VS.RAB.AttEstabPS.Str (None)'] + \
+#                                                    hourly_df10637['VS.RAB.AttEstabPS.Conv (None)']) * 100
+# hourly_df10637['CCSR3G, %_10637'] = hourly_df10637['RRC Assignment SucessRate (CS BH), %_10637'] * (100 - hourly_df10637['RRC Drop Rate (CS BH), %_10637']) * hourly_df10637['RAB Assignment Success Rate (CS), %_10637'] * (100 - hourly_df10637['CS RAB Drop Rate (%)_10637'])/ 1000000
+# hourly_df10637['DCSR3G, %_10637'] = hourly_df10637['RRC Assignment SucessRate (PS BH), %_10637'] * (100 - hourly_df10637['RRC Drop Rate (PS BH), %_10637']) * hourly_df10637['RAB Assignment Success Rate (PS), %_10637'] * (100 - hourly_df10637['PS RAB Drop Rate (%)_10637'])/ 1000000
+# hourly_df10637 = hourly_df10637.drop(list_1, axis=1)
+# # фильтрация по 2937
+# hourly_df2937 = sts_df[sts_df['BSC6910UCell'].isin(list_F3_2937)]
+# hourly_df2937 = hourly_df2937.groupby(['date', 'hour'])[list_1]. sum().reset_index()
+# hourly_df2937['CS traffic 3G, Erl_2937'] = hourly_df2937['CS Voice Traffic Volume (Erl)']
+# hourly_df2937['PS traffic 3G UL+DL, GB_2937'] = (hourly_df2937['VS.HSUPA.MeanChThroughput.TotalBytes (byte)'] + hourly_df2937['VS.PS.Bkg.DL.8.Traffic (bit)'] + hourly_df2937['VS.PS.Bkg.DL.16.Traffic (bit)'] + \
+#                                       hourly_df2937['VS.PS.Bkg.DL.32.Traffic (bit)'] + hourly_df2937['VS.PS.Bkg.DL.64.Traffic (bit)'] + hourly_df2937['VS.PS.Bkg.DL.128.Traffic (bit)'] + \
+#                                       hourly_df2937['VS.PS.Bkg.DL.144.Traffic (bit)'] + hourly_df2937['VS.PS.Bkg.DL.256.Traffic (bit)'] + hourly_df2937['VS.PS.Bkg.DL.384.Traffic (bit)'] + \
+#                                       hourly_df2937['VS.PS.Bkg.UL.8.Traffic (bit)'] + hourly_df2937['VS.PS.Bkg.UL.16.Traffic (bit)'] + hourly_df2937['VS.PS.Bkg.UL.32.Traffic (bit)'] + \
+#                                       hourly_df2937['VS.PS.Bkg.UL.64.Traffic (bit)'] + hourly_df2937['VS.PS.Bkg.UL.128.Traffic (bit)'] + hourly_df2937['VS.PS.Bkg.UL.144.Traffic (bit)'] + \
+#                                       hourly_df2937['VS.PS.Bkg.UL.256.Traffic (bit)'] + hourly_df2937['VS.PS.Bkg.UL.384.Traffic (bit)'] + hourly_df2937['VS.PS.Int.DL.8.Traffic (bit)'] + \
+#                                       hourly_df2937['VS.PS.Int.DL.16.Traffic (bit)'] + hourly_df2937['VS.PS.Int.DL.32.Traffic (bit)'] + hourly_df2937['VS.PS.Int.DL.64.Traffic (bit)'] + \
+#                                       hourly_df2937['VS.PS.Int.DL.128.Traffic (bit)'] + hourly_df2937['VS.PS.Int.DL.144.Traffic (bit)'] + hourly_df2937['VS.PS.Int.DL.256.Traffic (bit)'] + \
+#                                       hourly_df2937['VS.PS.Int.DL.384.Traffic (bit)'] + hourly_df2937['VS.PS.Int.UL.8.Traffic (bit)'] + hourly_df2937['VS.PS.Int.UL.16.Traffic (bit)'] + \
+#                                       hourly_df2937['VS.PS.Int.UL.32.Traffic (bit)'] + hourly_df2937['VS.PS.Int.UL.64.Traffic (bit)'] + hourly_df2937['VS.PS.Int.UL.128.Traffic (bit)'] + \
+#                                       hourly_df2937['VS.PS.Int.UL.144.Traffic (bit)'] + hourly_df2937['VS.PS.Int.UL.256.Traffic (bit)'] + hourly_df2937['VS.PS.Int.UL.384.Traffic (bit)'] + \
+#                                       hourly_df2937['VS.PS.Str.DL.32.Traffic (bit)'] + hourly_df2937['VS.PS.Str.DL.64.Traffic (bit)'] + hourly_df2937['VS.PS.Str.DL.128.Traffic (bit)'] + \
+#                                       hourly_df2937['VS.PS.Str.DL.144.Traffic (bit)'] + hourly_df2937['VS.PS.Str.UL.16.Traffic (bit)'] + hourly_df2937['VS.PS.Str.UL.32.Traffic (bit)'] + \
+#                                       hourly_df2937['VS.PS.Str.UL.64.Traffic (bit)'] + hourly_df2937['VS.HSDPA.MeanChThroughput.TotalBytes (byte)']) / 1024/1024/1024
+# hourly_df2937['CS RAB Drop Rate (%)_2937'] = hourly_df2937['VS.RAB.AbnormRel.CS (None)'] / (hourly_df2937['VS.RAB.AbnormRel.CS (None)'] + hourly_df2937['VS.RAB.NormRel.CS (None)']) * 100
+# hourly_df2937['PS Blocking Rate (%)_2937'] = (hourly_df2937['VS.RAB.FailEstabPS.DLIUBBand.Cong (None)'] + hourly_df2937['VS.RAB.FailEstabPS.ULIUBBand.Cong (None)'] + hourly_df2937['VS.RAB.FailEstabPS.ULCE.Cong (None)'] + \
+#                                     hourly_df2937['VS.RAB.FailEstabPS.DLCE.Cong (None)'] + hourly_df2937['VS.RAB.FailEstabPS.Code.Cong (None)'] + hourly_df2937['VS.RAB.FailEstabPS.ULPower.Cong (None)'] + \
+#                                     hourly_df2937['VS.RAB.FailEstabPS.DLPower.Cong (None)'] + hourly_df2937['VS.RAB.FailEstabPS.HSDPAUser.Cong (None)'] + hourly_df2937['VS.RAB.FailEstabPS.HSUPAUser.Cong (None)']) / \
+#                                     (hourly_df2937['VS.RAB.AttEstabPS.Str (None)'] + hourly_df2937['VS.RAB.AttEstabPS.Int (None)'] + hourly_df2937['VS.RAB.AttEstabPS.Bkg (None)']) *100
+# hourly_df2937['PS RAB Drop Rate (%)_2937'] = (hourly_df2937['VS.RAB.AbnormRel.PS (None)'] + hourly_df2937['VS.RAB.AbnormRel.PS.PCH (None)'] + hourly_df2937['VS.RAB.AbnormRel.PS.D2P (None)'] + \
+#                                     hourly_df2937['VS.RAB.AbnormRel.PS.F2P (None)']) / \
+#                                    (hourly_df2937['VS.RAB.AbnormRel.PS (None)'] + hourly_df2937['VS.RAB.NormRel.PS (None)'] + hourly_df2937['VS.RAB.AbnormRel.PS.PCH (None)'] + \
+#                                     hourly_df2937['VS.RAB.NormRel.PS.PCH (None)']) * 100
+# hourly_df2937['PS HS- Drop Rate (%)_2937'] =  hourly_df2937['VS.HSDPA.RAB.AbnormRel (None)'] / (hourly_df2937['VS.HSDPA.RAB.AbnormRel (None)'] + hourly_df2937['VS.HSDPA.RAB.NormRel (None)'] + hourly_df2937['VS.HSDPA.H2D.Succ (None)'] + hourly_df2937['VS.HSDPA.H2F.Succ (None)'] +hourly_df2937['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + hourly_df2937['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
+# hourly_df2937['HSDPA Throughput, kbps_2937'] = hourly_df2937['VS.HSDPA.MeanChThroughput (kbit/s)'] / 204 / 24 # количество сот 204!!!
+# hourly_df2937['HSUPA Throughput, kbps_2937'] = hourly_df2937['VS.HSUPA.MeanChThroughput (kbit/s)'] / 204 / 24# количество сот 204
+# hourly_df2937['Soft Handover Success rate, %_2937'] = (hourly_df2937['VS.SHO.SuccRLAdd (None)'] + hourly_df2937['VS.SHO.SuccRLDel (None)']) / (hourly_df2937['VS.SHO.AttRLAdd (None)'] + hourly_df2937['VS.SHO.AttRLDel (None)']) * 100
+# hourly_df2937['Hard Handover Success rate, %_2937'] = hourly_df2937['VS.HHO.SuccInterFreqOut (None)'] / hourly_df2937['VS.HHO.AttInterFreqOut (None)'] * 100
+# hourly_df2937['CS W2G Inter-RAT Handover Out SR_2937'] = hourly_df2937['IRATHO.SuccOutCS (None)'] / (hourly_df2937['IRATHO.AttOutCS (None)'] - hourly_df2937['VS.IRATHOCS.Cancel.ReEstab (None)']) * 100
+# hourly_df2937['RRC Assignment SucessRate (CS BH), %_2937'] = hourly_df2937['RRC.SuccConnEstab.sum (None)'] / hourly_df2937['VS.RRC.AttConnEstab.Sum (None)'] * 100
+# hourly_df2937['RRC Assignment SucessRate (PS BH), %_2937'] = hourly_df2937['RRC.SuccConnEstab.sum (None)'] / hourly_df2937['VS.RRC.AttConnEstab.Sum (None)'] * 100
+# hourly_df2937['RRC Drop Rate (CS BH), %_2937'] = (hourly_df2937['RRC.AttConnRelCCCH.Cong (None)'] + hourly_df2937['RRC.AttConnRelCCCH.Preempt (None)'] + hourly_df2937['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
+#                                              hourly_df2937['RRC.AttConnRelCCCH.Unspec (None)'] + hourly_df2937['RRC.AttConnRelDCCH.Cong (None)'] + hourly_df2937['RRC.AttConnRelDCCH.Preempt (None)'] + \
+#                                              hourly_df2937['RRC.AttConnRelDCCH.ReEstRej (None)'] + hourly_df2937['RRC.AttConnRelDCCH.Unspec (None)'] + hourly_df2937['VS.RRC.ConnRel.CellUpd (None)']) \
+#                                         / (hourly_df2937['RRC.AttConnRelDCCH.Cong (None)'] + hourly_df2937['RRC.AttConnRelDCCH.Preempt (None)'] + hourly_df2937['RRC.AttConnRelDCCH.ReEstRej (None)'] + \
+#                                            hourly_df2937['RRC.AttConnRelDCCH.DSCR (None)'] + hourly_df2937['RRC.AttConnRelDCCH.UsrInact (None)'] + hourly_df2937['RRC.AttConnRelDCCH.Unspec (None)'] + \
+#                                            hourly_df2937['RRC.AttConnRelCCCH.Cong (None)'] + hourly_df2937['RRC.AttConnRelCCCH.Preempt (None)'] + hourly_df2937['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
+#                                            hourly_df2937['RRC.AttConnRelCCCH.DSCR (None)'] + hourly_df2937['RRC.AttConnRelDCCH.Norm (None)'] + hourly_df2937['RRC.AttConnRelCCCH.Norm (None)'] + \
+#                                            hourly_df2937['RRC.AttConnRelCCCH.UsrInact (None)'] + hourly_df2937['RRC.AttConnRelCCCH.Unspec (None)'] + hourly_df2937['VS.RRC.ConnRel.CellUpd (None)'] + \
+#                                            hourly_df2937['VS.DCCC.Succ.F2P (None)'] + hourly_df2937['IRATHO.SuccOutCS (None)'] + hourly_df2937['IRATHO.SuccOutPSUTRAN (None)'] + hourly_df2937['VS.DCCC.Succ.F2U (None)'] + \
+#                                            hourly_df2937['VS.DCCC.Succ.D2U (None)']) * 100
+# hourly_df2937['RRC Drop Rate (PS BH), %_2937'] = (hourly_df2937['RRC.AttConnRelCCCH.Cong (None)'] + hourly_df2937['RRC.AttConnRelCCCH.Preempt (None)'] + hourly_df2937['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
+#                                              hourly_df2937['RRC.AttConnRelCCCH.Unspec (None)'] + hourly_df2937['RRC.AttConnRelDCCH.Cong (None)'] + hourly_df2937['RRC.AttConnRelDCCH.Preempt (None)'] + \
+#                                              hourly_df2937['RRC.AttConnRelDCCH.ReEstRej (None)'] + hourly_df2937['RRC.AttConnRelDCCH.Unspec (None)'] + hourly_df2937['VS.RRC.ConnRel.CellUpd (None)']) \
+#                                         / (hourly_df2937['RRC.AttConnRelDCCH.Cong (None)'] + hourly_df2937['RRC.AttConnRelDCCH.Preempt (None)'] + hourly_df2937['RRC.AttConnRelDCCH.ReEstRej (None)'] + \
+#                                            hourly_df2937['RRC.AttConnRelDCCH.DSCR (None)'] + hourly_df2937['RRC.AttConnRelDCCH.UsrInact (None)'] + hourly_df2937['RRC.AttConnRelDCCH.Unspec (None)'] + \
+#                                            hourly_df2937['RRC.AttConnRelCCCH.Cong (None)'] + hourly_df2937['RRC.AttConnRelCCCH.Preempt (None)'] + hourly_df2937['RRC.AttConnRelCCCH.ReEstRej (None)'] + \
+#                                            hourly_df2937['RRC.AttConnRelCCCH.DSCR (None)'] + hourly_df2937['RRC.AttConnRelDCCH.Norm (None)'] + hourly_df2937['RRC.AttConnRelCCCH.Norm (None)'] + \
+#                                            hourly_df2937['RRC.AttConnRelCCCH.UsrInact (None)'] + hourly_df2937['RRC.AttConnRelCCCH.Unspec (None)'] + hourly_df2937['VS.RRC.ConnRel.CellUpd (None)'] + \
+#                                            hourly_df2937['VS.DCCC.Succ.F2P (None)'] + hourly_df2937['IRATHO.SuccOutCS (None)'] + hourly_df2937['IRATHO.SuccOutPSUTRAN (None)'] + hourly_df2937['VS.DCCC.Succ.F2U (None)'] + \
+#                                            hourly_df2937['VS.DCCC.Succ.D2U (None)']) * 100
+# hourly_df2937['RAB Assignment Success Rate (CS), %_2937'] = hourly_df2937['VS.RAB.SuccEstabCS.AMR (None)'] / hourly_df2937['VS.RAB.AttEstab.AMR (None)'] * 100
+# hourly_df2937['RAB Assignment Success Rate (PS), %_2937'] = (hourly_df2937['VS.RAB.SuccEstabPS.Conv (None)'] + hourly_df2937['VS.RAB.SuccEstabPS.Bkg (None)'] + hourly_df2937['VS.RAB.SuccEstabPS.Int (None)'] + \
+#                                                    hourly_df2937['VS.RAB.SuccEstabPS.Str (None)']) / \
+#                                                   (hourly_df2937['VS.RAB.AttEstabPS.Bkg (None)'] + hourly_df2937['VS.RAB.AttEstabPS.Int (None)'] + hourly_df2937['VS.RAB.AttEstabPS.Str (None)'] + \
+#                                                    hourly_df2937['VS.RAB.AttEstabPS.Conv (None)']) * 100
+# hourly_df2937['CCSR3G, %_2937'] = hourly_df2937['RRC Assignment SucessRate (CS BH), %_2937'] * (100 - hourly_df2937['RRC Drop Rate (CS BH), %_2937']) * hourly_df2937['RAB Assignment Success Rate (CS), %_2937'] * (100 - hourly_df2937['CS RAB Drop Rate (%)_2937'])/ 1000000
+# hourly_df2937['DCSR3G, %_2937'] = hourly_df2937['RRC Assignment SucessRate (PS BH), %_2937'] * (100 - hourly_df2937['RRC Drop Rate (PS BH), %_2937']) * hourly_df2937['RAB Assignment Success Rate (PS), %_2937'] * (100 - hourly_df2937['PS RAB Drop Rate (%)_2937'])/ 1000000
+# hourly_df2937 = hourly_df2937.drop(list_1, axis=1)
 
 hourly_dfall = pd.merge(hourly_df, hourly_dfU2100, how="left")
 hourly_dfall = pd.merge(hourly_dfall, hourly_dfU900, how="left")
-hourly_dfall = pd.merge(hourly_dfall, hourly_df10612, how="left")
-hourly_dfall = pd.merge(hourly_dfall, hourly_df10637, how="left")
-hourly_dfall = pd.merge(hourly_dfall, hourly_df2937, how="left")
+# hourly_dfall = pd.merge(hourly_dfall, hourly_df10612, how="left")
+# hourly_dfall = pd.merge(hourly_dfall, hourly_df10637, how="left")
+# hourly_dfall = pd.merge(hourly_dfall, hourly_df2937, how="left")
 hourly_dfall_trans = hourly_dfall.transpose()
 
 # NodeB часовая
@@ -9246,8 +9252,8 @@ hourlyPS_df['PS RAB Drop Rate (%)'] = (hourlyPS_df['VS.RAB.AbnormRel.PS (None)']
 
 
 hourlyPS_df['PS HS- Drop Rate (%)'] =  hourlyPS_df['VS.HSDPA.RAB.AbnormRel (None)'] / (hourlyPS_df['VS.HSDPA.RAB.AbnormRel (None)'] + hourlyPS_df['VS.HSDPA.RAB.NormRel (None)'] + hourlyPS_df['VS.HSDPA.H2D.Succ (None)'] + hourlyPS_df['VS.HSDPA.H2F.Succ (None)'] +hourlyPS_df['VS.HSDPA.HHO.H2D.SuccOutIntraFreq (None)'] + hourlyPS_df['VS.HSDPA.HHO.H2D.SuccOutInterFreq (None)']) * 100
-hourlyPS_df['HSDPA Throughput, kbps'] = hourlyPS_df['VS.HSDPA.MeanChThroughput (kbit/s)'] / active_cell_number # количество сот
-hourlyPS_df['HSUPA Throughput, kbps'] = hourlyPS_df['VS.HSUPA.MeanChThroughput (kbit/s)'] / active_cell_number # количество сот
+hourlyPS_df['HSDPA Throughput, kbps'] = hourlyPS_df['VS.HSDPA.MeanChThroughput (kbit/s)'] / unique_cell_number # количество сот
+hourlyPS_df['HSUPA Throughput, kbps'] = hourlyPS_df['VS.HSUPA.MeanChThroughput (kbit/s)'] / unique_cell_number # количество сот
 hourlyCS_df['Soft Handover Success rate, %'] = (hourlyCS_df['VS.SHO.SuccRLAdd (None)'] + hourlyCS_df['VS.SHO.SuccRLDel (None)']) / (hourlyCS_df['VS.SHO.AttRLAdd (None)'] + hourlyCS_df['VS.SHO.AttRLDel (None)']) * 100
 hourlyCS_df['Hard Handover Success rate, %'] = hourlyCS_df['VS.HHO.SuccInterFreqOut (None)'] / hourlyCS_df['VS.HHO.AttInterFreqOut (None)'] * 100
 hourlyCS_df['CS W2G Inter-RAT Handover Out SR'] = hourlyCS_df['IRATHO.SuccOutCS (None)'] / (hourlyCS_df['IRATHO.AttOutCS (None)'] - hourlyCS_df['VS.IRATHOCS.Cancel.ReEstab (None)']) * 100
@@ -9280,6 +9286,8 @@ hourlyPS_df['RAB Assignment Success Rate (PS), %'] = (hourlyPS_df['VS.RAB.SuccEs
                                                    hourlyPS_df['VS.RAB.AttEstabPS.Conv (None)']) * 100
 hourlyCS_df['CCSR3G, %'] = hourlyCS_df['RRC Assignment SucessRate (CS BH), %'] * (100 - hourlyCS_df['RRC Drop Rate (CS BH), %']) * hourlyCS_df['RAB Assignment Success Rate (CS), %'] * (100 - hourlyCS_df['CS RAB Drop Rate (%)'])/ 1000000
 hourlyPS_df['DCSR3G, %'] = hourlyPS_df['RRC Assignment SucessRate (PS BH), %'] * (100 - hourlyPS_df['RRC Drop Rate (PS BH), %']) * hourlyPS_df['RAB Assignment Success Rate (PS), %'] * (100 - hourlyPS_df['PS RAB Drop Rate (%)'])/ 1000000
+hourlyCS_df['Ucell_Avail'] = 100 - (hourlyCS_df['VS.Cell.UnavailTime (s)'] + hourlyCS_df['VS.Cell.UnavailTime.Sys (s)']) * 100 / 3600 / unique_cell_number
+
 hourlyCS_df = hourlyCS_df.drop(list_1, axis=1)
 hourlyCS_df_trans = hourlyCS_df.transpose()
 hourlyPS_df = hourlyPS_df.drop(list_1, axis=1)
@@ -9450,6 +9458,7 @@ RABAssignmentSuccessRateCS= Reference(weekly_sheet, min_col=18, min_row=1, max_r
 RABAssignmentSuccessRatePS= Reference(weekly_sheet, min_col=19, min_row=1, max_row=last_row_weekly)
 CCSR3G= Reference(weekly_sheet, min_col=20, min_row=1, max_row=last_row_weekly)
 DCSR3G= Reference(weekly_sheet, min_col=21, min_row=1, max_row=last_row_weekly)
+CellAvailability= Reference(weekly_sheet, min_col=22, min_row=1, max_row=last_row_weekly)
 
 CStraffic_chart = LineChart()
 CStraffic_chart.width = 40
@@ -9559,6 +9568,15 @@ DCSR3G_chart.set_categories(x_values)
 DCSR3G_chart.legend.position = 'b'
 weekly_sheet.add_chart(DCSR3G_chart, "A258")
 
+CellAvailability_chart = LineChart()
+CellAvailability_chart.width = 40
+CellAvailability_chart.height = 10
+CellAvailability_chart.add_data(CellAvailability, titles_from_data = True)  #
+CellAvailability_chart.add_data(CellAvailability, titles_from_data = True)  #
+CellAvailability_chart.set_categories(x_values)
+CellAvailability_chart.legend.position = 'b'
+weekly_sheet.add_chart(CellAvailability_chart, "A278")
+
 # weekle NodeB
 x_valuesN = Reference(weeklyN_sheet, range_string=(f"NodeBweekly!$B$2:$B${last_row_weeklyN}"))
 MeanThrHSDPAkbps= Reference(weeklyN_sheet, min_col=3, min_row=1, max_row=last_row_weeklyN)
@@ -9606,101 +9624,104 @@ RABAssignmentSuccessRateCS= Reference(daily_sheet, min_col=18, min_row=1, max_ro
 RABAssignmentSuccessRatePS= Reference(daily_sheet, min_col=19, min_row=1, max_row=last_row_daily)
 CCSR3G= Reference(daily_sheet, min_col=20, min_row=1, max_row=last_row_daily)
 DCSR3G= Reference(daily_sheet, min_col=21, min_row=1, max_row=last_row_daily)
-CStraffic3GErlU2100= Reference(daily_sheet, min_col=22, min_row=1, max_row=last_row_daily)
-PStraffic3GULDLGBU2100= Reference(daily_sheet, min_col=23, min_row=1, max_row=last_row_daily)
-CSRABDropRateU2100= Reference(daily_sheet, min_col=24, min_row=1, max_row=last_row_daily)
-PSBlockingRateU2100= Reference(daily_sheet, min_col=25, min_row=1, max_row=last_row_daily)
-PSRABDropRateU2100= Reference(daily_sheet, min_col=26, min_row=1, max_row=last_row_daily)
-PSHSDropRateU2100= Reference(daily_sheet, min_col=27, min_row=1, max_row=last_row_daily)
-HSDPAThroughputkbpsU2100= Reference(daily_sheet, min_col=28, min_row=1, max_row=last_row_daily)
-HSUPAThroughputkbpsU2100= Reference(daily_sheet, min_col=29, min_row=1, max_row=last_row_daily)
-SoftHandoverSuccessrateU2100= Reference(daily_sheet, min_col=30, min_row=1, max_row=last_row_daily)
-HardHandoverSuccessrateU2100= Reference(daily_sheet, min_col=31, min_row=1, max_row=last_row_daily)
-CSW2GInterRATHandoverOutSRU2100= Reference(daily_sheet, min_col=32, min_row=1, max_row=last_row_daily)
-RRCAssignmentSucessRateCSBHU2100= Reference(daily_sheet, min_col=33, min_row=1, max_row=last_row_daily)
-RRCAssignmentSucessRatePSBHU2100= Reference(daily_sheet, min_col=34, min_row=1, max_row=last_row_daily)
-RRCDropRateCSBHU2100= Reference(daily_sheet, min_col=35, min_row=1, max_row=last_row_daily)
-RRCDropRatePSBHU2100= Reference(daily_sheet, min_col=36, min_row=1, max_row=last_row_daily)
-RABAssignmentSuccessRateCSU2100= Reference(daily_sheet, min_col=37, min_row=1, max_row=last_row_daily)
-RABAssignmentSuccessRatePSU2100= Reference(daily_sheet, min_col=38, min_row=1, max_row=last_row_daily)
-CCSR3GU2100= Reference(daily_sheet, min_col=39, min_row=1, max_row=last_row_daily)
-DCSR3GU2100= Reference(daily_sheet, min_col=40, min_row=1, max_row=last_row_daily)
-CStraffic3GErlU900= Reference(daily_sheet, min_col=41, min_row=1, max_row=last_row_daily)
-PStraffic3GULDLGBU900= Reference(daily_sheet, min_col=42, min_row=1, max_row=last_row_daily)
-CSRABDropRateU900= Reference(daily_sheet, min_col=43, min_row=1, max_row=last_row_daily)
-PSBlockingRateU900= Reference(daily_sheet, min_col=44, min_row=1, max_row=last_row_daily)
-PSRABDropRateU900= Reference(daily_sheet, min_col=45, min_row=1, max_row=last_row_daily)
-PSHSDropRateU900= Reference(daily_sheet, min_col=46, min_row=1, max_row=last_row_daily)
-HSDPAThroughputkbpsU900= Reference(daily_sheet, min_col=47, min_row=1, max_row=last_row_daily)
-HSUPAThroughputkbpsU900= Reference(daily_sheet, min_col=48, min_row=1, max_row=last_row_daily)
-SoftHandoverSuccessrateU900= Reference(daily_sheet, min_col=49, min_row=1, max_row=last_row_daily)
-HardHandoverSuccessrateU900= Reference(daily_sheet, min_col=50, min_row=1, max_row=last_row_daily)
-CSW2GInterRATHandoverOutSRU900= Reference(daily_sheet, min_col=51, min_row=1, max_row=last_row_daily)
-RRCAssignmentSucessRateCSBHU900= Reference(daily_sheet, min_col=52, min_row=1, max_row=last_row_daily)
-RRCAssignmentSucessRatePSBHU900= Reference(daily_sheet, min_col=53, min_row=1, max_row=last_row_daily)
-RRCDropRateCSBHU900= Reference(daily_sheet, min_col=54, min_row=1, max_row=last_row_daily)
-RRCDropRatePSBHU900= Reference(daily_sheet, min_col=55, min_row=1, max_row=last_row_daily)
-RABAssignmentSuccessRateCSU900= Reference(daily_sheet, min_col=56, min_row=1, max_row=last_row_daily)
-RABAssignmentSuccessRatePSU900= Reference(daily_sheet, min_col=57, min_row=1, max_row=last_row_daily)
-CCSR3GU900= Reference(daily_sheet, min_col=58, min_row=1, max_row=last_row_daily)
-DCSR3GU900= Reference(daily_sheet, min_col=59, min_row=1, max_row=last_row_daily)
-CStraffic3GErl10612= Reference(daily_sheet, min_col=60, min_row=1, max_row=last_row_daily)
-PStraffic3GULDLGB10612= Reference(daily_sheet, min_col=61, min_row=1, max_row=last_row_daily)
-CSRABDropRate10612= Reference(daily_sheet, min_col=62, min_row=1, max_row=last_row_daily)
-PSBlockingRate10612= Reference(daily_sheet, min_col=63, min_row=1, max_row=last_row_daily)
-PSRABDropRate10612= Reference(daily_sheet, min_col=64, min_row=1, max_row=last_row_daily)
-PSHSDropRate10612= Reference(daily_sheet, min_col=65, min_row=1, max_row=last_row_daily)
-HSDPAThroughputkbps10612= Reference(daily_sheet, min_col=66, min_row=1, max_row=last_row_daily)
-HSUPAThroughputkbps10612= Reference(daily_sheet, min_col=67, min_row=1, max_row=last_row_daily)
-SoftHandoverSuccessrate10612= Reference(daily_sheet, min_col=68, min_row=1, max_row=last_row_daily)
-HardHandoverSuccessrate10612= Reference(daily_sheet, min_col=69, min_row=1, max_row=last_row_daily)
-CSW2GInterRATHandoverOutSR10612= Reference(daily_sheet, min_col=70, min_row=1, max_row=last_row_daily)
-RRCAssignmentSucessRateCSBH10612= Reference(daily_sheet, min_col=71, min_row=1, max_row=last_row_daily)
-RRCAssignmentSucessRatePSBH10612= Reference(daily_sheet, min_col=72, min_row=1, max_row=last_row_daily)
-RRCDropRateCSBH10612= Reference(daily_sheet, min_col=73, min_row=1, max_row=last_row_daily)
-RRCDropRatePSBH10612= Reference(daily_sheet, min_col=74, min_row=1, max_row=last_row_daily)
-RABAssignmentSuccessRateCS10612= Reference(daily_sheet, min_col=75, min_row=1, max_row=last_row_daily)
-RABAssignmentSuccessRatePS10612= Reference(daily_sheet, min_col=76, min_row=1, max_row=last_row_daily)
-CCSR3G10612= Reference(daily_sheet, min_col=77, min_row=1, max_row=last_row_daily)
-DCSR3G10612= Reference(daily_sheet, min_col=78, min_row=1, max_row=last_row_daily)
-CStraffic3GErl10637= Reference(daily_sheet, min_col=79, min_row=1, max_row=last_row_daily)
-PStraffic3GULDLGB10637= Reference(daily_sheet, min_col=80, min_row=1, max_row=last_row_daily)
-CSRABDropRate10637= Reference(daily_sheet, min_col=81, min_row=1, max_row=last_row_daily)
-PSBlockingRate10637= Reference(daily_sheet, min_col=82, min_row=1, max_row=last_row_daily)
-PSRABDropRate10637= Reference(daily_sheet, min_col=83, min_row=1, max_row=last_row_daily)
-PSHSDropRate10637= Reference(daily_sheet, min_col=84, min_row=1, max_row=last_row_daily)
-HSDPAThroughputkbps10637= Reference(daily_sheet, min_col=85, min_row=1, max_row=last_row_daily)
-HSUPAThroughputkbps10637= Reference(daily_sheet, min_col=86, min_row=1, max_row=last_row_daily)
-SoftHandoverSuccessrate10637= Reference(daily_sheet, min_col=87, min_row=1, max_row=last_row_daily)
-HardHandoverSuccessrate10637= Reference(daily_sheet, min_col=88, min_row=1, max_row=last_row_daily)
-CSW2GInterRATHandoverOutSR10637= Reference(daily_sheet, min_col=89, min_row=1, max_row=last_row_daily)
-RRCAssignmentSucessRateCSBH10637= Reference(daily_sheet, min_col=90, min_row=1, max_row=last_row_daily)
-RRCAssignmentSucessRatePSBH10637= Reference(daily_sheet, min_col=91, min_row=1, max_row=last_row_daily)
-RRCDropRateCSBH10637= Reference(daily_sheet, min_col=92, min_row=1, max_row=last_row_daily)
-RRCDropRatePSBH10637= Reference(daily_sheet, min_col=93, min_row=1, max_row=last_row_daily)
-RABAssignmentSuccessRateCS10637= Reference(daily_sheet, min_col=94, min_row=1, max_row=last_row_daily)
-RABAssignmentSuccessRatePS10637= Reference(daily_sheet, min_col=95, min_row=1, max_row=last_row_daily)
-CCSR3G10637= Reference(daily_sheet, min_col=96, min_row=1, max_row=last_row_daily)
-DCSR3G10637= Reference(daily_sheet, min_col=97, min_row=1, max_row=last_row_daily)
-CStraffic3GErl2937= Reference(daily_sheet, min_col=98, min_row=1, max_row=last_row_daily)
-PStraffic3GULDLGB2937= Reference(daily_sheet, min_col=99, min_row=1, max_row=last_row_daily)
-CSRABDropRate2937= Reference(daily_sheet, min_col=100, min_row=1, max_row=last_row_daily)
-PSBlockingRate2937= Reference(daily_sheet, min_col=101, min_row=1, max_row=last_row_daily)
-PSRABDropRate2937= Reference(daily_sheet, min_col=102, min_row=1, max_row=last_row_daily)
-PSHSDropRate2937= Reference(daily_sheet, min_col=103, min_row=1, max_row=last_row_daily)
-HSDPAThroughputkbps2937= Reference(daily_sheet, min_col=104, min_row=1, max_row=last_row_daily)
-HSUPAThroughputkbps2937= Reference(daily_sheet, min_col=105, min_row=1, max_row=last_row_daily)
-SoftHandoverSuccessrate2937= Reference(daily_sheet, min_col=106, min_row=1, max_row=last_row_daily)
-HardHandoverSuccessrate2937= Reference(daily_sheet, min_col=107, min_row=1, max_row=last_row_daily)
-CSW2GInterRATHandoverOutSR2937= Reference(daily_sheet, min_col=108, min_row=1, max_row=last_row_daily)
-RRCAssignmentSucessRateCSBH2937= Reference(daily_sheet, min_col=109, min_row=1, max_row=last_row_daily)
-RRCAssignmentSucessRatePSBH2937= Reference(daily_sheet, min_col=110, min_row=1, max_row=last_row_daily)
-RRCDropRateCSBH2937= Reference(daily_sheet, min_col=111, min_row=1, max_row=last_row_daily)
-RRCDropRatePSBH2937= Reference(daily_sheet, min_col=112, min_row=1, max_row=last_row_daily)
-RABAssignmentSuccessRateCS2937= Reference(daily_sheet, min_col=113, min_row=1, max_row=last_row_daily)
-RABAssignmentSuccessRatePS2937= Reference(daily_sheet, min_col=114, min_row=1, max_row=last_row_daily)
-CCSR3G2937= Reference(daily_sheet, min_col=115, min_row=1, max_row=last_row_daily)
-DCSR3G2937= Reference(daily_sheet, min_col=116, min_row=1, max_row=last_row_daily)
+Ucell_Avail = Reference(daily_sheet, min_col=22, min_row=1, max_row=last_row_daily) # новый KPI
+CStraffic3GErlU2100= Reference(daily_sheet, min_col=23, min_row=1, max_row=last_row_daily)
+PStraffic3GULDLGBU2100= Reference(daily_sheet, min_col=24, min_row=1, max_row=last_row_daily)
+CSRABDropRateU2100= Reference(daily_sheet, min_col=25, min_row=1, max_row=last_row_daily)
+PSBlockingRateU2100= Reference(daily_sheet, min_col=26, min_row=1, max_row=last_row_daily)
+PSRABDropRateU2100= Reference(daily_sheet, min_col=27, min_row=1, max_row=last_row_daily)
+PSHSDropRateU2100= Reference(daily_sheet, min_col=28, min_row=1, max_row=last_row_daily)
+HSDPAThroughputkbpsU2100= Reference(daily_sheet, min_col=29, min_row=1, max_row=last_row_daily)
+HSUPAThroughputkbpsU2100= Reference(daily_sheet, min_col=30, min_row=1, max_row=last_row_daily)
+SoftHandoverSuccessrateU2100= Reference(daily_sheet, min_col=31, min_row=1, max_row=last_row_daily)
+HardHandoverSuccessrateU2100= Reference(daily_sheet, min_col=32, min_row=1, max_row=last_row_daily)
+CSW2GInterRATHandoverOutSRU2100= Reference(daily_sheet, min_col=33, min_row=1, max_row=last_row_daily)
+RRCAssignmentSucessRateCSBHU2100= Reference(daily_sheet, min_col=34, min_row=1, max_row=last_row_daily)
+RRCAssignmentSucessRatePSBHU2100= Reference(daily_sheet, min_col=35, min_row=1, max_row=last_row_daily)
+RRCDropRateCSBHU2100= Reference(daily_sheet, min_col=36, min_row=1, max_row=last_row_daily)
+RRCDropRatePSBHU2100= Reference(daily_sheet, min_col=37, min_row=1, max_row=last_row_daily)
+RABAssignmentSuccessRateCSU2100= Reference(daily_sheet, min_col=38, min_row=1, max_row=last_row_daily)
+RABAssignmentSuccessRatePSU2100= Reference(daily_sheet, min_col=39, min_row=1, max_row=last_row_daily)
+CCSR3GU2100= Reference(daily_sheet, min_col=40, min_row=1, max_row=last_row_daily)
+DCSR3GU2100= Reference(daily_sheet, min_col=41, min_row=1, max_row=last_row_daily)
+Ucell_Avail2100 = Reference(daily_sheet, min_col=42, min_row=1, max_row=last_row_daily) # новый KPI
+CStraffic3GErlU900= Reference(daily_sheet, min_col=43, min_row=1, max_row=last_row_daily)
+PStraffic3GULDLGBU900= Reference(daily_sheet, min_col=44, min_row=1, max_row=last_row_daily)
+CSRABDropRateU900= Reference(daily_sheet, min_col=45, min_row=1, max_row=last_row_daily)
+PSBlockingRateU900= Reference(daily_sheet, min_col=46, min_row=1, max_row=last_row_daily)
+PSRABDropRateU900= Reference(daily_sheet, min_col=47, min_row=1, max_row=last_row_daily)
+PSHSDropRateU900= Reference(daily_sheet, min_col=48, min_row=1, max_row=last_row_daily)
+HSDPAThroughputkbpsU900= Reference(daily_sheet, min_col=49, min_row=1, max_row=last_row_daily)
+HSUPAThroughputkbpsU900= Reference(daily_sheet, min_col=50, min_row=1, max_row=last_row_daily)
+SoftHandoverSuccessrateU900= Reference(daily_sheet, min_col=51, min_row=1, max_row=last_row_daily)
+HardHandoverSuccessrateU900= Reference(daily_sheet, min_col=52, min_row=1, max_row=last_row_daily)
+CSW2GInterRATHandoverOutSRU900= Reference(daily_sheet, min_col=53, min_row=1, max_row=last_row_daily)
+RRCAssignmentSucessRateCSBHU900= Reference(daily_sheet, min_col=54, min_row=1, max_row=last_row_daily)
+RRCAssignmentSucessRatePSBHU900= Reference(daily_sheet, min_col=55, min_row=1, max_row=last_row_daily)
+RRCDropRateCSBHU900= Reference(daily_sheet, min_col=56, min_row=1, max_row=last_row_daily)
+RRCDropRatePSBHU900= Reference(daily_sheet, min_col=57, min_row=1, max_row=last_row_daily)
+RABAssignmentSuccessRateCSU900= Reference(daily_sheet, min_col=58, min_row=1, max_row=last_row_daily)
+RABAssignmentSuccessRatePSU900= Reference(daily_sheet, min_col=59, min_row=1, max_row=last_row_daily)
+CCSR3GU900= Reference(daily_sheet, min_col=60, min_row=1, max_row=last_row_daily)
+DCSR3GU900= Reference(daily_sheet, min_col=61, min_row=1, max_row=last_row_daily)
+Ucell_Avail900 = Reference(daily_sheet, min_col=62, min_row=1, max_row=last_row_daily) # новый KPI
+# CStraffic3GErl10612= Reference(daily_sheet, min_col=60, min_row=1, max_row=last_row_daily)
+# PStraffic3GULDLGB10612= Reference(daily_sheet, min_col=61, min_row=1, max_row=last_row_daily)
+# CSRABDropRate10612= Reference(daily_sheet, min_col=62, min_row=1, max_row=last_row_daily)
+# PSBlockingRate10612= Reference(daily_sheet, min_col=63, min_row=1, max_row=last_row_daily)
+# PSRABDropRate10612= Reference(daily_sheet, min_col=64, min_row=1, max_row=last_row_daily)
+# PSHSDropRate10612= Reference(daily_sheet, min_col=65, min_row=1, max_row=last_row_daily)
+# HSDPAThroughputkbps10612= Reference(daily_sheet, min_col=66, min_row=1, max_row=last_row_daily)
+# HSUPAThroughputkbps10612= Reference(daily_sheet, min_col=67, min_row=1, max_row=last_row_daily)
+# SoftHandoverSuccessrate10612= Reference(daily_sheet, min_col=68, min_row=1, max_row=last_row_daily)
+# HardHandoverSuccessrate10612= Reference(daily_sheet, min_col=69, min_row=1, max_row=last_row_daily)
+# CSW2GInterRATHandoverOutSR10612= Reference(daily_sheet, min_col=70, min_row=1, max_row=last_row_daily)
+# RRCAssignmentSucessRateCSBH10612= Reference(daily_sheet, min_col=71, min_row=1, max_row=last_row_daily)
+# RRCAssignmentSucessRatePSBH10612= Reference(daily_sheet, min_col=72, min_row=1, max_row=last_row_daily)
+# RRCDropRateCSBH10612= Reference(daily_sheet, min_col=73, min_row=1, max_row=last_row_daily)
+# RRCDropRatePSBH10612= Reference(daily_sheet, min_col=74, min_row=1, max_row=last_row_daily)
+# RABAssignmentSuccessRateCS10612= Reference(daily_sheet, min_col=75, min_row=1, max_row=last_row_daily)
+# RABAssignmentSuccessRatePS10612= Reference(daily_sheet, min_col=76, min_row=1, max_row=last_row_daily)
+# CCSR3G10612= Reference(daily_sheet, min_col=77, min_row=1, max_row=last_row_daily)
+# DCSR3G10612= Reference(daily_sheet, min_col=78, min_row=1, max_row=last_row_daily)
+# CStraffic3GErl10637= Reference(daily_sheet, min_col=79, min_row=1, max_row=last_row_daily)
+# PStraffic3GULDLGB10637= Reference(daily_sheet, min_col=80, min_row=1, max_row=last_row_daily)
+# CSRABDropRate10637= Reference(daily_sheet, min_col=81, min_row=1, max_row=last_row_daily)
+# PSBlockingRate10637= Reference(daily_sheet, min_col=82, min_row=1, max_row=last_row_daily)
+# PSRABDropRate10637= Reference(daily_sheet, min_col=83, min_row=1, max_row=last_row_daily)
+# PSHSDropRate10637= Reference(daily_sheet, min_col=84, min_row=1, max_row=last_row_daily)
+# HSDPAThroughputkbps10637= Reference(daily_sheet, min_col=85, min_row=1, max_row=last_row_daily)
+# HSUPAThroughputkbps10637= Reference(daily_sheet, min_col=86, min_row=1, max_row=last_row_daily)
+# SoftHandoverSuccessrate10637= Reference(daily_sheet, min_col=87, min_row=1, max_row=last_row_daily)
+# HardHandoverSuccessrate10637= Reference(daily_sheet, min_col=88, min_row=1, max_row=last_row_daily)
+# CSW2GInterRATHandoverOutSR10637= Reference(daily_sheet, min_col=89, min_row=1, max_row=last_row_daily)
+# RRCAssignmentSucessRateCSBH10637= Reference(daily_sheet, min_col=90, min_row=1, max_row=last_row_daily)
+# RRCAssignmentSucessRatePSBH10637= Reference(daily_sheet, min_col=91, min_row=1, max_row=last_row_daily)
+# RRCDropRateCSBH10637= Reference(daily_sheet, min_col=92, min_row=1, max_row=last_row_daily)
+# RRCDropRatePSBH10637= Reference(daily_sheet, min_col=93, min_row=1, max_row=last_row_daily)
+# RABAssignmentSuccessRateCS10637= Reference(daily_sheet, min_col=94, min_row=1, max_row=last_row_daily)
+# RABAssignmentSuccessRatePS10637= Reference(daily_sheet, min_col=95, min_row=1, max_row=last_row_daily)
+# CCSR3G10637= Reference(daily_sheet, min_col=96, min_row=1, max_row=last_row_daily)
+# DCSR3G10637= Reference(daily_sheet, min_col=97, min_row=1, max_row=last_row_daily)
+# CStraffic3GErl2937= Reference(daily_sheet, min_col=98, min_row=1, max_row=last_row_daily)
+# PStraffic3GULDLGB2937= Reference(daily_sheet, min_col=99, min_row=1, max_row=last_row_daily)
+# CSRABDropRate2937= Reference(daily_sheet, min_col=100, min_row=1, max_row=last_row_daily)
+# PSBlockingRate2937= Reference(daily_sheet, min_col=101, min_row=1, max_row=last_row_daily)
+# PSRABDropRate2937= Reference(daily_sheet, min_col=102, min_row=1, max_row=last_row_daily)
+# PSHSDropRate2937= Reference(daily_sheet, min_col=103, min_row=1, max_row=last_row_daily)
+# HSDPAThroughputkbps2937= Reference(daily_sheet, min_col=104, min_row=1, max_row=last_row_daily)
+# HSUPAThroughputkbps2937= Reference(daily_sheet, min_col=105, min_row=1, max_row=last_row_daily)
+# SoftHandoverSuccessrate2937= Reference(daily_sheet, min_col=106, min_row=1, max_row=last_row_daily)
+# HardHandoverSuccessrate2937= Reference(daily_sheet, min_col=107, min_row=1, max_row=last_row_daily)
+# CSW2GInterRATHandoverOutSR2937= Reference(daily_sheet, min_col=108, min_row=1, max_row=last_row_daily)
+# RRCAssignmentSucessRateCSBH2937= Reference(daily_sheet, min_col=109, min_row=1, max_row=last_row_daily)
+# RRCAssignmentSucessRatePSBH2937= Reference(daily_sheet, min_col=110, min_row=1, max_row=last_row_daily)
+# RRCDropRateCSBH2937= Reference(daily_sheet, min_col=111, min_row=1, max_row=last_row_daily)
+# RRCDropRatePSBH2937= Reference(daily_sheet, min_col=112, min_row=1, max_row=last_row_daily)
+# RABAssignmentSuccessRateCS2937= Reference(daily_sheet, min_col=113, min_row=1, max_row=last_row_daily)
+# RABAssignmentSuccessRatePS2937= Reference(daily_sheet, min_col=114, min_row=1, max_row=last_row_daily)
+# CCSR3G2937= Reference(daily_sheet, min_col=115, min_row=1, max_row=last_row_daily)
+# DCSR3G2937= Reference(daily_sheet, min_col=116, min_row=1, max_row=last_row_daily)
 
 CStraffic_chart = LineChart()
 CStraffic_chart.width = 40
@@ -9837,6 +9858,16 @@ DCSR3G_chart.add_data(DCSR3GU900, titles_from_data = True)
 DCSR3G_chart.set_categories(x_values)
 DCSR3G_chart.legend.position = 'b'
 daily_sheet.add_chart(DCSR3G_chart, "A258")
+
+Ucell_Avail_chart = LineChart()
+Ucell_Avail_chart.width = 40
+Ucell_Avail_chart.height = 10
+Ucell_Avail_chart.add_data(Ucell_Avail, titles_from_data = True)  #
+Ucell_Avail_chart.add_data(Ucell_Avail2100, titles_from_data = True)
+Ucell_Avail_chart.add_data(Ucell_Avail900, titles_from_data = True)
+Ucell_Avail_chart.set_categories(x_values)
+Ucell_Avail_chart.legend.position = 'b'
+daily_sheet.add_chart(Ucell_Avail_chart, "A278")
 #daily NodeB
 x_valuesN = Reference(dailyN_sheet, range_string=(f"NodeBdaily!$B$2:$B${last_row_dailyN}"))
 MeanThrHSDPAkbps= Reference(dailyN_sheet, min_col=3, min_row=1, max_row=last_row_dailyN)
@@ -9902,101 +9933,104 @@ RABAssignmentSuccessRateCS= Reference(hourly_sheet, min_col=18, min_row=1, max_r
 RABAssignmentSuccessRatePS= Reference(hourly_sheet, min_col=19, min_row=1, max_row=last_row_hourly)
 CCSR3G= Reference(hourly_sheet, min_col=20, min_row=1, max_row=last_row_hourly)
 DCSR3G= Reference(hourly_sheet, min_col=21, min_row=1, max_row=last_row_hourly)
-CStraffic3GErlU2100= Reference(hourly_sheet, min_col=22, min_row=1, max_row=last_row_hourly)
-PStraffic3GULDLGBU2100= Reference(hourly_sheet, min_col=23, min_row=1, max_row=last_row_hourly)
-CSRABDropRateU2100= Reference(hourly_sheet, min_col=24, min_row=1, max_row=last_row_hourly)
-PSBlockingRateU2100= Reference(hourly_sheet, min_col=25, min_row=1, max_row=last_row_hourly)
-PSRABDropRateU2100= Reference(hourly_sheet, min_col=26, min_row=1, max_row=last_row_hourly)
-PSHSDropRateU2100= Reference(hourly_sheet, min_col=27, min_row=1, max_row=last_row_hourly)
-HSDPAThroughputkbpsU2100= Reference(hourly_sheet, min_col=28, min_row=1, max_row=last_row_hourly)
-HSUPAThroughputkbpsU2100= Reference(hourly_sheet, min_col=29, min_row=1, max_row=last_row_hourly)
-SoftHandoverSuccessrateU2100= Reference(hourly_sheet, min_col=30, min_row=1, max_row=last_row_hourly)
-HardHandoverSuccessrateU2100= Reference(hourly_sheet, min_col=31, min_row=1, max_row=last_row_hourly)
-CSW2GInterRATHandoverOutSRU2100= Reference(hourly_sheet, min_col=32, min_row=1, max_row=last_row_hourly)
-RRCAssignmentSucessRateCSBHU2100= Reference(hourly_sheet, min_col=33, min_row=1, max_row=last_row_hourly)
-RRCAssignmentSucessRatePSBHU2100= Reference(hourly_sheet, min_col=34, min_row=1, max_row=last_row_hourly)
-RRCDropRateCSBHU2100= Reference(hourly_sheet, min_col=35, min_row=1, max_row=last_row_hourly)
-RRCDropRatePSBHU2100= Reference(hourly_sheet, min_col=36, min_row=1, max_row=last_row_hourly)
-RABAssignmentSuccessRateCSU2100= Reference(hourly_sheet, min_col=37, min_row=1, max_row=last_row_hourly)
-RABAssignmentSuccessRatePSU2100= Reference(hourly_sheet, min_col=38, min_row=1, max_row=last_row_hourly)
-CCSR3GU2100= Reference(hourly_sheet, min_col=39, min_row=1, max_row=last_row_hourly)
-DCSR3GU2100= Reference(hourly_sheet, min_col=40, min_row=1, max_row=last_row_hourly)
-CStraffic3GErlU900= Reference(hourly_sheet, min_col=41, min_row=1, max_row=last_row_hourly)
-PStraffic3GULDLGBU900= Reference(hourly_sheet, min_col=42, min_row=1, max_row=last_row_hourly)
-CSRABDropRateU900= Reference(hourly_sheet, min_col=43, min_row=1, max_row=last_row_hourly)
-PSBlockingRateU900= Reference(hourly_sheet, min_col=44, min_row=1, max_row=last_row_hourly)
-PSRABDropRateU900= Reference(hourly_sheet, min_col=45, min_row=1, max_row=last_row_hourly)
-PSHSDropRateU900= Reference(hourly_sheet, min_col=46, min_row=1, max_row=last_row_hourly)
-HSDPAThroughputkbpsU900= Reference(hourly_sheet, min_col=47, min_row=1, max_row=last_row_hourly)
-HSUPAThroughputkbpsU900= Reference(hourly_sheet, min_col=48, min_row=1, max_row=last_row_hourly)
-SoftHandoverSuccessrateU900= Reference(hourly_sheet, min_col=49, min_row=1, max_row=last_row_hourly)
-HardHandoverSuccessrateU900= Reference(hourly_sheet, min_col=50, min_row=1, max_row=last_row_hourly)
-CSW2GInterRATHandoverOutSRU900= Reference(hourly_sheet, min_col=51, min_row=1, max_row=last_row_hourly)
-RRCAssignmentSucessRateCSBHU900= Reference(hourly_sheet, min_col=52, min_row=1, max_row=last_row_hourly)
-RRCAssignmentSucessRatePSBHU900= Reference(hourly_sheet, min_col=53, min_row=1, max_row=last_row_hourly)
-RRCDropRateCSBHU900= Reference(hourly_sheet, min_col=54, min_row=1, max_row=last_row_hourly)
-RRCDropRatePSBHU900= Reference(hourly_sheet, min_col=55, min_row=1, max_row=last_row_hourly)
-RABAssignmentSuccessRateCSU900= Reference(hourly_sheet, min_col=56, min_row=1, max_row=last_row_hourly)
-RABAssignmentSuccessRatePSU900= Reference(hourly_sheet, min_col=57, min_row=1, max_row=last_row_hourly)
-CCSR3GU900= Reference(hourly_sheet, min_col=58, min_row=1, max_row=last_row_hourly)
-DCSR3GU900= Reference(hourly_sheet, min_col=59, min_row=1, max_row=last_row_hourly)
-CStraffic3GErl10612= Reference(hourly_sheet, min_col=60, min_row=1, max_row=last_row_hourly)
-PStraffic3GULDLGB10612= Reference(hourly_sheet, min_col=61, min_row=1, max_row=last_row_hourly)
-CSRABDropRate10612= Reference(hourly_sheet, min_col=62, min_row=1, max_row=last_row_hourly)
-PSBlockingRate10612= Reference(hourly_sheet, min_col=63, min_row=1, max_row=last_row_hourly)
-PSRABDropRate10612= Reference(hourly_sheet, min_col=64, min_row=1, max_row=last_row_hourly)
-PSHSDropRate10612= Reference(hourly_sheet, min_col=65, min_row=1, max_row=last_row_hourly)
-HSDPAThroughputkbps10612= Reference(hourly_sheet, min_col=66, min_row=1, max_row=last_row_hourly)
-HSUPAThroughputkbps10612= Reference(hourly_sheet, min_col=67, min_row=1, max_row=last_row_hourly)
-SoftHandoverSuccessrate10612= Reference(hourly_sheet, min_col=68, min_row=1, max_row=last_row_hourly)
-HardHandoverSuccessrate10612= Reference(hourly_sheet, min_col=69, min_row=1, max_row=last_row_hourly)
-CSW2GInterRATHandoverOutSR10612= Reference(hourly_sheet, min_col=70, min_row=1, max_row=last_row_hourly)
-RRCAssignmentSucessRateCSBH10612= Reference(hourly_sheet, min_col=71, min_row=1, max_row=last_row_hourly)
-RRCAssignmentSucessRatePSBH10612= Reference(hourly_sheet, min_col=72, min_row=1, max_row=last_row_hourly)
-RRCDropRateCSBH10612= Reference(hourly_sheet, min_col=73, min_row=1, max_row=last_row_hourly)
-RRCDropRatePSBH10612= Reference(hourly_sheet, min_col=74, min_row=1, max_row=last_row_hourly)
-RABAssignmentSuccessRateCS10612= Reference(hourly_sheet, min_col=75, min_row=1, max_row=last_row_hourly)
-RABAssignmentSuccessRatePS10612= Reference(hourly_sheet, min_col=76, min_row=1, max_row=last_row_hourly)
-CCSR3G10612= Reference(hourly_sheet, min_col=77, min_row=1, max_row=last_row_hourly)
-DCSR3G10612= Reference(hourly_sheet, min_col=78, min_row=1, max_row=last_row_hourly)
-CStraffic3GErl10637= Reference(hourly_sheet, min_col=79, min_row=1, max_row=last_row_hourly)
-PStraffic3GULDLGB10637= Reference(hourly_sheet, min_col=80, min_row=1, max_row=last_row_hourly)
-CSRABDropRate10637= Reference(hourly_sheet, min_col=81, min_row=1, max_row=last_row_hourly)
-PSBlockingRate10637= Reference(hourly_sheet, min_col=82, min_row=1, max_row=last_row_hourly)
-PSRABDropRate10637= Reference(hourly_sheet, min_col=83, min_row=1, max_row=last_row_hourly)
-PSHSDropRate10637= Reference(hourly_sheet, min_col=84, min_row=1, max_row=last_row_hourly)
-HSDPAThroughputkbps10637= Reference(hourly_sheet, min_col=85, min_row=1, max_row=last_row_hourly)
-HSUPAThroughputkbps10637= Reference(hourly_sheet, min_col=86, min_row=1, max_row=last_row_hourly)
-SoftHandoverSuccessrate10637= Reference(hourly_sheet, min_col=87, min_row=1, max_row=last_row_hourly)
-HardHandoverSuccessrate10637= Reference(hourly_sheet, min_col=88, min_row=1, max_row=last_row_hourly)
-CSW2GInterRATHandoverOutSR10637= Reference(hourly_sheet, min_col=89, min_row=1, max_row=last_row_hourly)
-RRCAssignmentSucessRateCSBH10637= Reference(hourly_sheet, min_col=90, min_row=1, max_row=last_row_hourly)
-RRCAssignmentSucessRatePSBH10637= Reference(hourly_sheet, min_col=91, min_row=1, max_row=last_row_hourly)
-RRCDropRateCSBH10637= Reference(hourly_sheet, min_col=92, min_row=1, max_row=last_row_hourly)
-RRCDropRatePSBH10637= Reference(hourly_sheet, min_col=93, min_row=1, max_row=last_row_hourly)
-RABAssignmentSuccessRateCS10637= Reference(hourly_sheet, min_col=94, min_row=1, max_row=last_row_hourly)
-RABAssignmentSuccessRatePS10637= Reference(hourly_sheet, min_col=95, min_row=1, max_row=last_row_hourly)
-CCSR3G10637= Reference(hourly_sheet, min_col=96, min_row=1, max_row=last_row_hourly)
-DCSR3G10637= Reference(hourly_sheet, min_col=97, min_row=1, max_row=last_row_hourly)
-CStraffic3GErl2937= Reference(hourly_sheet, min_col=98, min_row=1, max_row=last_row_hourly)
-PStraffic3GULDLGB2937= Reference(hourly_sheet, min_col=99, min_row=1, max_row=last_row_hourly)
-CSRABDropRate2937= Reference(hourly_sheet, min_col=100, min_row=1, max_row=last_row_hourly)
-PSBlockingRate2937= Reference(hourly_sheet, min_col=101, min_row=1, max_row=last_row_hourly)
-PSRABDropRate2937= Reference(hourly_sheet, min_col=102, min_row=1, max_row=last_row_hourly)
-PSHSDropRate2937= Reference(hourly_sheet, min_col=103, min_row=1, max_row=last_row_hourly)
-HSDPAThroughputkbps2937= Reference(hourly_sheet, min_col=104, min_row=1, max_row=last_row_hourly)
-HSUPAThroughputkbps2937= Reference(hourly_sheet, min_col=105, min_row=1, max_row=last_row_hourly)
-SoftHandoverSuccessrate2937= Reference(hourly_sheet, min_col=106, min_row=1, max_row=last_row_hourly)
-HardHandoverSuccessrate2937= Reference(hourly_sheet, min_col=107, min_row=1, max_row=last_row_hourly)
-CSW2GInterRATHandoverOutSR2937= Reference(hourly_sheet, min_col=108, min_row=1, max_row=last_row_hourly)
-RRCAssignmentSucessRateCSBH2937= Reference(hourly_sheet, min_col=109, min_row=1, max_row=last_row_hourly)
-RRCAssignmentSucessRatePSBH2937= Reference(hourly_sheet, min_col=110, min_row=1, max_row=last_row_hourly)
-RRCDropRateCSBH2937= Reference(hourly_sheet, min_col=111, min_row=1, max_row=last_row_hourly)
-RRCDropRatePSBH2937= Reference(hourly_sheet, min_col=112, min_row=1, max_row=last_row_hourly)
-RABAssignmentSuccessRateCS2937= Reference(hourly_sheet, min_col=113, min_row=1, max_row=last_row_hourly)
-RABAssignmentSuccessRatePS2937= Reference(hourly_sheet, min_col=114, min_row=1, max_row=last_row_hourly)
-CCSR3G2937= Reference(hourly_sheet, min_col=115, min_row=1, max_row=last_row_hourly)
-DCSR3G2937= Reference(hourly_sheet, min_col=116, min_row=1, max_row=last_row_hourly)
+Ucell_Avail= Reference(hourly_sheet, min_col=22, min_row=1, max_row=last_row_hourly) # new
+CStraffic3GErlU2100= Reference(hourly_sheet, min_col=23, min_row=1, max_row=last_row_hourly)
+PStraffic3GULDLGBU2100= Reference(hourly_sheet, min_col=24, min_row=1, max_row=last_row_hourly)
+CSRABDropRateU2100= Reference(hourly_sheet, min_col=25, min_row=1, max_row=last_row_hourly)
+PSBlockingRateU2100= Reference(hourly_sheet, min_col=26, min_row=1, max_row=last_row_hourly)
+PSRABDropRateU2100= Reference(hourly_sheet, min_col=27, min_row=1, max_row=last_row_hourly)
+PSHSDropRateU2100= Reference(hourly_sheet, min_col=28, min_row=1, max_row=last_row_hourly)
+HSDPAThroughputkbpsU2100= Reference(hourly_sheet, min_col=29, min_row=1, max_row=last_row_hourly)
+HSUPAThroughputkbpsU2100= Reference(hourly_sheet, min_col=30, min_row=1, max_row=last_row_hourly)
+SoftHandoverSuccessrateU2100= Reference(hourly_sheet, min_col=31, min_row=1, max_row=last_row_hourly)
+HardHandoverSuccessrateU2100= Reference(hourly_sheet, min_col=32, min_row=1, max_row=last_row_hourly)
+CSW2GInterRATHandoverOutSRU2100= Reference(hourly_sheet, min_col=33, min_row=1, max_row=last_row_hourly)
+RRCAssignmentSucessRateCSBHU2100= Reference(hourly_sheet, min_col=34, min_row=1, max_row=last_row_hourly)
+RRCAssignmentSucessRatePSBHU2100= Reference(hourly_sheet, min_col=35, min_row=1, max_row=last_row_hourly)
+RRCDropRateCSBHU2100= Reference(hourly_sheet, min_col=36, min_row=1, max_row=last_row_hourly)
+RRCDropRatePSBHU2100= Reference(hourly_sheet, min_col=37, min_row=1, max_row=last_row_hourly)
+RABAssignmentSuccessRateCSU2100= Reference(hourly_sheet, min_col=38, min_row=1, max_row=last_row_hourly)
+RABAssignmentSuccessRatePSU2100= Reference(hourly_sheet, min_col=39, min_row=1, max_row=last_row_hourly)
+CCSR3GU2100= Reference(hourly_sheet, min_col=40, min_row=1, max_row=last_row_hourly)
+DCSR3GU2100= Reference(hourly_sheet, min_col=41, min_row=1, max_row=last_row_hourly)
+Ucell_AvailU2100= Reference(hourly_sheet, min_col=42, min_row=1, max_row=last_row_hourly) # new
+CStraffic3GErlU900= Reference(hourly_sheet, min_col=43, min_row=1, max_row=last_row_hourly)
+PStraffic3GULDLGBU900= Reference(hourly_sheet, min_col=44, min_row=1, max_row=last_row_hourly)
+CSRABDropRateU900= Reference(hourly_sheet, min_col=45, min_row=1, max_row=last_row_hourly)
+PSBlockingRateU900= Reference(hourly_sheet, min_col=46, min_row=1, max_row=last_row_hourly)
+PSRABDropRateU900= Reference(hourly_sheet, min_col=47, min_row=1, max_row=last_row_hourly)
+PSHSDropRateU900= Reference(hourly_sheet, min_col=48, min_row=1, max_row=last_row_hourly)
+HSDPAThroughputkbpsU900= Reference(hourly_sheet, min_col=49, min_row=1, max_row=last_row_hourly)
+HSUPAThroughputkbpsU900= Reference(hourly_sheet, min_col=50, min_row=1, max_row=last_row_hourly)
+SoftHandoverSuccessrateU900= Reference(hourly_sheet, min_col=51, min_row=1, max_row=last_row_hourly)
+HardHandoverSuccessrateU900= Reference(hourly_sheet, min_col=52, min_row=1, max_row=last_row_hourly)
+CSW2GInterRATHandoverOutSRU900= Reference(hourly_sheet, min_col=53, min_row=1, max_row=last_row_hourly)
+RRCAssignmentSucessRateCSBHU900= Reference(hourly_sheet, min_col=54, min_row=1, max_row=last_row_hourly)
+RRCAssignmentSucessRatePSBHU900= Reference(hourly_sheet, min_col=55, min_row=1, max_row=last_row_hourly)
+RRCDropRateCSBHU900= Reference(hourly_sheet, min_col=56, min_row=1, max_row=last_row_hourly)
+RRCDropRatePSBHU900= Reference(hourly_sheet, min_col=57, min_row=1, max_row=last_row_hourly)
+RABAssignmentSuccessRateCSU900= Reference(hourly_sheet, min_col=58, min_row=1, max_row=last_row_hourly)
+RABAssignmentSuccessRatePSU900= Reference(hourly_sheet, min_col=59, min_row=1, max_row=last_row_hourly)
+CCSR3GU900= Reference(hourly_sheet, min_col=60, min_row=1, max_row=last_row_hourly)
+DCSR3GU900= Reference(hourly_sheet, min_col=61, min_row=1, max_row=last_row_hourly)
+Ucell_AvailU900= Reference(hourly_sheet, min_col=62, min_row=1, max_row=last_row_hourly) # new
+# CStraffic3GErl10612= Reference(hourly_sheet, min_col=60, min_row=1, max_row=last_row_hourly)
+# PStraffic3GULDLGB10612= Reference(hourly_sheet, min_col=61, min_row=1, max_row=last_row_hourly)
+# CSRABDropRate10612= Reference(hourly_sheet, min_col=62, min_row=1, max_row=last_row_hourly)
+# PSBlockingRate10612= Reference(hourly_sheet, min_col=63, min_row=1, max_row=last_row_hourly)
+# PSRABDropRate10612= Reference(hourly_sheet, min_col=64, min_row=1, max_row=last_row_hourly)
+# PSHSDropRate10612= Reference(hourly_sheet, min_col=65, min_row=1, max_row=last_row_hourly)
+# HSDPAThroughputkbps10612= Reference(hourly_sheet, min_col=66, min_row=1, max_row=last_row_hourly)
+# HSUPAThroughputkbps10612= Reference(hourly_sheet, min_col=67, min_row=1, max_row=last_row_hourly)
+# SoftHandoverSuccessrate10612= Reference(hourly_sheet, min_col=68, min_row=1, max_row=last_row_hourly)
+# HardHandoverSuccessrate10612= Reference(hourly_sheet, min_col=69, min_row=1, max_row=last_row_hourly)
+# CSW2GInterRATHandoverOutSR10612= Reference(hourly_sheet, min_col=70, min_row=1, max_row=last_row_hourly)
+# RRCAssignmentSucessRateCSBH10612= Reference(hourly_sheet, min_col=71, min_row=1, max_row=last_row_hourly)
+# RRCAssignmentSucessRatePSBH10612= Reference(hourly_sheet, min_col=72, min_row=1, max_row=last_row_hourly)
+# RRCDropRateCSBH10612= Reference(hourly_sheet, min_col=73, min_row=1, max_row=last_row_hourly)
+# RRCDropRatePSBH10612= Reference(hourly_sheet, min_col=74, min_row=1, max_row=last_row_hourly)
+# RABAssignmentSuccessRateCS10612= Reference(hourly_sheet, min_col=75, min_row=1, max_row=last_row_hourly)
+# RABAssignmentSuccessRatePS10612= Reference(hourly_sheet, min_col=76, min_row=1, max_row=last_row_hourly)
+# CCSR3G10612= Reference(hourly_sheet, min_col=77, min_row=1, max_row=last_row_hourly)
+# DCSR3G10612= Reference(hourly_sheet, min_col=78, min_row=1, max_row=last_row_hourly)
+# CStraffic3GErl10637= Reference(hourly_sheet, min_col=79, min_row=1, max_row=last_row_hourly)
+# PStraffic3GULDLGB10637= Reference(hourly_sheet, min_col=80, min_row=1, max_row=last_row_hourly)
+# CSRABDropRate10637= Reference(hourly_sheet, min_col=81, min_row=1, max_row=last_row_hourly)
+# PSBlockingRate10637= Reference(hourly_sheet, min_col=82, min_row=1, max_row=last_row_hourly)
+# PSRABDropRate10637= Reference(hourly_sheet, min_col=83, min_row=1, max_row=last_row_hourly)
+# PSHSDropRate10637= Reference(hourly_sheet, min_col=84, min_row=1, max_row=last_row_hourly)
+# HSDPAThroughputkbps10637= Reference(hourly_sheet, min_col=85, min_row=1, max_row=last_row_hourly)
+# HSUPAThroughputkbps10637= Reference(hourly_sheet, min_col=86, min_row=1, max_row=last_row_hourly)
+# SoftHandoverSuccessrate10637= Reference(hourly_sheet, min_col=87, min_row=1, max_row=last_row_hourly)
+# HardHandoverSuccessrate10637= Reference(hourly_sheet, min_col=88, min_row=1, max_row=last_row_hourly)
+# CSW2GInterRATHandoverOutSR10637= Reference(hourly_sheet, min_col=89, min_row=1, max_row=last_row_hourly)
+# RRCAssignmentSucessRateCSBH10637= Reference(hourly_sheet, min_col=90, min_row=1, max_row=last_row_hourly)
+# RRCAssignmentSucessRatePSBH10637= Reference(hourly_sheet, min_col=91, min_row=1, max_row=last_row_hourly)
+# RRCDropRateCSBH10637= Reference(hourly_sheet, min_col=92, min_row=1, max_row=last_row_hourly)
+# RRCDropRatePSBH10637= Reference(hourly_sheet, min_col=93, min_row=1, max_row=last_row_hourly)
+# RABAssignmentSuccessRateCS10637= Reference(hourly_sheet, min_col=94, min_row=1, max_row=last_row_hourly)
+# RABAssignmentSuccessRatePS10637= Reference(hourly_sheet, min_col=95, min_row=1, max_row=last_row_hourly)
+# CCSR3G10637= Reference(hourly_sheet, min_col=96, min_row=1, max_row=last_row_hourly)
+# DCSR3G10637= Reference(hourly_sheet, min_col=97, min_row=1, max_row=last_row_hourly)
+# CStraffic3GErl2937= Reference(hourly_sheet, min_col=98, min_row=1, max_row=last_row_hourly)
+# PStraffic3GULDLGB2937= Reference(hourly_sheet, min_col=99, min_row=1, max_row=last_row_hourly)
+# CSRABDropRate2937= Reference(hourly_sheet, min_col=100, min_row=1, max_row=last_row_hourly)
+# PSBlockingRate2937= Reference(hourly_sheet, min_col=101, min_row=1, max_row=last_row_hourly)
+# PSRABDropRate2937= Reference(hourly_sheet, min_col=102, min_row=1, max_row=last_row_hourly)
+# PSHSDropRate2937= Reference(hourly_sheet, min_col=103, min_row=1, max_row=last_row_hourly)
+# HSDPAThroughputkbps2937= Reference(hourly_sheet, min_col=104, min_row=1, max_row=last_row_hourly)
+# HSUPAThroughputkbps2937= Reference(hourly_sheet, min_col=105, min_row=1, max_row=last_row_hourly)
+# SoftHandoverSuccessrate2937= Reference(hourly_sheet, min_col=106, min_row=1, max_row=last_row_hourly)
+# HardHandoverSuccessrate2937= Reference(hourly_sheet, min_col=107, min_row=1, max_row=last_row_hourly)
+# CSW2GInterRATHandoverOutSR2937= Reference(hourly_sheet, min_col=108, min_row=1, max_row=last_row_hourly)
+# RRCAssignmentSucessRateCSBH2937= Reference(hourly_sheet, min_col=109, min_row=1, max_row=last_row_hourly)
+# RRCAssignmentSucessRatePSBH2937= Reference(hourly_sheet, min_col=110, min_row=1, max_row=last_row_hourly)
+# RRCDropRateCSBH2937= Reference(hourly_sheet, min_col=111, min_row=1, max_row=last_row_hourly)
+# RRCDropRatePSBH2937= Reference(hourly_sheet, min_col=112, min_row=1, max_row=last_row_hourly)
+# RABAssignmentSuccessRateCS2937= Reference(hourly_sheet, min_col=113, min_row=1, max_row=last_row_hourly)
+# RABAssignmentSuccessRatePS2937= Reference(hourly_sheet, min_col=114, min_row=1, max_row=last_row_hourly)
+# CCSR3G2937= Reference(hourly_sheet, min_col=115, min_row=1, max_row=last_row_hourly)
+# DCSR3G2937= Reference(hourly_sheet, min_col=116, min_row=1, max_row=last_row_hourly)
 
 CStraffic_chart = LineChart()
 CStraffic_chart.width = 40
@@ -10134,6 +10168,16 @@ DCSR3G_chart.set_categories(x_values)
 DCSR3G_chart.legend.position = 'b'
 hourly_sheet.add_chart(DCSR3G_chart, "A258")
 
+Ucell_Avail_chart = LineChart()
+Ucell_Avail_chart.width = 40
+Ucell_Avail_chart.height = 10
+Ucell_Avail_chart.add_data(Ucell_Avail, titles_from_data = True)  #
+Ucell_Avail_chart.add_data(Ucell_AvailU2100, titles_from_data = True)
+Ucell_Avail_chart.add_data(Ucell_AvailU900, titles_from_data = True)
+Ucell_Avail_chart.set_categories(x_values)
+Ucell_Avail_chart.legend.position = 'b'
+hourly_sheet.add_chart(Ucell_Avail_chart, "A278")
+
 #hourly NodeB
 x_valuesN = Reference(hourlyN_sheet, range_string=(f"NodeBhourly!$A$2:$B${last_row_hourlyN}"))
 MeanThrHSDPAkbps= Reference(hourlyN_sheet, min_col=3, min_row=1, max_row=last_row_hourlyN)
@@ -10200,7 +10244,7 @@ RABAssignmentSuccessRateCS= Reference(busy_hourCS_sheet, min_col=10, min_row=1, 
 RABAssignmentSuccessRatePS= Reference(busy_hourPS_sheet, min_col=11, min_row=1, max_row=last_row_BHPS)
 CCSR3G= Reference(busy_hourCS_sheet, min_col=11, min_row=1, max_row=last_row_BHCS)
 DCSR3G= Reference(busy_hourPS_sheet, min_col=12, min_row=1, max_row=last_row_BHPS)
-
+Ucell_Avail= Reference(busy_hourCS_sheet, min_col=12, min_row=1, max_row=last_row_BHCS)
 
 CStraffic_chart = LineChart()
 CStraffic_chart.width = 40
@@ -10337,6 +10381,16 @@ DCSR3G_chart.add_data(DCSR3G, titles_from_data = True)  #
 DCSR3G_chart.set_categories(x_valuesP)
 DCSR3G_chart.legend.position = 'b'
 busy_hourCS_sheet.add_chart(DCSR3G_chart, "A258")
+
+Ucell_Avail_chart = LineChart()
+Ucell_Avail_chart.width = 40
+Ucell_Avail_chart.height = 10
+Ucell_Avail_chart.add_data(Ucell_Avail, titles_from_data = True)  #
+#Ucell_Avail_chart.add_data(Ucell_AvailU2100, titles_from_data = True)
+#Ucell_Avail_chart.add_data(Ucell_AvailU900, titles_from_data = True)
+Ucell_Avail_chart.set_categories(x_valuesP)
+Ucell_Avail_chart.legend.position = 'b'
+busy_hourCS_sheet.add_chart(Ucell_Avail_chart, "A278")
 
 # BHhourly NodeB   hourlyPSN   hourlyPSN_sheet
 x_valuesN = Reference(hourlyPSN_sheet, range_string=(f"NodeB_BH!$A$2:$B${last_row_BHPSN}"))
