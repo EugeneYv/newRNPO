@@ -3,6 +3,7 @@ import xml.etree.ElementTree as ET
 import pandas as pd
 from datetime import datetime
 import winsound
+import gzip
 
 # Директория с XML-файлами
 directory = 'C:/temp/try2/'
@@ -11,7 +12,7 @@ directory = 'C:/temp/try2/'
 namespace = {'ns': 'http://latest/nmc-omc/cmNrm.doc#measCollec'}
 
 # Список measInfoId - FunctionSubSet Name - вставить вручную (найти по counterID в самом xmlе, непонятно как по-другому сделать)
-measInfoId_list = ['1275071435', '1275071427', '1275071424']
+measInfoId_list = ['1275071435', '1275071817',]
 
 # словарь для замены counter ID на названия счётчиков  (работает словарь meas_info_conversion)
 meas_info_conversion1 = {
@@ -11347,6 +11348,16 @@ meas_info_conversion = {
 # Создание пустого словаря для данных
 data = {}
 
+# разархивация файлов *.gz
+for filename in os.listdir(directory):
+    if filename.endswith('.gz'):
+        filepath = os.path.join(directory, filename)
+        output_filepath = os.path.join(directory, filename[:-3])  # Удаление расширения .gz
+
+        with gzip.open(filepath, 'rb') as f_in:
+            with open(output_filepath, 'wb') as f_out:
+                f_out.write(f_in.read())
+
 # Перебор файлов в директории
 for filename in os.listdir(directory):
     if filename.endswith('.xml'):
@@ -11397,7 +11408,7 @@ for filename in os.listdir(directory):
                         data[measInfoId] = [record]
 
 # Создание Excel-файла
-with pd.ExcelWriter('C:/temp/try/output2.xlsx') as writer:
+with pd.ExcelWriter('C:/temp/try2/SDcong.xlsx') as writer:
     # Запись каждого measInfoId на отдельный лист
     for measInfoId, records in data.items():
         # Создание DataFrame из списка записей
@@ -11407,7 +11418,7 @@ with pd.ExcelWriter('C:/temp/try/output2.xlsx') as writer:
         df.to_excel(writer, sheet_name=measInfoId, index=False)
 
 # Вывод сообщения об успешном сохранении
-print('Файл сохранен: output.xlsx')
+
 winsound.Beep(2500, 1000)
 winsound.Beep(3000, 1000)
 print('готово')
