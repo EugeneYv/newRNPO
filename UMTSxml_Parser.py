@@ -5040,7 +5040,7 @@ meas_info_conversion = {
 '''73447357''':	'''VS.UNIUSUBSYS.APP.PRIVATE.Traffic''',
 '''73441990''':	'''VS.UUP.PSULTraffic''',
 '''73441991''':	'''VS.UUP.PSDLTraffic''',
-}  # названия счётчиков типа RR491:TRX availability per BSC
+}  # названия счётчиков типа VS.RAB.AbnormRel.PS.F2P, только радиочасть, без трансмиссии и т.п.
 # Создание пустого словаря для данных
 data = {}
 

@@ -12,7 +12,7 @@ directory = 'C:/temp/try2/'
 namespace = {'ns': 'http://latest/nmc-omc/cmNrm.doc#measCollec'}
 
 # Список measInfoId - FunctionSubSet Name - вставить вручную (найти по counterID в самом xmlе, непонятно как по-другому сделать)
-measInfoId_list = ['1275071435', '1275071817',]
+measInfoId_list = ['1526726659', '1526728433',]
 
 # словарь для замены counter ID на названия счётчиков  (работает словарь meas_info_conversion)
 meas_info_conversion1 = {
@@ -11408,7 +11408,7 @@ for filename in os.listdir(directory):
                         data[measInfoId] = [record]
 
 # Создание Excel-файла
-with pd.ExcelWriter('C:/temp/try2/SDcong.xlsx') as writer:
+with pd.ExcelWriter('C:/temp/try2/outpuGSM.xlsx') as writer:
     # Запись каждого measInfoId на отдельный лист
     for measInfoId, records in data.items():
         # Создание DataFrame из списка записей
