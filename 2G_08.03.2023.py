@@ -3,14 +3,19 @@ import winsound
 import openpyxl
 from openpyxl.chart import (LineChart, Reference)
 import openpyxl.styles
-'''вывод посуточной статистики для GSM. импортный файл - в МАЕ вывести в формате xlsx, потом в экселе переделать в csv'''
+'''
+вывод посуточной статистики для GSM. импортный файл - в Query result вывести в формате xlsx из шаблона GSM_CS 
+(обычное название типа "2G_countersCS(2023-05-24.xlsx"),
+потом в экселе открыть и сохранить (из МАЕ экселевские файлы выходят без некоторой нужной внутренней информации)'''
 
 
-directory = 'C:/w_KRT_rehoming/sts/'
-csv_name = '2G_countersCS(2023-04-29'
-output_comment = '_CRrehouming'  # что добавится в конце к названию файла
+directory = 'C:/temp/try2/'
+csv_name = 'outputGSM_06-07.06.2023'
+output_comment = '_output'  # что добавится в конце к названию файла
 
-sts_df = pd.read_excel(f"{directory}{csv_name}.xlsx", header=7)
+#sts_df = pd.read_excel(f"{directory}{csv_name}.xlsx", header=7)
+sts_df = pd.read_excel(f"{directory}{csv_name}.xlsx", header=0) # !!!!
+
 #sts_df = pd.read_csv(f"{directory}{csv_name}.csv", sep=";", header=7)
 
 sts_df['date'] = sts_df['Start Time'].str.split(' ').str[0]
@@ -1009,7 +1014,7 @@ clusterCR = [
 'LABEL=CR38864, CellIndex=1485, CGI=25034A34897D0',
 ]
 
-sts_df = sts_df[sts_df['GCELL'].isin(clusterCR)]
+#sts_df = sts_df[sts_df['GCELL'].isin(clusterCR)]
 
 # обработка weekly:
 weekly_df = sts_df.groupby(['week'])[list_1]. sum().reset_index()

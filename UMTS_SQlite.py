@@ -4,7 +4,8 @@ import winsound
 import openpyxl
 from openpyxl.chart import (LineChart, Reference)
 import openpyxl.styles
-'''не забыть -  фильтрация для ucell и NodeB!!! не забыть output comment!!!'''
+'''не забыть -  фильтрация для ucell и NodeB!!! не забыть output comment!!!
+код для создания экселевского файла с KPI из статистики из БД stsDB '''
 
 # подключаемся к базе данных
 conn = sqlite3.connect('C:/SQLite/firstDB/stsDB.db')

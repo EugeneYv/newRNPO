@@ -4,28 +4,30 @@ import openpyxl
 from openpyxl.chart import (LineChart, Reference)
 import openpyxl.styles
 ''' 
-вывод посуточной статистики для UMTS. импортный файл - в Query result вывести в формате xlsx из шаблонов UMTS_1, UMTS_2, NodeB_thr 
-(обычное название получаемых файлов типа "3G_counters1(2023-05-19.xlsx", "3G_counters2(2023-05-19.xlsx", "3G_NodeB_thr_all(2023-05-19.xlsx"),
-потом в экселе открыть и сохранить (из МАЕ экселевские файлы выходят без некоторой нужной внутренней информации)
+код для получения KPI из эксель файлов, полученных из xml файлов. 
+в файле отсутствует Ucel Availability
+слишком низкая скорость по HSPA
 '''
 #active_cell_number = 471  # количество активных сот !!!!
 
-directory = 'C:/work/Herson_audit/sts/3G/'
-csv_name1 = '3G_counters1(2023-03-31'
-csv_name2 = '3G_counters2(2023-03-31'
-NodeB_name = '3G_NodeB_thr(2023-03-31'
-output_comment = '_output_list_newcells'  # что добавится в конце к названию файла
+directory = 'C:/temp/try2/'
+csv_name1 = 'outputUMTS_06-07.06.2023'
+NodeB_name = '3G_NodeB_thr_all(2023-05-24'
+output_comment = '_output'  # что добавится в конце к названию файла
 
-sts1_df = pd.read_excel(f"{directory}{csv_name1}.xlsx", header=7, na_values='NIL')
+#sts1_df = pd.read_excel(f"{directory}{csv_name1}.xlsx", header=7, na_values='NIL')
+sts_df = pd.read_excel(f"{directory}{csv_name1}.xlsx", header=0, na_values='NIL') # поменял header=0!!!!!
+
 #sts1_df = pd.read_csv(f"{directory}{csv_name1}.csv", sep=";", header=7, na_values='NIL')
-sts1_df['date'] = sts1_df['Start Time'].str.split(' ').str[0]
-sts1_df['hour'] = sts1_df['Start Time'].str.split(' ').str[1]
-sts1_df['date'] = pd.to_datetime(sts1_df['date'])
-sts1_df['week'] = sts1_df['date'].dt.isocalendar().week
+sts_df['date'] = sts_df['Start Time'].str.split(' ').str[0]
+sts_df['hour'] = sts_df['Start Time'].str.split(' ').str[1]
+sts_df['date'] = pd.to_datetime(sts_df['date'])
+sts_df['week'] = sts_df['date'].dt.isocalendar().week
 
-sts2_df = pd.read_excel(f"{directory}{csv_name2}.xlsx", header=7, na_values='NIL')
-#sts2_df = pd.read_csv(f"{directory}{csv_name2}.csv", sep=";", header=7, na_values='NIL')
-sts_df = pd.merge(sts1_df, sts2_df, how="left")
+#sts2_df = pd.read_excel(f"{directory}{csv_name2}.xlsx", header=7, na_values='NIL')
+# sts2_df = pd.read_excel(f"{directory}{csv_name2}.xlsx", header=0, na_values='NIL')  # поменял header=0!!!!!
+# #sts2_df = pd.read_csv(f"{directory}{csv_name2}.csv", sep=";", header=7, na_values='NIL')
+# sts_df = pd.merge(sts1_df, sts2_df, how="left")
 
 
 
@@ -2950,7 +2952,7 @@ list_newcellsNodeB = [
 'NodeB Function Name=UH1913, Local Cell ID=96, Cell Name=CELLNAME',
 ]  # список недавно запущенных сот после перераспределения BBP плат
 
-sts_df = sts_df[sts_df['BSC6910UCell'].isin(list_newcells)]  # вывод только недавно запущенных сот после перераспределения BBP плат
+#sts_df = sts_df[sts_df['BSC6910UCell'].isin(list_newcells)]  # вывод только недавно запущенных сот после перераспределения BBP плат
 #stsN_df = stsN_df[stsN_df['ULoCell'].isin(list_newcellsNodeB)]  # вывод только недавно запущенных сот после перераспределения BBP плат
 
 active_cell_number = sts_df['BSC6910UCell'].nunique()

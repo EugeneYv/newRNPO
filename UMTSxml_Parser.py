@@ -5,6 +5,12 @@ from datetime import datetime
 import winsound
 import gzip
 
+'''код для парсинга статистических xml файлов, полученных по NBI интерфейсу. В качестве входных данных - список measInfoId_list - это номер
+FunctionSubSet типа "KPI Measurement <per Cell>" и т.п.
+measInfoId_list надо составить самому - найти counterID Нужных счётчиков в BSC_Performance_Counter_Reference_Summary_EN.xlsx, потом в 
+xml файле найти какому measInfoId он соответствует. 
+'''
+
 # Директория с XML-файлами
 directory = 'C:/temp/try2/'
 

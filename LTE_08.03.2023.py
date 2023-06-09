@@ -3,16 +3,22 @@ import winsound
 import openpyxl
 from openpyxl.chart import (LineChart, Reference)
 import openpyxl.styles
-'''вывод посуточной статистики для LTE. импортный файл - в МАЕ вывести в формате xlsx, потом в экселе переделать в csv'''
+'''
+вывод посуточной статистики для LTE. импортный файл - в Query result вывести в формате xlsx из шаблона LTE 
+(обычное название типа "4G_counters_all(2023-05-19.xlsx"),
+потом в экселе открыть и сохранить (из МАЕ экселевские файлы выходят без некоторой нужной внутренней информации)
+'''
 
 active_cell_number = 36  # ввести количество активных сот !!!!  19    398
 
-directory = 'C:/w_tickets/MM-419/' # ввести директорию где лежит файл C:\w_tickets\MM-419
+directory = 'C:/temp/try2/' # ввести директорию где лежит файл C:\w_tickets\MM-419
 #csv_name = 'LTEsts_output'  # ввести имя файла LTEsts_output
-csv_name = '4G_counters(2023-04-17'  # ввести имя файла LTEsts_output
+csv_name = 'outputLTE_06-07.06.2023'  # ввести имя файла LTEsts_output
 output_comment = '_output'  # что добавится в конце к названию файла
 
-sts_df = pd.read_excel(f"{directory}{csv_name}.xlsx", header=7, na_values='NIL')
+sts_df = pd.read_excel(f"{directory}{csv_name}.xlsx", header=0, na_values='NIL') # поменял header=0
+#sts_df = pd.read_excel(f"{directory}{csv_name}.xlsx", header=7, na_values='NIL')
+
 #sts_df = pd.read_csv(f"{directory}{csv_name}.csv", sep=";", header=7, na_values='NIL')
 sts_df['date'] = sts_df['Start Time'].str.split(' ').str[0]
 sts_df['hour'] = sts_df['Start Time'].str.split(' ').str[1]

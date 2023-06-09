@@ -4,7 +4,7 @@ import winsound
 import openpyxl
 from openpyxl.chart import (LineChart, Reference)
 import openpyxl.styles
-'''вывод посуточной статистики для GSM. импортный файл - в МАЕ вывести в формате xlsx, потом в экселе переделать в csv'''
+'''код для создания экселевского файла с KPI из статистики из БД stsDB '''
 
 # подключаемся к базе данных
 conn = sqlite3.connect('C:/SQLite/firstDB/stsDB.db')

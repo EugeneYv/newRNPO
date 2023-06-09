@@ -4,7 +4,7 @@ import winsound
 import openpyxl
 from openpyxl.chart import (LineChart, Reference)
 import openpyxl.styles
-
+'''код для создания экселевского файла с KPI из статистики из БД stsDB '''
 # подключаемся к базе данных
 conn = sqlite3.connect('C:/SQLite/firstDB/stsDB.db')
 # создаем курсор для выполнения запросов

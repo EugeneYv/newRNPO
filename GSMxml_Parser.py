@@ -4,6 +4,11 @@ import pandas as pd
 from datetime import datetime
 import winsound
 import gzip
+'''код для парсинга статистических xml файлов, полученных по NBI интерфейсу. В качестве входных данных - список measInfoId_list - это номер
+FunctionSubSet типа "KPI Measurement <per Cell>" и т.п.
+measInfoId_list надо составить самому - найти counterID Нужных счётчиков в BSC_Performance_Counter_Reference_Summary_EN.xlsx, потом в 
+xml файле найти какому measInfoId он соответствует. 
+'''
 
 # Директория с XML-файлами
 directory = 'C:/temp/try2/'
@@ -12,7 +17,7 @@ directory = 'C:/temp/try2/'
 namespace = {'ns': 'http://latest/nmc-omc/cmNrm.doc#measCollec'}
 
 # Список measInfoId - FunctionSubSet Name - вставить вручную (найти по counterID в самом xmlе, непонятно как по-другому сделать)
-measInfoId_list = ['1526726659', '1526728433',]
+measInfoId_list = ['1275071435', '1275071817']
 
 # словарь для замены counter ID на названия счётчиков  (работает словарь meas_info_conversion)
 meas_info_conversion1 = {
@@ -11371,6 +11376,7 @@ for filename in os.listdir(directory):
         # Получение значения beginTime
         begin_time = root.find('.//ns:measCollec', namespace).get('beginTime')
         begin_time = datetime.fromisoformat(begin_time).strftime('%Y-%m-%d %H:%M:%S')
+        print('begin_time=', begin_time)
 
         # Получение всех элементов measInfo (измерительная задача FunctionSubSet Name,
         # содержащая в себе счётчики, например KPI Measurement <per Cell>)
@@ -11381,6 +11387,7 @@ for filename in os.listdir(directory):
             if measInfoId in measInfoId_list:
                 # Получение значения из элемента measTypes (список счётчиков в этой задаче)
                 measTypes = measInfo.find('ns:measTypes', namespace).text.strip().split()
+                print('measTypes= ', measTypes)
 
                 # Получение всех элементов measValue внутри выбранного measInfo (measValue содержит соту и значения счётчиков )
                 for measValue in measInfo.findall('ns:measValue', namespace):
@@ -11406,9 +11413,12 @@ for filename in os.listdir(directory):
                         data[measInfoId].append(record)
                     else:
                         data[measInfoId] = [record]
+#            else:
+#                print('not in list')
+
 
 # Создание Excel-файла
-with pd.ExcelWriter('C:/temp/try2/outpuGSM.xlsx') as writer:
+with pd.ExcelWriter('C:/temp/try2/outputGSM.xlsx') as writer:
     # Запись каждого measInfoId на отдельный лист
     for measInfoId, records in data.items():
         # Создание DataFrame из списка записей
@@ -11416,6 +11426,7 @@ with pd.ExcelWriter('C:/temp/try2/outpuGSM.xlsx') as writer:
 
         # Запись DataFrame на лист с названием measInfoId
         df.to_excel(writer, sheet_name=measInfoId, index=False)
+
 
 # Вывод сообщения об успешном сохранении
 
